@@ -37,7 +37,7 @@ public class TblCnsltDtl {
     @Comment("컨설턴트지정일")
     private LocalDateTime cnslttDsgnDt;
 
-    @Column(name = "CNSLT_STTS_CD", length = 4, nullable = false, columnDefinition = "DEFAULT '0'")
+    @Column(name = "CNSLT_STTS_CD", length = 4, nullable = false, columnDefinition = "VARCHAR(4) DEFAULT '0'")
     @Comment("컨설팅상태")
     private String cnsltSttsCd;
 

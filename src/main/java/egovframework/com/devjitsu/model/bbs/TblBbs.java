@@ -73,7 +73,7 @@ public class TblBbs {
     @Comment("정렬순서")
     private Integer sortSeq;
 
-    @Column(name = "RMRK_CN", length = 4000)
+    @Column(name = "RMRK_CN", length = 2000)
     @Comment("비고내용")
     private String rmrkCn;
 

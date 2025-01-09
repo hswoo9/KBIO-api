@@ -29,7 +29,7 @@ public class TblCnsltDsctn {
     @Comment("내역구분")
     private String dsctnSe;
 
-    @Column(name = "CN", length = 4000, nullable = false)
+    @Column(name = "CN", columnDefinition = "LONGTEXT", nullable = false)
     @Comment("내용")
     private String cn;
 

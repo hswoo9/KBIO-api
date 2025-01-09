@@ -33,7 +33,7 @@ public class TblCnsltAply {
     @Comment("제목")
     private String ttl;
 
-    @Column(name = "CN", length = 4000, nullable = false)
+    @Column(name = "CN", columnDefinition = "LONGTEXT", nullable = false)
     @Comment("내용")
     private String cn;
 

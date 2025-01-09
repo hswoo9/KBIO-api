@@ -49,11 +49,11 @@ public class TblPst {
     @Comment("게시글제목")
     private String pstTtl;
 
-    @Column(name = "PST_CN", length = 4000)
+    @Column(name = "PST_CN", columnDefinition = "LONGTEXT")
     @Comment("게시글내용")
     private String pstCn;
 
-    @Column(name = "PST_INQ_CNT", length = 10, columnDefinition = "DEFAULT 0")
+    @Column(name = "PST_INQ_CNT", length = 10, columnDefinition = "INT(10) DEFAULT 0")
     @Comment("조회수")
     private int pstInqCnt = 0;
 

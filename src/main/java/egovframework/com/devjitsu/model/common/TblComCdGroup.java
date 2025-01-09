@@ -29,27 +29,27 @@ public class TblComCdGroup {
     @Comment("그룹코드명")
     private String groupCdNm;
 
-    @Column(name = "ETC_MTTR1", length = 4000)
+    @Column(name = "ETC_MTTR1", length = 2000)
     @Comment("기타사항1")
     private String etcMttr1;
 
-    @Column(name = "ETC_MTTR2", length = 4000)
+    @Column(name = "ETC_MTTR2", length = 2000)
     @Comment("기타사항2")
     private String etcMttr2;
 
-    @Column(name = "ETC_MTTR3", length = 4000)
+    @Column(name = "ETC_MTTR3", length = 2000)
     @Comment("기타사항3")
     private String etcMttr3;
 
-    @Column(name = "ETC_MTTR4", length = 4000)
+    @Column(name = "ETC_MTTR4", length = 2000)
     @Comment("기타사항4")
     private String etcMttr4;
 
-    @Column(name = "ETC_MTTR5", length = 4000)
+    @Column(name = "ETC_MTTR5", length = 2000)
     @Comment("기타사항5")
     private String etcMttr5;
 
-    @Column(name = "RMRK_CN", length = 4000)
+    @Column(name = "RMRK_CN", length = 2000)
     @Comment("비고내용")
     private String rmrkCn;
 

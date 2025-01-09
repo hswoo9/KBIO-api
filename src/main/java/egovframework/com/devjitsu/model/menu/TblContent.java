@@ -25,7 +25,7 @@ public class TblContent {
     @Comment("메뉴일련번호")
     private int menuSn;
 
-    @Column(name = "CONTS_CN", length = 4000)
+    @Column(name = "CONTS_CN", columnDefinition = "LONGTEXT")
     @Comment("내용")
     private String contsCn;
 

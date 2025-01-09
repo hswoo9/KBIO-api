@@ -38,7 +38,7 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
  */
 @Configuration
 @PropertySources({
-	@PropertySource("classpath:/application.properties")
+	@PropertySource("classpath:/application-${spring.profiles.active}.properties")
 })
 public class EgovConfigAppMapper {
 	@Autowired
