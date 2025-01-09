@@ -20,7 +20,7 @@ public class IndexController {
 
         System.out.println("params = " + params);
 
-        if(Integer.parseInt(s.get("code").toString()) > 200){
+        if(Integer.parseInt(params.get("code").toString()) > 200){
             return new ResponseEntity<>(s, HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
             return new ResponseEntity<>(s, HttpStatus.OK);
