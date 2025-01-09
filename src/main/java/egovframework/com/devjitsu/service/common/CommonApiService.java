@@ -30,6 +30,11 @@ public class CommonApiService {
      * goe : >=
      * loe : <=
      */
+    /**
+     *  query DSL 조건 추가하는 방법
+     *  BooleanBuilder builder = new BooleanBuilder();
+     *  builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
+     * */
     private final TblComCdRepository tblComCdRepository;
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
