@@ -444,6 +444,9 @@
 						<configuration>
 							<outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
 							<processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+							<options>
+								<querydsl.generatedAnnotationClass>javax.annotation.Generated</querydsl.generatedAnnotationClass>
+							</options>
 						</configuration>
 
 					</execution>
