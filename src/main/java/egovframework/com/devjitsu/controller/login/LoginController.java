@@ -6,6 +6,7 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
+import egovframework.com.devjitsu.service.common.CommonApiService;
 import egovframework.com.devjitsu.service.login.LoginApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
 import egovframework.let.uat.uia.service.EgovLoginService;
@@ -47,6 +48,9 @@ public class LoginController {
 
     @Resource(name = "loginApiService")
     private LoginApiService loginApiService;
+
+    @Resource(name = "commonApiService")
+    private CommonApiService commonApiService;
 
     @Operation(
             summary = "JWT 로그인",
@@ -111,6 +115,28 @@ public class LoginController {
     public ResultVO logoutAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
         ResultVO resultVO = new ResultVO();
         new SecurityContextLogoutHandler().logout(request, response, null);
+        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
+        return resultVO;
+    }
+
+    /**
+     * 로그아웃한다.
+     * @return resultVO
+     * @exception Exception
+     */
+    @Operation(
+            summary = "네이버 정보조회",
+            description = "네이버 사용자 정보 조회",
+            tags = {"LoginController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정보조회 완료"),
+    })
+    @PostMapping(value = "/naver/callback")
+    public ResultVO naverCallback(@RequestBody Map<String, Object> params) {
+        ResultVO resultVO = new ResultVO();
+        commonApiService.callNaverLoginApi(params);
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
         return resultVO;
