@@ -7,6 +7,8 @@ import org.hibernate.annotations.Comment;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "TBL_MENU")
@@ -84,4 +86,7 @@ public class TblMenu {
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
+
+    @Transient
+    private List<TblMenu> childTblMenu = new ArrayList<>();
 }
