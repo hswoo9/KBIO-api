@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import org.springframework.stereotype.Component;
 
 import egovframework.com.cmm.LoginVO;
@@ -57,6 +58,10 @@ public class EgovJwtTokenUtil implements Serializable{
         return doGenerateToken(loginVO, "Authorization");
     }
 
+    public String generateTokenJpa(LettnemplyrinfoVO loginVO) {
+        return doGenerateTokenJpa(loginVO, "Authorization");
+    }
+
 	//while creating the token -
 	//1. Define  claims of the token, like Issuer, Expiration, Subject, and the ID
 	//2. Sign the JWT using the HS512 algorithm and secret key.
@@ -70,6 +75,21 @@ public class EgovJwtTokenUtil implements Serializable{
         claims.put("userSe", loginVO.getUserSe() );
         claims.put("orgnztId", loginVO.getOrgnztId() );
         claims.put("uniqId", loginVO.getUniqId() );
+        claims.put("type", subject);
+
+    	log.debug("===>>> secret = "+SECRET_KEY);
+        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+            .signWith(SignatureAlgorithm.HS512, SECRET_KEY).compact();
+    }
+
+    private String doGenerateTokenJpa(LettnemplyrinfoVO loginVO, String subject) {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", loginVO.getEmplyrId() );
+        claims.put("name", loginVO.getUserNm() );
+        claims.put("userSe", "ADM" );
+        claims.put("orgnztId", loginVO.getOrgnztId() );
         claims.put("type", subject);
 
     	log.debug("===>>> secret = "+SECRET_KEY);
