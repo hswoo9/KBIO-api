@@ -44,19 +44,19 @@ public class SecurityConfig {
 
     // 인증 예외 List
     private String[] AUTH_WHITELIST = {
-    		"/",
-            "/login/**",
-            "/auth/login-jwt",//JWT 로그인
-            "/auth/login",//일반 로그인
-            "/file", //파일 다운로드
-            
-            /* swagger*/
-            "/v3/api-docs/**",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            
+    		"*",
+//            "/login/**",
+//            "/auth/login-jwt",//JWT 로그인
+//            "/auth/login",//일반 로그인
+//            "/file", //파일 다운로드
+//
+//            /* swagger*/
+//            "/v3/api-docs/**",
+//            "/swagger-resources",
+//            "/swagger-resources/**",
+//            "/swagger-ui.html",
+//            "/swagger-ui/**",
+
     };
     private static final String[] ORIGINS_WHITELIST = {
             "http://localhost:3000",
