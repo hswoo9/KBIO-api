@@ -3,7 +3,6 @@ package egovframework.com.devjitsu.controller.index;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
-import egovframework.com.devjitsu.model.bbs.TblBbs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,7 @@ import java.util.Map;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-public class IndexController {
+public class IndexApiController {
 
     @Resource(name = "EgovFileMngUtil")
     private EgovFileMngUtil fileUtil;

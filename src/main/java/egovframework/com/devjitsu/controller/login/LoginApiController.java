@@ -1,16 +1,13 @@
 package egovframework.com.devjitsu.controller.login;
 
 import egovframework.com.cmm.EgovMessageSource;
-import egovframework.com.cmm.LoginVO;
 import egovframework.com.cmm.ResponseCode;
-import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.LoginDto;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import egovframework.com.devjitsu.service.login.LoginApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
-import egovframework.let.uat.uia.service.EgovLoginService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,18 +16,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -38,7 +30,7 @@ import java.util.Map;
 @CrossOrigin("*")
 @RequiredArgsConstructor
 @Tag(name="LoginController",description = "로그인 관련")
-public class LoginController {
+public class LoginApiController {
 
     /** JWT */
     @Autowired

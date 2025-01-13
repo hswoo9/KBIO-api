@@ -1,7 +1,7 @@
-package egovframework.com.devjitsu.controller.menu;
+package egovframework.com.devjitsu.controller.admin;
 
 import egovframework.com.cmm.service.ResultVO;
-import egovframework.com.devjitsu.service.menu.MenuApiService;
+import egovframework.com.devjitsu.service.common.CommonApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,30 +11,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-public class MenuController {
+public class AdminApiController {
 
     @Autowired
-    private MenuApiService menuApiService;
+    private CommonApiService commonApiService;
 
-    @PostMapping("/menu/getMenuTreeList")
-    public ResponseEntity<ResultVO> getMenuTreeList(@RequestBody Map<String, Object> params) {
-        ResultVO s = menuApiService.getMenuTreeList(params);
-        if(s.getResultCode() > 200){
-            return new ResponseEntity<>(s, HttpStatus.INTERNAL_SERVER_ERROR);
-        } else {
-            return new ResponseEntity<>(s, HttpStatus.OK);
-        }
-    }
+    @PostMapping("/common/getComCdGroupList")
+    public ResponseEntity<ResultVO> getComCdGroupList(@RequestBody Map<String, Object> params) {
+        ResultVO s = commonApiService.getComCdGroupList(params);
 
-    @PostMapping("/menu/setMenu")
-    public ResponseEntity<ResultVO> setMenu(@RequestBody Map<String, Object> params) {
-        ResultVO s = menuApiService.setMenu(params);
         if(s.getResultCode() > 200){
             return new ResponseEntity<>(s, HttpStatus.INTERNAL_SERVER_ERROR);
         } else {

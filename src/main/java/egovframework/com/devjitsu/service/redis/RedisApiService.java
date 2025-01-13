@@ -1,18 +1,15 @@
 package egovframework.com.devjitsu.service.redis;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisService {
+public class RedisApiService {
 
     private final GenericApplicationContext context;
 
-    public RedisService(GenericApplicationContext context) {
+    public RedisApiService(GenericApplicationContext context) {
         this.context = context;
     }
 
