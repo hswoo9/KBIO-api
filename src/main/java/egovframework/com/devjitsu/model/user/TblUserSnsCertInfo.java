@@ -17,21 +17,21 @@ public class TblUserSnsCertInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CERT_INFO_SN", length = 22)
-    @Comment("인증정보일련번호")
-    private int certInfoSn;
+    @Column(name = "USER_SNS_CERT_INFO_SN", length = 22)
+    @Comment("사용자SNS인증정보일련번호")
+    private int userSnsCertInfoSn;
 
     @Column(name = "USER_SN", length = 22, nullable = false, updatable = false)
     @Comment("사용자일련번호")
     private int userSn;
 
-    @Column(name = "SNS_SE", length = 20, nullable = false, updatable = false)
-    @Comment("SNS구분")
-    private String cd;
+    @Column(name = "SNS_CLSF", length = 20, nullable = false, updatable = false)
+    @Comment("SNS분류")
+    private String snsClsf;
 
-    @Column(name = "UNQ_NO", length = 100, nullable = false, updatable = false)
-    @Comment("고유번호")
-    private String unqNo;
+    @Column(name = "SNS_UNQ_NO", length = 100, nullable = false, updatable = false)
+    @Comment("SNS고유번호")
+    private String snsUnqNo;
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")

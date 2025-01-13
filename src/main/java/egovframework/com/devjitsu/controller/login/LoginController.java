@@ -6,6 +6,7 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
+import egovframework.com.devjitsu.model.login.LoginDto;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import egovframework.com.devjitsu.service.login.LoginApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
@@ -62,37 +63,40 @@ public class LoginController {
             @ApiResponse(responseCode = "300", description = "로그인 실패")
     })
     @PostMapping(value = "/loginAction")
-    public HashMap<String, Object> loginAction(@RequestBody LoginVO loginVO, HttpServletRequest request, ModelMap model) throws Exception {
-        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+    public ResultVO loginAction(@RequestBody LoginDto loginDto, HttpServletRequest request, ModelMap model) throws Exception {
+        ResultVO result = new ResultVO();
+        LettnemplyrinfoVO loginResultVO = loginApiService.actionLogin(loginDto);
 
-        // 1. 일반 로그인 처리
-        LettnemplyrinfoVO loginResultVO = loginApiService.actionLogin(loginVO);
+//        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+//
+//        // 1. 일반 로그인 처리
+//        LettnemplyrinfoVO loginResultVO = loginApiService.actionLogin(loginVO);
+//
+//        if (loginResultVO != null && loginResultVO.getEmplyrId() != null && !loginResultVO.getEmplyrId().equals("")) {
+//
+//            log.debug("===>>> loginVO.getUserSe() = "+loginVO.getUserSe());
+//            log.debug("===>>> loginVO.getId() = "+loginVO.getId());
+//            log.debug("===>>> loginVO.getPassword() = "+loginVO.getPassword());
+//
+//            String jwtToken = jwtTokenUtil.generateTokenJpa(loginResultVO);
+//
+//            String username = jwtTokenUtil.getUserSeFromToken(jwtToken);
+//            log.debug("Dec jwtToken username = "+username);
+//
+//            request.getSession().setAttribute("LoginVO", loginResultVO);
+//
+//            resultMap.put("resultVO", loginResultVO);
+//            resultMap.put("jToken", jwtToken);
+//            resultMap.put("resultCode", "200");
+//            resultMap.put("resultMessage", "성공 !!!");
+//
+//        } else {
+//            resultMap.put("resultVO", loginResultVO);
+//            resultMap.put("resultCode", "300");
+//            resultMap.put("resultMessage", egovMessageSource.getMessage("fail.common.login"));
+//        }
 
-        if (loginResultVO != null && loginResultVO.getEmplyrId() != null && !loginResultVO.getEmplyrId().equals("")) {
-
-            log.debug("===>>> loginVO.getUserSe() = "+loginVO.getUserSe());
-            log.debug("===>>> loginVO.getId() = "+loginVO.getId());
-            log.debug("===>>> loginVO.getPassword() = "+loginVO.getPassword());
-
-            String jwtToken = jwtTokenUtil.generateTokenJpa(loginResultVO);
-
-            String username = jwtTokenUtil.getUserSeFromToken(jwtToken);
-            log.debug("Dec jwtToken username = "+username);
-
-            request.getSession().setAttribute("LoginVO", loginResultVO);
-
-            resultMap.put("resultVO", loginResultVO);
-            resultMap.put("jToken", jwtToken);
-            resultMap.put("resultCode", "200");
-            resultMap.put("resultMessage", "성공 !!!");
-
-        } else {
-            resultMap.put("resultVO", loginResultVO);
-            resultMap.put("resultCode", "300");
-            resultMap.put("resultMessage", egovMessageSource.getMessage("fail.common.login"));
-        }
-
-        return resultMap;
+        return result;
     }
 
 

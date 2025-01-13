@@ -9,7 +9,10 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
+import egovframework.com.devjitsu.model.login.LoginDto;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
+import egovframework.com.devjitsu.model.user.QTblUserSnsCertInfo;
+import egovframework.com.devjitsu.model.user.TblUserSnsCertInfo;
 import egovframework.com.devjitsu.repository.common.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.common.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -56,22 +59,31 @@ public class LoginApiService {
      *  builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
      * */
 
-    public LettnemplyrinfoVO actionLogin(LoginVO vo) throws Exception {
-        String enpassword = EgovFileScrty.encryptPassword(vo.getPassword(), vo.getId());
-
+    public LettnemplyrinfoVO actionLogin(LoginDto dto) throws Exception {
         QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
         JPAQueryFactory q = new JPAQueryFactory(em);
-
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(qLettnemplyrinfoVO.emplyrId.eq(vo.getId()));
-        builder.and(qLettnemplyrinfoVO.password.eq(enpassword));
+        LettnemplyrinfoVO loginVO = new LettnemplyrinfoVO();
 
-        LettnemplyrinfoVO loginVO = q.selectFrom(qLettnemplyrinfoVO).where(builder).fetchOne();
+        if(dto.getLoginType().equals("base")){
+            builder.and(qLettnemplyrinfoVO.emplyrId.eq(dto.getId()));
+            builder.and(qLettnemplyrinfoVO.password.eq(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId())));
 
-        if (loginVO != null && !loginVO.getEmplyrId().equals("") && !loginVO.getPassword().equals("")) {
-            return loginVO;
-        } else {
-            loginVO = new LettnemplyrinfoVO();
+            loginVO = q.selectFrom(qLettnemplyrinfoVO).where(builder).fetchOne();
+        }else{
+            QTblUserSnsCertInfo qTblUserSnsCertInfo = QTblUserSnsCertInfo.tblUserSnsCertInfo;
+            if(dto.getSnsType().equals("naver")){
+
+            }else if(dto.getSnsType().equals("kakao")){
+
+            }else if(dto.getSnsType().equals("google")){
+                googleLoginAction(dto);
+            }
+
+            /** join 추가해야함 */
+            builder.and(qTblUserSnsCertInfo.snsClsf.eq(dto.getSnsType()));
+            builder.and(qTblUserSnsCertInfo.snsUnqNo.eq(dto.getSnsId()));
+            TblUserSnsCertInfo tblUserSnsCertInfo = q.selectFrom(qTblUserSnsCertInfo).where(builder).fetchFirst();
         }
 
         return loginVO;
@@ -80,12 +92,10 @@ public class LoginApiService {
 
     /**
      * google 로그인 체크
-     * @param params
      * @return
      */
-    public ResponseEntity<ResultVO> googleLoginAction(@RequestBody Map<String, Object> params) {
-        ResultVO s = new ResultVO();
-        String authorizationCode = (String) params.get("code");
+    public LoginDto googleLoginAction(LoginDto dto) {
+        String authorizationCode = dto.getCode();
         String accessToken = getGoogleAccessToken(authorizationCode);
 
         if (accessToken != null) {
@@ -93,19 +103,16 @@ public class LoginApiService {
             if (userInfo != null) {
                 Gson gson = new Gson();
                 Map<String, Object> googleUserInfo = gson.fromJson(userInfo.toString(), new TypeToken<Map<String, Object>>() {}.getType());
-                s.putResult("accessCode", accessToken);
-                s.putResult("userInfo", googleUserInfo);
-
-                s.setResultCode(ResponseCode.SUCCESS.getCode());
+                dto.setSnsId((String) googleUserInfo.get("sub"));
+                dto.setStatusCode(ResponseCode.SUCCESS.getCode());
             }else{
-                s.setResultCode(ResponseCode.AUTH_ERROR.getCode());
+                dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
             }
-
-            return new ResponseEntity<>(s, HttpStatus.OK);
         }else{
-            s.setResultCode(ResponseCode.AUTH_ERROR.getCode());
-            return new ResponseEntity<>(s, HttpStatus.INTERNAL_SERVER_ERROR);
+            dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
         }
+
+        return dto;
     }
 
     private String getGoogleAccessToken(String authorizationCode) {
