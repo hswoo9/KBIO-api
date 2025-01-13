@@ -363,6 +363,33 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>com.google.analytics</groupId>
+			<artifactId>google-analytics-data</artifactId>
+			<version>0.62.0</version>
+		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>com.google.truth</groupId>-->
+<!--			<artifactId>truth</artifactId>-->
+<!--			<version>1.4.4</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
+
+		<dependency>
+			<groupId>com.google.auth</groupId>
+			<artifactId>google-auth-library-oauth2-http</artifactId>
+			<version>1.14.0</version> <!-- 버전은 프로젝트에 맞게 조정 -->
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>33.3.0-jre</version> <!-- 또는 최신 버전으로 교체 -->
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
