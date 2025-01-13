@@ -44,7 +44,8 @@ public class SecurityConfig {
 
     // 인증 예외 List
     private String[] AUTH_WHITELIST = {
-    		"*",
+    		"/**",
+            "/**/**",
 //            "/login/**",
 //            "/auth/login-jwt",//JWT 로그인
 //            "/auth/login",//일반 로그인
