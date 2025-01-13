@@ -56,42 +56,8 @@ public class LoginApiController {
     })
     @PostMapping(value = "/loginAction")
     public ResultVO loginAction(@RequestBody LoginDto loginDto, HttpServletRequest request, ModelMap model) throws Exception {
-        ResultVO result = new ResultVO();
-        LettnemplyrinfoVO loginResultVO = loginApiService.actionLogin(loginDto);
-
-//        HashMap<String, Object> resultMap = new HashMap<String, Object>();
-//
-//        // 1. 일반 로그인 처리
-//        LettnemplyrinfoVO loginResultVO = loginApiService.actionLogin(loginVO);
-//
-//        if (loginResultVO != null && loginResultVO.getEmplyrId() != null && !loginResultVO.getEmplyrId().equals("")) {
-//
-//            log.debug("===>>> loginVO.getUserSe() = "+loginVO.getUserSe());
-//            log.debug("===>>> loginVO.getId() = "+loginVO.getId());
-//            log.debug("===>>> loginVO.getPassword() = "+loginVO.getPassword());
-//
-//            String jwtToken = jwtTokenUtil.generateTokenJpa(loginResultVO);
-//
-//            String username = jwtTokenUtil.getUserSeFromToken(jwtToken);
-//            log.debug("Dec jwtToken username = "+username);
-//
-//            request.getSession().setAttribute("LoginVO", loginResultVO);
-//
-//            resultMap.put("resultVO", loginResultVO);
-//            resultMap.put("jToken", jwtToken);
-//            resultMap.put("resultCode", "200");
-//            resultMap.put("resultMessage", "성공 !!!");
-//
-//        } else {
-//            resultMap.put("resultVO", loginResultVO);
-//            resultMap.put("resultCode", "300");
-//            resultMap.put("resultMessage", egovMessageSource.getMessage("fail.common.login"));
-//        }
-
-        return result;
+        return loginApiService.actionLogin(loginDto);
     }
-
-
 
     /**
      * 로그아웃한다.
@@ -116,42 +82,4 @@ public class LoginApiController {
         return resultVO;
     }
 
-    /**
-     * 로그아웃한다.
-     * @return resultVO
-     * @exception Exception
-     */
-    @Operation(
-            summary = "네이버 정보조회",
-            description = "네이버 사용자 정보 조회",
-            tags = {"LoginController"}
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정보조회 완료"),
-    })
-    @PostMapping(value = "/naver/callback")
-    public ResultVO naverCallback(@RequestBody Map<String, Object> params) {
-        ResultVO resultVO = new ResultVO();
-        commonApiService.callNaverLoginApi(params);
-        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
-        return resultVO;
-    }
-
-    @Operation(
-            summary = "카카오 정보조회",
-            description = "카카오 사용자 정보 조회",
-            tags = {"LoginController"}
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정보조회 완료"),
-    })
-    @PostMapping(value = "/kakao/callback")
-    public ResultVO kakaoCallback(@RequestBody Map<String, Object> params) {
-        ResultVO resultVO = new ResultVO();
-        commonApiService.callKakaoLoginApi(params);
-        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
-        return resultVO;
-    }
 }

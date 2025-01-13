@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 public class LettnemplyrinfoVO {
 
     @Id
+    @Column(name = "USER_SN", length = 22)
+    private int userSn;
+
     @Column(name = "EMPLYR_ID", length = 20)
     private String emplyrId;
 

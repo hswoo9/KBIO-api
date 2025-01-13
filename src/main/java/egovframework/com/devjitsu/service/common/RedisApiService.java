@@ -1,8 +1,10 @@
-package egovframework.com.devjitsu.service.redis;
+package egovframework.com.devjitsu.service.common;
 
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class RedisApiService {
@@ -13,9 +15,13 @@ public class RedisApiService {
         this.context = context;
     }
 
-    public void saveRedis(int templateIndex, String key, Object value) {
+    public void setRedis(int templateIndex, String key, Object value, Integer expireTime) {
         RedisTemplate<String, Object> redisTemplate = getRedisTemplate(templateIndex);
-        redisTemplate.opsForValue().set(key, value);
+        if(expireTime == null){
+            redisTemplate.opsForValue().set(key, value);
+        }else{
+            redisTemplate.opsForValue().set(key, value, expireTime, TimeUnit.SECONDS);
+        }
     }
 
     public Object getRedis(int templateIndex, String key) {

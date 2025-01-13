@@ -1,6 +1,9 @@
 package egovframework.com.devjitsu.service.login;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -17,17 +20,25 @@ import egovframework.com.devjitsu.repository.common.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.common.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
+import egovframework.com.devjitsu.service.common.RedisApiService;
+import egovframework.com.jwt.EgovJwtTokenUtil;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.EntityManager;
+import java.io.IOException;
 import java.util.Map;
 
 @Service
@@ -44,6 +55,30 @@ public class LoginApiService {
     @Value("${Globals.google.redirectUri}")
     private String googleRedirectUri;
 
+    @Value("${Globals.naver.clientId}")
+    private String naverClintId;
+
+    @Value("${Globals.naver.tokenUrl}")
+    private String naverTokenUrl;
+
+    @Value("${Globals.naver.infoUrl}")
+    private String naverInfoUrl;
+
+    @Value("${Globals.kakao.clientId}")
+    private String kakaoClintId;
+
+    @Value("${Globals.kakao.tokenUrl}")
+    private String kakaoTokenUrl;
+
+    @Value("${Globals.kakao.infoUrl}")
+    private String kakaoInfoUrl;
+
+    @Autowired
+    private EgovJwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private RedisApiService redisApiService;
+
     private final EntityManager em;
     private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
     /**
@@ -59,23 +94,23 @@ public class LoginApiService {
      *  builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
      * */
 
-    public LettnemplyrinfoVO actionLogin(LoginDto dto) throws Exception {
+    public ResultVO actionLogin(LoginDto dto) throws Exception {
+        ResultVO resultVO = new ResultVO();
+
         QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+        LettnemplyrinfoVO lettnemplyrinfoVO;
+
         JPAQueryFactory q = new JPAQueryFactory(em);
         BooleanBuilder builder = new BooleanBuilder();
-        LettnemplyrinfoVO loginVO = new LettnemplyrinfoVO();
 
         if(dto.getLoginType().equals("base")){
-            builder.and(qLettnemplyrinfoVO.emplyrId.eq(dto.getId()));
-            builder.and(qLettnemplyrinfoVO.password.eq(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId())));
-
-            loginVO = q.selectFrom(qLettnemplyrinfoVO).where(builder).fetchOne();
+            lettnemplyrinfoVO = q.selectFrom(qLettnemplyrinfoVO).where(qLettnemplyrinfoVO.emplyrId.eq(dto.getId())).fetchOne();
         }else{
             QTblUserSnsCertInfo qTblUserSnsCertInfo = QTblUserSnsCertInfo.tblUserSnsCertInfo;
             if(dto.getSnsType().equals("naver")){
-
+                naverLoginAction(dto);
             }else if(dto.getSnsType().equals("kakao")){
-
+                kakaoLoginAction(dto);
             }else if(dto.getSnsType().equals("google")){
                 googleLoginAction(dto);
             }
@@ -83,18 +118,46 @@ public class LoginApiService {
             /** join 추가해야함 */
             builder.and(qTblUserSnsCertInfo.snsClsf.eq(dto.getSnsType()));
             builder.and(qTblUserSnsCertInfo.snsUnqNo.eq(dto.getSnsId()));
-            TblUserSnsCertInfo tblUserSnsCertInfo = q.selectFrom(qTblUserSnsCertInfo).where(builder).fetchFirst();
+            lettnemplyrinfoVO = q.select(qLettnemplyrinfoVO).from(qTblUserSnsCertInfo).join(qLettnemplyrinfoVO).on(qTblUserSnsCertInfo.userSn.eq(qLettnemplyrinfoVO.userSn)).where(builder).fetchFirst();
         }
 
-        return loginVO;
+        if(lettnemplyrinfoVO == null){
+            if(dto.getLoginType().equals("base")){
+                resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
+                resultVO.setResultMessage(ResponseCode.NOT_USER.getMessage());
+            }else{
+                resultVO.setResultCode(ResponseCode.NOT_JOIN_USER.getCode());
+                resultVO.setResultMessage(ResponseCode.NOT_JOIN_USER.getMessage());
+            }
+            return resultVO;
+        }else {
+            if(dto.getLoginType().equals("base")){
+                if(!lettnemplyrinfoVO.getPassword().equals(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId()))){
+                    resultVO.setResultCode(ResponseCode.NOT_EQ_PASSWORD.getCode());
+                    resultVO.setResultMessage(ResponseCode.NOT_EQ_PASSWORD.getMessage());
+                    return resultVO;
+                }
+            }
+
+            String jToken = jwtTokenUtil.generateTokenJpa(lettnemplyrinfoVO);
+            resultVO.putResult("userId", lettnemplyrinfoVO.getEmplyrId());
+            resultVO.putResult("userName", lettnemplyrinfoVO.getUserNm());
+            resultVO.putResult("userSe", lettnemplyrinfoVO.getUserSn() == 1 ? "ADM" : "UDR");
+            resultVO.putResult("jToken", jToken);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
+            redisApiService.setRedis(0, jToken, lettnemplyrinfoVO, null);
+        }
+
+        return resultVO;
     }
 
 
     /**
-     * google 로그인 체크
+     * google 로그인    시작
      * @return
      */
-    public LoginDto googleLoginAction(LoginDto dto) {
+    public void googleLoginAction(LoginDto dto) {
         String authorizationCode = dto.getCode();
         String accessToken = getGoogleAccessToken(authorizationCode);
 
@@ -111,8 +174,6 @@ public class LoginApiService {
         }else{
             dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
         }
-
-        return dto;
     }
 
     private String getGoogleAccessToken(String authorizationCode) {
@@ -174,5 +235,144 @@ public class LoginApiService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * google 로그인 종료
+     * @return
+     */
+
+
+    /**
+     * naver 로그인 시작
+     * @return
+     */
+    public void naverLoginAction(LoginDto dto){
+        HttpHeaders headers = new HttpHeaders();
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "authorization_code");
+        map.add("client_id", naverClintId);
+        map.add("client_secret", "7yAhvzbtMb");
+        map.add("code", dto.getCode());
+        map.add("state", dto.getState());
+
+        try {
+            HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(map, headers);
+            // reqUrl로 Http 요청, POST 방식
+            ResponseEntity<String> response = restTemplate.exchange(naverTokenUrl,
+                    HttpMethod.POST,
+                    naverTokenRequest,
+                    String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                String responseBody = response.getBody();
+                Gson gson = new Gson();
+                Map<String, String> getUserInfo = gson.fromJson(responseBody, new TypeToken<Map<String, String>>() {}.getType());
+                headers.setBearerAuth(getUserInfo.get("access_token"));
+                naverTokenRequest = new HttpEntity<>(null, headers);
+                ResponseEntity<String> infoResponse = restTemplate.exchange(naverInfoUrl,
+                        HttpMethod.POST,
+                        naverTokenRequest,
+                        String.class);
+                if (infoResponse.getStatusCode() == HttpStatus.OK && infoResponse.getBody() != null) {
+                    String infoResponseBody = infoResponse.getBody();
+                    Map<String, Object> naverUserInfo = gson.fromJson(infoResponseBody, new TypeToken<Map<String, Object>>() {}.getType());
+                    if(naverUserInfo != null){
+                        Map<String, Object> resultMap = (Map<String, Object>) naverUserInfo.get("response");
+                        dto.setSnsId((String) resultMap.get("id"));
+                        dto.setStatusCode(ResponseCode.SUCCESS.getCode());
+                    }else{
+                        dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
+                    }
+                }else{
+                    dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
+                }
+            }else {
+                dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * naver 로그인 종료
+     * @return
+     */
+
+    /**
+     * kakao 로그인 시작
+     * @return
+     */
+    public void kakaoLoginAction(LoginDto dto){
+        HttpHeaders headers = new HttpHeaders();
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "authorization_code");
+        map.add("client_id", kakaoClintId);
+        map.add("code", dto.getCode());
+
+        try {
+            HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(map, headers);
+            // reqUrl로 Http 요청, POST 방식
+            ResponseEntity<String> response = restTemplate.exchange(kakaoTokenUrl,
+                    HttpMethod.POST,
+                    kakaoTokenRequest,
+                    String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                String responseBody = response.getBody();
+                Gson gson = new Gson();
+                Map<String, String> getUserInfo = gson.fromJson(responseBody, new TypeToken<Map<String, String>>() {}.getType());
+                headers.setBearerAuth(getUserInfo.get("access_token"));
+                kakaoTokenRequest = new HttpEntity<>(null, headers);
+                ResponseEntity<String> infoResponse = restTemplate.exchange(kakaoInfoUrl,
+                        HttpMethod.POST,
+                        kakaoTokenRequest,
+                        String.class);
+                if (infoResponse.getStatusCode() == HttpStatus.OK && infoResponse.getBody() != null) {
+                    String infoResponseBody = infoResponse.getBody();
+
+                    JSONParser jsonParser = new JSONParser();
+                    Object obj = jsonParser.parse(infoResponseBody);
+                    JSONObject jsonObj = (JSONObject) obj;
+
+                    Map<String, Object> resultInfo = getMapFromJsonObject(jsonObj);
+                    if(resultInfo != null){
+                        dto.setSnsId(resultInfo.get("id").toString());
+                        dto.setStatusCode(ResponseCode.SUCCESS.getCode());
+                    }else{
+                        dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
+                    }
+                }else{
+                    dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
+                }
+            }else{
+                dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * kakao 로그인 종료
+     */
+
+    public static Map<String, Object> getMapFromJsonObject(JSONObject jsonObj){
+        Map<String, Object> map = null;
+
+        try {
+            map = new ObjectMapper().readValue(jsonObj.toString(), Map.class);
+        } catch (JsonParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return map;
     }
 }
