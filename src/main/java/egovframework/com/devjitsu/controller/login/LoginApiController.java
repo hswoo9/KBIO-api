@@ -137,4 +137,21 @@ public class LoginApiController {
         resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
         return resultVO;
     }
+
+    @Operation(
+            summary = "카카오 정보조회",
+            description = "카카오 사용자 정보 조회",
+            tags = {"LoginController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정보조회 완료"),
+    })
+    @PostMapping(value = "/kakao/callback")
+    public ResultVO kakaoCallback(@RequestBody Map<String, Object> params) {
+        ResultVO resultVO = new ResultVO();
+        commonApiService.callKakaoLoginApi(params);
+        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
+        return resultVO;
+    }
 }
