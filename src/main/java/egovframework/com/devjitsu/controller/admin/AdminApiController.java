@@ -18,17 +18,4 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AdminApiController {
 
-    @Autowired
-    private CommonApiService commonApiService;
-
-    @PostMapping("/common/getComCdGroupList")
-    public ResponseEntity<ResultVO> getComCdGroupList(@RequestBody Map<String, Object> params) {
-        ResultVO s = commonApiService.getComCdGroupList(params);
-
-        if(s.getResultCode() > 200){
-            return new ResponseEntity<>(s, HttpStatus.INTERNAL_SERVER_ERROR);
-        } else {
-            return new ResponseEntity<>(s, HttpStatus.OK);
-        }
-    }
 }

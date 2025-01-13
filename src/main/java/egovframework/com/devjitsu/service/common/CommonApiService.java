@@ -1,5 +1,9 @@
 package egovframework.com.devjitsu.service.common;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.mysql.cj.xdevapi.JsonParser;
 import com.querydsl.core.BooleanBuilder;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
@@ -13,6 +17,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -72,33 +78,46 @@ public class CommonApiService {
     }
 
     public ResultVO callNaverLoginApi(Map<String, Object> params){
+        ResultVO resultVO = new ResultVO();
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(NAVER_TOKEN_URL)
-                .queryParam("code", params.get("code"))
-                .queryParam("state", params.get("state"))
-                .queryParam("client_id", NAVER_API_KEY)
-                .queryParam("client_secret", "7yAhvzbtMb")
-                .queryParam("grant_type", "authorization_code");
-
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<?> request = new HttpEntity<>(headers);
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "authorization_code");
+        map.add("client_id", NAVER_API_KEY);
+        map.add("client_secret", "7yAhvzbtMb");
+        map.add("code", params.get("code") == null ? "" : params.get("code").toString());
+        map.add("state", params.get("state") == null ? "" : params.get("state").toString());
 
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(
-                    builder.toUriString(),
+            HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(map, headers);
+            // reqUrl로 Http 요청, POST 방식
+            ResponseEntity<String> response = restTemplate.exchange(NAVER_TOKEN_URL,
                     HttpMethod.POST,
-                    request,
-                    Map.class
-            );
+                    naverTokenRequest,
+                    String.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                headers.setBearerAuth("aa");
+                String responseBody = response.getBody();
+                Gson gson = new Gson();
+                Map<String, String> getUserInfo = gson.fromJson(responseBody, new TypeToken<Map<String, String>>() {}.getType());
+                headers.setBearerAuth(getUserInfo.get("access_token"));
+                naverTokenRequest = new HttpEntity<>(null, headers);
+                ResponseEntity<String> infoResponse = restTemplate.exchange(NAVER_INFO_URL,
+                        HttpMethod.POST,
+                        naverTokenRequest,
+                        String.class);
+                if (infoResponse.getStatusCode() == HttpStatus.OK && infoResponse.getBody() != null) {
+                    String infoResponseBody = infoResponse.getBody();
+                    Map<String, Object> naverUserInfo = gson.fromJson(infoResponseBody, new TypeToken<Map<String, Object>>() {}.getType());
+                    if(naverUserInfo != null){
+                        Map<String, Object> resultMap = (Map<String, Object>) naverUserInfo.get("response");
+                        resultVO.putResult("info", resultMap);
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return resultVO;
     }
 }
