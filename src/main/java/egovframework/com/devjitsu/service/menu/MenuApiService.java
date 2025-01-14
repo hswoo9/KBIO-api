@@ -119,7 +119,7 @@ public class MenuApiService {
             for(TblMenu menu : menus){
                 String menuFullPath = q
                         .select(qTblMenu2.menuWholPath.concat(
-                            Expressions.stringTemplate("RIGHT(CONCAT('000', {0}), 4)", qTblMenu1.menuSortSeq.add(1)).concat("|")
+                            Expressions.stringTemplate("SUBSTRING(CONCAT('000', {0}), LENGTH(CONCAT('000', {0})) - 3, 4)", qTblMenu1.menuSortSeq.add(1)).concat("|")
                         ))
                         .from(qTblMenu1)
                         .join(qTblMenu2)
@@ -140,7 +140,7 @@ public class MenuApiService {
             tblMenu.setMenuWholPath(
                 q.select(
                     qTblMenu.menuWholPath.concat(
-                        Expressions.stringTemplate("RIGHT(CONCAT('000', {0}), 4)", tblMenu.getMenuSortSeq()).concat("|")
+                        Expressions.stringTemplate("SUBSTRING(CONCAT('000', {0}), LENGTH(CONCAT('000', {0})) - 3, 4)", tblMenu.getMenuSortSeq()).concat("|")
                 ))
                 .from(qTblMenu)
                 .where(qTblMenu.menuSn.eq(tblMenu.getUpperMenuSn()))
