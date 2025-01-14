@@ -37,7 +37,7 @@ public class TblMenu {
 
     @Column(name = "MENU_SORT_SEQ", length = 10, nullable = false)
     @Comment("메뉴정렬")
-    private int menuSortseq;
+    private int menuSortSeq;
 
     @Column(name = "MENU_SEQ", length = 10, nullable = false)
     @Comment("뎁스")
