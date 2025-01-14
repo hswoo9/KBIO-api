@@ -21,7 +21,7 @@ public class MenuApiController {
     @Autowired
     private MenuApiService menuApiService;
 
-    @PostMapping("/menu/getMenuTreeList")
+    @PostMapping("/menuApi/getMenuTreeList")
     public ResponseEntity<ResultVO> getMenuTreeList(@RequestBody Map<String, Object> params) {
         ResultVO s = menuApiService.getMenuTreeList(params);
         if(s.getResultCode() > 200){
@@ -31,7 +31,7 @@ public class MenuApiController {
         }
     }
 
-    @PostMapping("/menu/setMenu")
+    @PostMapping("/menuApi/setMenu")
     public ResponseEntity<ResultVO> setMenu(@RequestBody Map<String, Object> params) {
         ResultVO s = menuApiService.setMenu(params);
         if(s.getResultCode() > 200){

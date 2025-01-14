@@ -16,7 +16,7 @@ public class StatisticsAdminApiController {
     @Autowired
     private StatisticsAdminApiService statisticsAdminApiService;
 
-    @PostMapping("/admin/statistics/getStatistics.do")
+    @PostMapping("/admin/statisticsApi/getStatistics.do")
     public ResultVO consultStatistics(HttpServletRequest request) throws Exception {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
 

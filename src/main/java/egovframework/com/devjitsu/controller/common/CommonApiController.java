@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-public class CommonController {
+public class CommonApiController {
 
     @Autowired
     private CommonApiService commonApiService;
@@ -26,7 +26,7 @@ public class CommonController {
      * @param params
      * @return
      */
-    @PostMapping("/common/getComCdGroupList")
+    @PostMapping("/commonApi/getComCdGroupList")
     public ResultVO getComCdGroupList(@RequestBody Map<String, Object> params) {
         return commonApiService.getComCdGroupList(params);
     }
@@ -36,7 +36,7 @@ public class CommonController {
      * @param request
      * @return
      */
-    @PostMapping("/common/getRedisUserInfo")
+    @PostMapping("/commonApi/getRedisUserInfo")
     public ResultVO getRedisUserInfo(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return commonApiService.getRedisUserInfo(dto);

@@ -50,7 +50,7 @@ public class LoginApiController {
             @ApiResponse(responseCode = "200", description = "로그인 성공"),
             @ApiResponse(responseCode = "300", description = "로그인 실패")
     })
-    @PostMapping(value = "/loginAction")
+    @PostMapping(value = "/loginApi/loginAction")
     public ResultVO loginAction(@RequestBody LoginDto loginDto, HttpServletRequest request, ModelMap model) throws Exception {
         return loginApiService.actionLogin(loginDto);
     }
@@ -69,7 +69,7 @@ public class LoginApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
     })
-    @PostMapping(value = "/logoutAction")
+    @PostMapping(value = "/loginApi/logoutAction")
     public ResultVO logoutAction(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO, HttpServletRequest request, HttpServletResponse response) throws Exception {
         return loginApiService.actionLogout(lettnemplyrinfoVO, request, response);
     }
