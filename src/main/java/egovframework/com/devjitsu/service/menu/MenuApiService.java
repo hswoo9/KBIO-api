@@ -105,8 +105,6 @@ public class MenuApiService {
             QTblMenu qTblMenu1 = new QTblMenu("qTblMenu1");
             QTblMenu qTblMenu2 = new QTblMenu("qTblMenu2");
             JPAQueryFactory q = new JPAQueryFactory(em);
-            BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblMenu.actvtnYn.eq(tblMenu.getActvtnYn()));
 
             List<TblMenu> menus = q
                     .selectFrom(qTblMenu)
@@ -151,13 +149,14 @@ public class MenuApiService {
             q.update(qTblMenu)
                 .set(qTblMenu.lwrMenuEn, "Y")
                 .where(
-                        qTblMenu.menuSn.eq(tblMenu.getUpperMenuSn())
+                    qTblMenu.menuSn.eq(tblMenu.getUpperMenuSn())
                 )
                 .execute();
 
             tblMenuRepository.setMenuPathAllUpd();
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
+            e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -170,7 +169,7 @@ public class MenuApiService {
         try {
             String[] menuSns = dto.get("menuSns").toString().split(",");
             for(String menuSn : menuSns){
-                deleteMenuRecursively(tblMenuRepository.findByMenuSn(Integer.parseInt(menuSn)));
+                deleteMenuRecursively(tblMenuRepository.findByMenuSn(Long.parseLong(menuSn)));
             }
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){

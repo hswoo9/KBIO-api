@@ -19,19 +19,19 @@ public class TblAuthrtGroupMenu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "AUTHRT_GROUP_MENU_SN", length = 22)
     @Comment("권한그룹별메뉴일련번호")
-    private int comCdSn;
+    private long authrtGroupMenuSn;
 
     @Column(name = "AUTHRT_GROUP_SN", length = 22)
     @Comment("권한그룹일련번호")
-    private int authrtGroupSn;
+    private long authrtGroupSn;
 
     @Column(name = "MENU_SN", length = 22)
     @Comment("메뉴일련번호")
-    private int menuSn;
+    private long menuSn;
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")

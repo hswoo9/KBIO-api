@@ -21,11 +21,11 @@ public class TblMenu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MENU_SN", length = 22)
     @Comment("메뉴일련번호")
-    private int menuSn;
+    private long menuSn;
 
     @Column(name = "UPPER_MENU_SN", length = 22, nullable = false)
     @Comment("상위메뉴일련번호")
-    private int upperMenuSn;
+    private long upperMenuSn = 0;
 
     @Column(name = "MENU_NM", length = 200, nullable = false)
     @Comment("메뉴명")
@@ -37,11 +37,11 @@ public class TblMenu {
 
     @Column(name = "MENU_SORT_SEQ", length = 10, nullable = false)
     @Comment("메뉴정렬")
-    private int menuSortSeq;
+    private long menuSortSeq;
 
     @Column(name = "MENU_SEQ", length = 10, nullable = false)
     @Comment("뎁스")
-    private int menuSeq;
+    private long menuSeq = 0;
 
     @Column(name = "MENU_PATH_NM", length = 300, nullable = false)
     @Comment("메뉴경로")
@@ -51,9 +51,9 @@ public class TblMenu {
     @Comment("언어")
     private String ltr;
 
-    @Column(name = "LWR_MENU_EN", columnDefinition = "CHAR(1)")
+    @Column(name = "LWR_MENU_EN", columnDefinition = "CHAR(1) DEFAULT 'N'")
     @Comment("하위메뉴여부")
-    private String lwrMenuEn;
+    private String lwrMenuEn = "N";
 
     @Column(name = "MENU_NM_PATH", length = 300)
     @Comment("메뉴이름경로")
@@ -69,11 +69,11 @@ public class TblMenu {
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
-    private String actvtnYn;
+    private String actvtnYn = "Y";
 
-    @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
+    @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable = false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")

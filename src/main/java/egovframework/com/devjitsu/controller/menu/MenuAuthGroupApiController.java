@@ -1,17 +1,21 @@
 package egovframework.com.devjitsu.controller.menu;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroup;
 import egovframework.com.devjitsu.service.menu.MenuAuthGroupApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -46,6 +50,29 @@ public class MenuAuthGroupApiController {
     @PostMapping("/menuApi/getMenuAuthGroup")
     public ResultVO getMenuAuthGroup(@RequestBody TblMenuAuthrtGroup tblMenuAuthrtGroup) {
         return menuAuthGroupApiService.getMenuAuthGroup(tblMenuAuthrtGroup);
+    }
+
+    /**
+     * 메뉴 권한 그룹 저장
+     * @param
+     * {
+     *     authrtGroupSn    : 권한 그룹 키(수정시 필수)
+     *     authrtGroupNm  : 권한 그룹 이름 (필수)
+     *     authrtType       : 권한 구분 (필수)
+     *     inqAuthrt        : 읽기권한
+     *     wrtAuthrt        : 작성권한
+     *     mdfcnAuthrt      : 수정권한
+     *     delAuthrt        : 삭제권한
+     *     creatrSn          : 작성자 키(등록시 필수)
+     *     mdfrSn          : 수정자 키(수정시 필수)
+     *     actvtnYn         : 사용 유무
+     *     allowAccessMenu : JsonStringList [menuId(필수)]
+     * }
+     * @return
+     */
+    @PostMapping("/menuApi/setMenuAuthGroup")
+    public ResultVO setMenuAuthGroup(@RequestBody TblMenuAuthrtGroup tblMenuAuthrtGroup) {
+        return menuAuthGroupApiService.setMenuAuthGroup(tblMenuAuthrtGroup);
     }
 
 }
