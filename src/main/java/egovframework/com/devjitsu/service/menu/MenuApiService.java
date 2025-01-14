@@ -89,7 +89,7 @@ public class MenuApiService {
     public ResultVO getMenu(TblMenu tblMenu) {
         ResultVO resultVO = new ResultVO();
         try {
-            resultVO.putResult("menu", tblMenuRepository.findById(String.valueOf(tblMenu.getMenuSn())));
+            resultVO.putResult("menu", tblMenuRepository.findByMenuSn(tblMenu.getMenuSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
