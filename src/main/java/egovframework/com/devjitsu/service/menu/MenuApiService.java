@@ -119,14 +119,14 @@ public class MenuApiService {
                     .selectFrom(qTblMenu)
                     .where(
                         qTblMenu.upperMenuSn.eq(tblMenu.getUpperMenuSn())
-                            .and(qTblMenu.menuSortseq.goe(tblMenu.getMenuSortseq()))
+                            .and(qTblMenu.menuSortSeq.goe(tblMenu.getMenuSortSeq()))
                     )
                     .fetch();
 
             for(TblMenu menu : menus){
                 String menuFullPath = q
                         .select(qTblMenu2.menuWholPath.concat(
-                            Expressions.stringTemplate("RIGHT(CONCAT('000', {0}), 4)", qTblMenu1.menuSortseq.add(1)).concat("|")
+                            Expressions.stringTemplate("RIGHT(CONCAT('000', {0}), 4)", qTblMenu1.menuSortSeq.add(1)).concat("|")
                         ))
                         .from(qTblMenu1)
                         .join(qTblMenu2)
@@ -135,7 +135,7 @@ public class MenuApiService {
                         .fetchFirst();
 
                 q.update(qTblMenu)
-                    .set(qTblMenu.menuSortseq, qTblMenu.menuSortseq.add(1))
+                    .set(qTblMenu.menuSortSeq, qTblMenu.menuSortSeq.add(1))
                     .set(qTblMenu.menuWholPath, menuFullPath)
                     .where(
                             qTblMenu.menuSn.eq(menu.getMenuSn())
@@ -147,7 +147,7 @@ public class MenuApiService {
             tblMenu.setMenuWholPath(
                 q.select(
                     qTblMenu.menuWholPath.concat(
-                        Expressions.stringTemplate("RIGHT(CONCAT('000', {0}), 4)", tblMenu.getMenuSortseq()).concat("|")
+                        Expressions.stringTemplate("RIGHT(CONCAT('000', {0}), 4)", tblMenu.getMenuSortSeq()).concat("|")
                 ))
                 .from(qTblMenu)
                 .where(qTblMenu.menuSn.eq(tblMenu.getUpperMenuSn()))
