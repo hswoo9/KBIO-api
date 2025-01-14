@@ -19,7 +19,7 @@ public class TblMenuAuthrtGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "AUTHRT_GROUP_SN", length = 22)
     @Comment("권한그룹일련번호")
-    private int comCdSn;
+    private int authrtGroupSn;
 
     @Column(name = "AUTHRT_GROUP_NM", length = 200)
     @Comment("권한그룹명")

@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TblMenuAuthrtGroupRepository extends JpaRepository<TblMenuAuthrtGroup, String> {
 
+    TblMenuAuthrtGroup findByAuthrtGroupSn(int authrtGroupSn);
 }

@@ -1,35 +1,30 @@
 package egovframework.com.devjitsu.service.menu;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.menu.QTblMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroup;
-import egovframework.com.devjitsu.model.menu.TblMenu;
 import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroup;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
-import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AuthGroupApiService {
+public class MenuAuthGroupApiService {
 
     private final EntityManager em;
     private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
 
-    public ResultVO getAuthGroupList(SearchDto dto) {
+    public ResultVO getMenuAuthGroupList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
         try {
@@ -46,6 +41,18 @@ public class AuthGroupApiService {
             resultVO.putResult("menuAuthGroup", authGroup);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getMenuAuthGroup(TblMenuAuthrtGroup tblMenuAuthrtGroup) {
+        ResultVO resultVO = new ResultVO();
+        try {
+            resultVO.putResult("menuAuthGroup", tblMenuAuthrtGroupRepository.findByAuthrtGroupSn(tblMenuAuthrtGroup.getAuthrtGroupSn()));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
