@@ -7,6 +7,7 @@ public enum ResponseCode {
 	NOT_EQ_PASSWORD(500, "비밀번호가 일치하지 않습니다."),
 	NOT_USER(404, "일치하는 사용자가 없습니다."),
 	SELECT_ERROR(600, "조회시 내부 오류가 발생했습니다."),
+	SELECT_REQUIRE_ERROR(601, "조회 필수 조건이 누락되었습니다."),
 	DELETE_ERROR(700, "삭제 중 내부 오류가 발생했습니다."),
 	SAVE_ERROR(800, "저장시 내부 오류가 발생했습니다."),
 	INPUT_CHECK_ERROR(900, "입력값 무결성 오류 입니다."),

@@ -53,7 +53,7 @@ public class MenuApiService {
 
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
-            if (StringUtils.isEmpty(dto.get("active"))) {
+            if (!StringUtils.isEmpty(dto.get("active"))) {
                 builder.and(tblMenu.actvtnYn.eq((String) dto.get("active")));
             }
 
@@ -84,6 +84,22 @@ public class MenuApiService {
         }catch (Exception e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
+
+        return resultVO;
+    }
+
+    public ResultVO getMenu(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        if(StringUtils.isEmpty(dto.get("menuId"))) {
+            resultVO.setResultCode(ResponseCode.SELECT_REQUIRE_ERROR.getCode());
+            resultVO.setResultMessage(ResponseCode.SELECT_REQUIRE_ERROR.getMessage());
+
+            return resultVO;
+        }
+
+//        resultVO.putResult("menu", tblMenuRepository.findById(dto.get("menuId")));
+        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+
 
         return resultVO;
     }

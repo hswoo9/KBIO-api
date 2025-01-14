@@ -36,6 +36,19 @@ public class MenuApiController {
         return menuApiService.getMenuTreeList(dto);
     }
 
+    /**
+     * 메뉴 조회
+     * {
+     *     menuId : 메뉴키(필수)
+     * }
+     * @return
+     */
+    @PostMapping("/menuApi/getMenu.do")
+    public ResultVO getMenu(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return menuApiService.getMenu(dto);
+    }
+
     @PostMapping("/menuApi/setMenu")
     public ResponseEntity<ResultVO> setMenu(@RequestBody Map<String, Object> params) {
         ResultVO s = menuApiService.setMenu(params);
