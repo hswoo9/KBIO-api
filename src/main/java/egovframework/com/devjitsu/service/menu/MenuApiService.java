@@ -1,6 +1,7 @@
 package egovframework.com.devjitsu.service.menu;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.LoginVO;
 import egovframework.com.cmm.ResponseCode;
@@ -106,21 +107,66 @@ public class MenuApiService {
 
     public ResultVO setMenu(TblMenu tblMenu){
         ResultVO resultVO = new ResultVO();
+        try {
+            QTblMenu qTblMenu = QTblMenu.tblMenu;
+            QTblMenu qTblMenu1 = new QTblMenu("qTblMenu1");
+            QTblMenu qTblMenu2 = new QTblMenu("qTblMenu2");
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qTblMenu.actvtnYn.eq(tblMenu.getActvtnYn()));
 
-        QTblMenu qTblMenu = QTblMenu.tblMenu;
-        QTblMenu qTblMenu1 = new QTblMenu("qTblMenu1");
-        QTblMenu qTblMenu2 = new QTblMenu("qTblMenu2");
-        JPAQueryFactory q = new JPAQueryFactory(em);
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(qTblMenu.actvtnYn.eq(tblMenu.getActvtnYn()));
-
-        List<TblMenu> menus = q
-                .selectFrom(qTblMenu)
-                .where(
+            List<TblMenu> menus = q
+                    .selectFrom(qTblMenu)
+                    .where(
                         qTblMenu.upperMenuSn.eq(tblMenu.getUpperMenuSn())
-                                .and(qTblMenu.menuSortseq.goe(tblMenu.getMenuSortseq()))
+                            .and(qTblMenu.menuSortseq.goe(tblMenu.getMenuSortseq()))
+                    )
+                    .fetch();
+
+            for(TblMenu menu : menus){
+                String menuFullPath = q
+                        .select(qTblMenu2.menuWholPath.concat(
+                            Expressions.stringTemplate("RIGHT(CONCAT('000', {0}), 4)", qTblMenu1.menuSortseq.add(1)).concat("|")
+                        ))
+                        .from(qTblMenu1)
+                        .join(qTblMenu2)
+                        .on(qTblMenu1.upperMenuSn.eq(qTblMenu2.menuSn))
+                        .where(qTblMenu1.menuSn.eq(menu.getMenuSn()))
+                        .fetchFirst();
+
+                q.update(qTblMenu)
+                    .set(qTblMenu.menuSortseq, qTblMenu.menuSortseq.add(1))
+                    .set(qTblMenu.menuWholPath, menuFullPath)
+                    .where(
+                            qTblMenu.menuSn.eq(menu.getMenuSn())
+                    )
+                    .execute();
+            }
+
+
+            tblMenu.setMenuWholPath(
+                q.select(
+                    qTblMenu.menuWholPath.concat(
+                        Expressions.stringTemplate("RIGHT(CONCAT('000', {0}), 4)", tblMenu.getMenuSortseq()).concat("|")
+                ))
+                .from(qTblMenu)
+                .where(qTblMenu.menuSn.eq(tblMenu.getUpperMenuSn()))
+                .fetchFirst()
+            );
+
+            tblMenuRepository.save(tblMenu);
+            q.update(qTblMenu)
+                .set(qTblMenu.lwrMenuEn, "Y")
+                .where(
+                        qTblMenu.menuSn.eq(tblMenu.getUpperMenuSn())
                 )
-                .fetch();
+                .execute();
+
+            tblMenuRepository.setMenuPathAllUpd();
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
 
         return resultVO;
     }

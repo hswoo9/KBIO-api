@@ -49,6 +49,23 @@ public class MenuApiController {
         return menuApiService.getMenu(tblMenu);
     }
 
+    /**
+     *
+     * @param tblMenu
+     * {
+     *     menuSn       : 메뉴키(수정시 필수)
+     *     upperMenuSn  : 상위 메뉴(필수) [최상위 메뉴일시 0]
+     *     menuNm       : 메뉴 이름 (필수)
+     *     menuType     : 메뉴 타입 (필수) [ 기본 D, 게시판 B]
+     *     menuPathNm   : 메뉴 경로 (필수)
+     *     menuSeq      : 메뉴 깊이 (필수)
+     *     menuSortSeq  : 정렬 순서(필수)
+     *     creatrSn     : 작성자 키(등록시 필수)
+     *     mofrSn       : 수정자 키(수정시 필수)
+     *     actvtnYn     : 사용 유무 (필수)
+     * }
+     * @return
+     */
     @PostMapping("/menuApi/setMenu")
     public ResultVO setMenu(@RequestBody TblMenu tblMenu) {
         return menuApiService.setMenu(tblMenu);
