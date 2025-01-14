@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @RestController
@@ -22,8 +23,16 @@ public class MenuApiController {
     @Autowired
     private MenuApiService menuApiService;
 
-    @PostMapping("/menuApi/getMenuTreeList")
-    public ResultVO getMenuTreeList(@RequestBody SearchDto dto) {
+    /**
+     * 메뉴 전체 조회(TREE List)
+     * {
+     *     active : 기본값 전체
+     * }
+     * @return
+     */
+    @PostMapping("/menuApi/getMenuTreeList.do")
+    public ResultVO getMenuTreeList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return menuApiService.getMenuTreeList(dto);
     }
 

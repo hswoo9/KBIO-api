@@ -36,7 +36,7 @@ public class CommonApiController {
      * @param request
      * @return
      */
-    @PostMapping("/commonApi/getRedisUserInfo")
+    @PostMapping("/commonApi/getRedisUserInfo.do")
     public ResultVO getRedisUserInfo(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return commonApiService.getRedisUserInfo(dto);

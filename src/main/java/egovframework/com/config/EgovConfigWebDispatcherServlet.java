@@ -65,7 +65,6 @@ public class EgovConfigWebDispatcherServlet implements WebMvcConfigurer {
 				);
 		registry.addInterceptor(new CustomAuthenticInterceptor())
 			.addPathPatterns(
-                "/common/getRedisUserInfo",
 				"/**/*.do",
 				"/**/**/*.do")
 			.excludePathPatterns(
