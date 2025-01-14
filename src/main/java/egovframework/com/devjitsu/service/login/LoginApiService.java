@@ -29,6 +29,7 @@ import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -38,6 +39,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
@@ -139,6 +142,7 @@ public class LoginApiService {
                 }
             }
 
+            resultVO.putResult("userSn", lettnemplyrinfoVO.getUserSn());
             resultVO.putResult("userId", lettnemplyrinfoVO.getEmplyrId());
             resultVO.putResult("userName", lettnemplyrinfoVO.getUserNm());
             resultVO.putResult("userSe", lettnemplyrinfoVO.getUserSn() == 1 ? "ADM" : "UDR");
@@ -149,6 +153,16 @@ public class LoginApiService {
         }
 
         return resultVO;
+    }
+
+    public ResultVO actionLogout(LettnemplyrinfoVO lettnemplyrinfoVO, HttpServletRequest request, HttpServletResponse response) {
+        ResultVO resultVO = new ResultVO();
+        redisApiService.delRedis(0, String.valueOf(lettnemplyrinfoVO.getUserSn()));
+        new SecurityContextLogoutHandler().logout(request, response, null);
+        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
+        return resultVO;
+
     }
 
 

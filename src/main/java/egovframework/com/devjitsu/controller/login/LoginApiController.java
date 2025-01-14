@@ -32,10 +32,6 @@ import java.util.Map;
 @Tag(name="LoginController",description = "로그인 관련")
 public class LoginApiController {
 
-    /** JWT */
-    @Autowired
-    private EgovJwtTokenUtil jwtTokenUtil;
-
     @Resource(name = "egovMessageSource")
     EgovMessageSource egovMessageSource;
 
@@ -73,13 +69,9 @@ public class LoginApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
     })
-    @GetMapping(value = "/logoutAction")
-    public ResultVO logoutAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ResultVO resultVO = new ResultVO();
-        new SecurityContextLogoutHandler().logout(request, response, null);
-        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
-        return resultVO;
+    @PostMapping(value = "/logoutAction")
+    public ResultVO logoutAction(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        return loginApiService.actionLogout(lettnemplyrinfoVO, request, response);
     }
 
 }

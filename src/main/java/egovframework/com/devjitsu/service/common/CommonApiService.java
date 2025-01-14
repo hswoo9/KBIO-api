@@ -8,12 +8,15 @@ import com.querydsl.core.BooleanBuilder;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComCdGroup;
+import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.repository.common.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.common.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,10 @@ import java.util.Map;
 public class CommonApiService {
 
     private final EntityManager em;
+
+    @Autowired
+    private RedisApiService redisApiService;
+
     /**
      * jpa 부등호
      * gt : >
@@ -61,6 +68,14 @@ public class CommonApiService {
 
         resultVO.putResult("rs",  q.selectFrom(qTblComCdGroup).where(builder).orderBy(qTblComCdGroup.frstCrtDt.desc()).fetch());
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        return resultVO;
+    }
+
+    public ResultVO getRedisUserInfo(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        resultVO.putResult("rs", redisApiService.getRedis(0, String.valueOf(dto.get("userSn"))));
+        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
         return resultVO;
     }
 }
