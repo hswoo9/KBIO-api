@@ -86,6 +86,7 @@ public class EgovJwtTokenUtil implements Serializable{
     private String doGenerateTokenJpa(LettnemplyrinfoVO loginVO, String subject) {
 
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userSn", loginVO.getUserSn() );
         claims.put("id", loginVO.getEmplyrId() );
         claims.put("name", loginVO.getUserNm() );
         claims.put("userSe", "ADM" );

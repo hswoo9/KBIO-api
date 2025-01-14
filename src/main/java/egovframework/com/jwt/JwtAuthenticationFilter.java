@@ -70,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             logger.debug("jwtToken validated");
             loginVO.setId(id);
             loginVO.setUserSe( jwtTokenUtil.getUserSeFromToken(jwtToken) );
-            loginVO.setUniqId( jwtTokenUtil.getInfoFromToken("uniqId",jwtToken) );
+            loginVO.setUniqId( jwtTokenUtil.getInfoFromToken("userSn",jwtToken) );
             loginVO.setOrgnztId( jwtTokenUtil.getInfoFromToken("orgnztId",jwtToken) );
             loginVO.setName( jwtTokenUtil.getInfoFromToken("name",jwtToken) );
 

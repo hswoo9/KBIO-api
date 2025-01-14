@@ -139,14 +139,13 @@ public class LoginApiService {
                 }
             }
 
-            String jToken = jwtTokenUtil.generateTokenJpa(lettnemplyrinfoVO);
             resultVO.putResult("userId", lettnemplyrinfoVO.getEmplyrId());
             resultVO.putResult("userName", lettnemplyrinfoVO.getUserNm());
             resultVO.putResult("userSe", lettnemplyrinfoVO.getUserSn() == 1 ? "ADM" : "UDR");
-            resultVO.putResult("jToken", jToken);
+            resultVO.putResult("jToken", jwtTokenUtil.generateTokenJpa(lettnemplyrinfoVO));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
-            redisApiService.setRedis(0, jToken, lettnemplyrinfoVO, null);
+            redisApiService.setRedis(0, String.valueOf(lettnemplyrinfoVO.getUserSn()), lettnemplyrinfoVO, null);
         }
 
         return resultVO;
