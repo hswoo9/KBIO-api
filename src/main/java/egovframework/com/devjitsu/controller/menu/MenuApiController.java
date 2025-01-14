@@ -2,6 +2,7 @@ package egovframework.com.devjitsu.controller.menu;
 
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.menu.TblMenu;
 import egovframework.com.devjitsu.service.menu.MenuApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,19 +44,13 @@ public class MenuApiController {
      * }
      * @return
      */
-    @PostMapping("/menuApi/getMenu.do")
-    public ResultVO getMenu(HttpServletRequest request) {
-        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
-        return menuApiService.getMenu(dto);
+    @PostMapping("/menuApi/getMenu")
+    public ResultVO getMenu(@RequestBody TblMenu tblMenu) {
+        return menuApiService.getMenu(tblMenu);
     }
 
     @PostMapping("/menuApi/setMenu")
-    public ResponseEntity<ResultVO> setMenu(@RequestBody Map<String, Object> params) {
-        ResultVO s = menuApiService.setMenu(params);
-        if(s.getResultCode() > 200){
-            return new ResponseEntity<>(s, HttpStatus.INTERNAL_SERVER_ERROR);
-        } else {
-            return new ResponseEntity<>(s, HttpStatus.OK);
-        }
+    public ResultVO setMenu(@RequestBody TblMenu tblMenu) {
+        return menuApiService.setMenu(tblMenu);
     }
 }

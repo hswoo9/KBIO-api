@@ -88,23 +88,23 @@ public class MenuApiService {
         return resultVO;
     }
 
-    public ResultVO getMenu(SearchDto dto) {
+    public ResultVO getMenu(TblMenu tblMenu) {
         ResultVO resultVO = new ResultVO();
-        if(StringUtils.isEmpty(dto.get("menuId"))) {
+        if(StringUtils.isEmpty(tblMenu.getMenuSn())) {
             resultVO.setResultCode(ResponseCode.SELECT_REQUIRE_ERROR.getCode());
             resultVO.setResultMessage(ResponseCode.SELECT_REQUIRE_ERROR.getMessage());
 
             return resultVO;
         }
 
-//        resultVO.putResult("menu", tblMenuRepository.findById(dto.get("menuId")));
+        resultVO.putResult("menu", tblMenuRepository.findByMenuSn(tblMenu.getMenuSn()));
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
 
 
         return resultVO;
     }
 
-    public ResultVO setMenu(Map<String, Object> params){
+    public ResultVO setMenu(TblMenu tblMenu){
         ResultVO resultVO = new ResultVO();
 
         QTblMenu qTblMenu = QTblMenu.tblMenu;
@@ -112,13 +112,13 @@ public class MenuApiService {
         QTblMenu qTblMenu2 = new QTblMenu("qTblMenu2");
         JPAQueryFactory q = new JPAQueryFactory(em);
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(qTblMenu.actvtnYn.eq((String) params.get("active")));
+        builder.and(qTblMenu.actvtnYn.eq(tblMenu.getActvtnYn()));
 
         List<TblMenu> menus = q
                 .selectFrom(qTblMenu)
                 .where(
-                        qTblMenu.upperMenuSn.eq((int) Long.parseLong((String) params.get("upperMenuSn")))
-                                .and(qTblMenu.menuSortseq.goe(Long.parseLong((String) params.get("menuSortseq"))))
+                        qTblMenu.upperMenuSn.eq(tblMenu.getUpperMenuSn())
+                                .and(qTblMenu.menuSortseq.goe(tblMenu.getMenuSortseq()))
                 )
                 .fetch();
 
