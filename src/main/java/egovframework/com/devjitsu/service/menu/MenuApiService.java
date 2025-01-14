@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.LoginVO;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
@@ -15,6 +16,7 @@ import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -42,9 +44,8 @@ public class MenuApiService {
      *  builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
      * */
 
-    public ResultVO getMenuTreeList(Map<String, Object> params) {
+    public ResultVO getMenuTreeList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
-        Map<String, Object> result = new HashMap<>();
 
         try {
             QTblMenu tblMenu = QTblMenu.tblMenu;
@@ -52,8 +53,8 @@ public class MenuApiService {
 
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
-            if (params.containsKey("active")) {
-                builder.and(tblMenu.actvtnYn.eq((String) params.get("active")));
+            if (StringUtils.isEmpty(dto.get("active"))) {
+                builder.and(tblMenu.actvtnYn.eq((String) dto.get("active")));
             }
 
             List<TblMenu> menus = q.selectFrom(tblMenu).where(builder).orderBy(tblMenu.menuWholPath.asc()).fetch();
@@ -81,7 +82,7 @@ public class MenuApiService {
             resultVO.putResult("menus", returnMenus);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
-            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
