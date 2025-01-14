@@ -20,10 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -91,16 +88,12 @@ public class MenuApiService {
 
     public ResultVO getMenu(TblMenu tblMenu) {
         ResultVO resultVO = new ResultVO();
-        if(StringUtils.isEmpty(tblMenu.getMenuSn())) {
-            resultVO.setResultCode(ResponseCode.SELECT_REQUIRE_ERROR.getCode());
-            resultVO.setResultMessage(ResponseCode.SELECT_REQUIRE_ERROR.getMessage());
-
-            return resultVO;
+        try {
+            resultVO.putResult("menu", tblMenuRepository.findById(String.valueOf(tblMenu.getMenuSn())));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
-
-        resultVO.putResult("menu", tblMenuRepository.findByMenuSn(tblMenu.getMenuSn()));
-        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-
 
         return resultVO;
     }
@@ -169,5 +162,31 @@ public class MenuApiService {
         }
 
         return resultVO;
+    }
+
+    public ResultVO setMenuDel(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            String[] menuSns = dto.get("menuSns").toString().split(",");
+            for(String menuSn : menuSns){
+                deleteMenuRecursively(tblMenuRepository.findByMenuSn(Integer.parseInt(menuSn)));
+            }
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    private void deleteMenuRecursively(TblMenu tblMenu) {
+        QTblMenu qTblMenu = QTblMenu.tblMenu;
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        List<TblMenu> subMenus = q.selectFrom(qTblMenu).where(qTblMenu.upperMenuSn.eq(tblMenu.getMenuSn())).fetch();
+        for (TblMenu subMenu : subMenus) {
+            deleteMenuRecursively(subMenu);
+        }
+        tblMenuRepository.delete(tblMenu);
     }
 }

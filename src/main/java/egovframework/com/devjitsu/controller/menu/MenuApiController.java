@@ -26,6 +26,7 @@ public class MenuApiController {
 
     /**
      * 메뉴 전체 조회(TREE List)
+     * @param
      * {
      *     actvtnYn : 기본값 전체
      * }
@@ -69,5 +70,19 @@ public class MenuApiController {
     @PostMapping("/menuApi/setMenu")
     public ResultVO setMenu(@RequestBody TblMenu tblMenu) {
         return menuApiService.setMenu(tblMenu);
+    }
+
+    /**
+     * 메뉴 삭제
+     * @param
+     * {
+     *     menuSns(필수)      : 메뉴키 (여러개 일시 쉼표로 분리)
+     * }
+     * @return
+     */
+    @PostMapping("/menuApi/setMenuDel.do")
+    public ResultVO setMenuDel(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return menuApiService.setMenuDel(dto);
     }
 }
