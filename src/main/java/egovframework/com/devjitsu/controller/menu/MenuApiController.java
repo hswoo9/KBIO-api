@@ -27,7 +27,7 @@ public class MenuApiController {
     /**
      * 메뉴 전체 조회(TREE List)
      * {
-     *     active : 기본값 전체
+     *     actvtnYn : 기본값 전체
      * }
      * @return
      */
@@ -40,7 +40,7 @@ public class MenuApiController {
     /**
      * 메뉴 조회
      * {
-     *     menuId : 메뉴키(필수)
+     *     menuSn : 메뉴키(필수)
      * }
      * @return
      */
