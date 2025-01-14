@@ -1,3 +1,4 @@
+/*
 package egovframework.com.config;
 
 import java.util.Collections;
@@ -19,6 +20,7 @@ import org.springframework.transaction.interceptor.RuleBasedTransactionAttribute
 import org.springframework.transaction.interceptor.TransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 
+*/
 /**
  * @ClassName : EgovConfigAppTransaction.java
  * @Description : Transaction 설정
@@ -35,7 +37,8 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
  *   2021. 7. 20    윤주호               최초 생성
  * </pre>
  *
- */
+ *//*
+
 @Configuration
 public class EgovConfigAppTransaction {
 
@@ -90,3 +93,4 @@ public class EgovConfigAppTransaction {
 		return new DefaultPointcutAdvisor(pointcut, txAdvice(txManager));
 	}
 }
+*/
