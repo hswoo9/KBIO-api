@@ -9,6 +9,7 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.menu.*;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
+import egovframework.com.devjitsu.model.menu.QTblMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroup;
 import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroupUser;
 import egovframework.com.devjitsu.repository.menu.TblAuthrtGroupMenuRepository;
@@ -109,7 +110,21 @@ public class MenuAuthGroupApiService {
     public ResultVO getMenuAuthGroup(TblMenuAuthrtGroup tblMenuAuthrtGroup) {
         ResultVO resultVO = new ResultVO();
         try {
-            resultVO.putResult("menuAuthGroup", tblMenuAuthrtGroupRepository.findByAuthrtGroupSn(tblMenuAuthrtGroup.getAuthrtGroupSn()));
+
+
+            QTblAuthrtGroupMenu qtblAuthrtGroupMenu = QTblAuthrtGroupMenu.tblAuthrtGroupMenu;
+            QTblMenu qtblMenu = QTblMenu.tblMenu;
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+
+            TblMenuAuthrtGroup menuAuthGroup = tblMenuAuthrtGroupRepository.findByAuthrtGroupSn(tblMenuAuthrtGroup.getAuthrtGroupSn());
+            if(!StringUtils.isEmpty(menuAuthGroup.getAuthrtGroupSn())){
+                builder.and(qtblAuthrtGroupMenu.authrtGroupSn.eq(menuAuthGroup.getAuthrtGroupSn()));
+                List<TblMenu> allowAccessMenus = q.selectFrom(qtblMenu).join(qtblAuthrtGroupMenu).on(qtblAuthrtGroupMenu.menuSn.eq(qtblMenu.menuSn)).where(builder).fetch();
+                menuAuthGroup.setAllowAccessMenu(allowAccessMenus);
+            }
+            resultVO.putResult("menuAuthGroup", menuAuthGroup);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
