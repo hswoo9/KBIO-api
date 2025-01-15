@@ -6,21 +6,12 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.QTblBbs;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
-import egovframework.com.devjitsu.model.common.QTblComCd;
-import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroup;
-import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroup;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
-import egovframework.com.devjitsu.repository.common.TblComCdGroupRepository;
-import egovframework.com.devjitsu.repository.common.TblComCdRepository;
-import egovframework.com.devjitsu.repository.common.TblComFileRepository;
-import egovframework.com.devjitsu.service.common.RedisApiService;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -28,12 +19,11 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class BbsApiService {
+public class BbsAdminApiService {
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
