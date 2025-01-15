@@ -75,4 +75,18 @@ public class MenuAuthGroupApiController {
         return menuAuthGroupApiService.setMenuAuthGroup(tblMenuAuthrtGroup);
     }
 
+    /**
+     * 권한그룹 삭제
+     * @param
+     * {
+     *     authrtGroupSns(필수)      : 권한그룹 키 (여러개 일시 쉼표로 분리)
+     * }
+     * @return
+     */
+    @PostMapping("/menuApi/setMenuAuthGroupDel.do")
+    public ResultVO setMenuAuthGroupDel(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return menuAuthGroupApiService.setMenuAuthGroupDel(dto);
+    }
+
 }

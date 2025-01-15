@@ -5,10 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
-import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroup;
-import egovframework.com.devjitsu.model.menu.TblAuthrtGroupMenu;
-import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroup;
+import egovframework.com.devjitsu.model.menu.*;
 import egovframework.com.devjitsu.repository.menu.TblAuthrtGroupMenuRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import lombok.RequiredArgsConstructor;
@@ -97,6 +94,30 @@ public class MenuAuthGroupApiService {
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setMenuAuthGroupDel(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QTblAuthrtGroupMenu qTblAuthrtGroupMenu = QTblAuthrtGroupMenu.tblAuthrtGroupMenu;
+            QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
+
+            String[] authrtGroupSns = dto.get("authrtGroupSns").toString().split(",");
+            for(String authrtGroupSn : authrtGroupSns){
+                TblMenuAuthrtGroup menuAuthrtGroup = tblMenuAuthrtGroupRepository.findByAuthrtGroupSn(Long.parseLong(authrtGroupSn));
+                q.delete(qTblAuthrtGroupMenu).where(qTblAuthrtGroupMenu.authrtGroupSn.eq(menuAuthrtGroup.getAuthrtGroupSn())).execute();
+                q.delete(qTblMenuAuthrtGroupUser).where(qTblMenuAuthrtGroupUser.authrtGroupSn.eq(menuAuthrtGroup.getAuthrtGroupSn())).execute();
+                tblMenuAuthrtGroupRepository.delete(menuAuthrtGroup);
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
         return resultVO;

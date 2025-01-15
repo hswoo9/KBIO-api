@@ -19,15 +19,15 @@ public class TblMenuAuthrtGroupUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "AUTHRT_GROUP_USER_SN", length = 22)
     @Comment("권한그룹사용자일련번호")
-    private int authrtGroupUserSn;
+    private long authrtGroupUserSn;
 
     @Column(name = "AUTHRT_GROUP_SN", length = 22)
     @Comment("권한그룹일련번호")
-    private int authrtGroupSn;
+    private long authrtGroupSn;
 
     @Column(name = "USER_SN", length = 22)
     @Comment("사용자사번")
-    private int userSn;
+    private long userSn;
 
     @Column(name = "USER_NM", length = 100)
     @Comment("사용자이름")
@@ -59,7 +59,7 @@ public class TblMenuAuthrtGroupUser {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")
