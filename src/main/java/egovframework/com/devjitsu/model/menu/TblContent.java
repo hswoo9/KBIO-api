@@ -19,11 +19,11 @@ public class TblContent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CONTS_SN", length = 22)
     @Comment("메뉴콘텐츠일련번호")
-    private int contsSn;
+    private long contsSn;
 
     @Column(name = "MENU_SN", length = 22)
     @Comment("메뉴일련번호")
-    private int menuSn;
+    private long menuSn;
 
     @Column(name = "CONTS_CN", columnDefinition = "LONGTEXT")
     @Comment("내용")
@@ -47,7 +47,7 @@ public class TblContent {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")

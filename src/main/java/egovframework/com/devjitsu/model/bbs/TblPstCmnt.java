@@ -19,11 +19,11 @@ public class TblPstCmnt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PST_RELY_SN", length = 22)
     @Comment("게시물댓글일련번호")
-    private int pstRelySn;
+    private long pstRelySn;
 
     @Column(name = "PST_SN", length = 22)
     @Comment("게시물일련번호")
-    private int pstSn;
+    private long pstSn;
 
     @Column(name = "CMNT_CN", length = 4000)
     @Comment("댓글내용")
@@ -35,15 +35,15 @@ public class TblPstCmnt {
 
     @Column(name = "CMNT_SEQ", length = 10)
     @Comment("댓글순서")
-    private int cmntSeq;
+    private long cmntSeq;
 
     @Column(name = "CMNT_LEVEL", length = 10)
     @Comment("댓글깊이")
-    private int cmntLevel;
+    private long cmntLevel;
 
     @Column(name = "CMNT_RLS_EN", length = 10)
     @Comment("공개유무")
-    private int cmntRlsEn;
+    private long cmntRlsEn;
 
     @Column(name = "PRVT_PSWD", length = 50)
     @Comment("게시글제목")
@@ -55,7 +55,7 @@ public class TblPstCmnt {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")
