@@ -89,4 +89,19 @@ public class MenuAuthGroupApiController {
         return menuAuthGroupApiService.setMenuAuthGroupDel(dto);
     }
 
+    /**
+     * 권한그룹 사용자 조회
+     * @param
+     * {
+     *     authrtGroupSn      : 권한그룹 키 (필수)
+     *     userId             : 사용자 아이디(검색조건)
+     *     userNm             : 사용자 이름(검색조건)
+     * }
+     * @return
+     */
+    @PostMapping("/menuApi/getMenuAuthGroupUserList.do")
+    public ResultVO getMenuAuthGroupUserList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return menuAuthGroupApiService.getMenuAuthGroupUserList(dto);
+    }
 }

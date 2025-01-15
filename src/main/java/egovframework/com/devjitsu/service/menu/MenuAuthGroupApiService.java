@@ -122,4 +122,32 @@ public class MenuAuthGroupApiService {
 
         return resultVO;
     }
+
+    public ResultVO getMenuAuthGroupUserList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qTblMenuAuthrtGroupUser.authrtGroupSn.eq(Long.parseLong((String) dto.get("authrtGroupSn"))));
+
+            if (!StringUtils.isEmpty(dto.get("userId"))) {
+                builder.and(qTblMenuAuthrtGroupUser.userId.contains((String) dto.get("userId")));
+            }
+            if (!StringUtils.isEmpty(dto.get("userNm"))) {
+                builder.and(qTblMenuAuthrtGroupUser.userNm.contains((String) dto.get("userNm")));
+            }
+
+            List<TblMenuAuthrtGroupUser> menuAuthGroupUser = q.selectFrom(qTblMenuAuthrtGroupUser).where(builder).orderBy(qTblMenuAuthrtGroupUser.frstCrtDt.desc()).fetch();
+            resultVO.putResult("menuAuthGroupUser",  menuAuthGroupUser);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
 }
