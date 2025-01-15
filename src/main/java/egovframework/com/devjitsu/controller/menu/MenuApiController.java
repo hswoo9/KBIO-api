@@ -28,6 +28,7 @@ public class MenuApiController {
      * 메뉴 전체 조회(TREE List)
      * @param
      * {
+     *     upperMenuSn : 상위메뉴키
      *     actvtnYn : 기본값 전체
      * }
      * @return

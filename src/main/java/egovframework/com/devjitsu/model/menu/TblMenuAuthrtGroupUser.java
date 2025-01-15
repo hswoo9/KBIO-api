@@ -51,7 +51,7 @@ public class TblMenuAuthrtGroupUser {
 
     @Column(name = "AUTHRT_GRNT_DT")
     @Comment("권한부여일")
-    private LocalDateTime authrtGrntDt;
+    private String authrtGrntDt;
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
@@ -67,7 +67,7 @@ public class TblMenuAuthrtGroupUser {
 
     @Column(name = "MDFR_SN", columnDefinition = "INT(10)", insertable = false)
     @Comment("수정자일련번호")
-    private Integer mdfrSn;
+    private Long mdfrSn;
 
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
