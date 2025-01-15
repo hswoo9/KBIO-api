@@ -1,15 +1,20 @@
 package egovframework.com.devjitsu.controller.bbs;
 
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.service.bbs.BbsAdminApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -33,6 +38,57 @@ public class BbsAdminApiController {
     public ResultVO getBbsList(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return bbsAdminApiService.getBbsList(dto);
+    }
+
+    /**
+     * 게시판 조회
+     * params
+     * {
+     *     bbsSn(필수) : 게시판키
+     * }
+     * @param
+     * @return
+     */
+    @PostMapping("/bbsApi/getBbs")
+    public ResultVO getBbs(@RequestBody TblBbs tblBbs) {
+        return bbsAdminApiService.getBbs(tblBbs);
+    }
+
+    /**
+     * 게시판 저장
+     * @param
+     * {
+     *     bbsNm(필수)        : 게시판 이름(필수)
+     *     bbsType(필수)      : 게시판 타입(필수)
+     *     creatrSn          : 작성자 키(신규 등록시 필수)
+     *     pstCtgryYn        : 게시글 카테고리 사용유무 (기본 값 N)
+     *     atchFileYn        : 첨부파일 사용여부 (기본 값 N)
+     *     atchFileKndNm     : 첨부허용 확장자 (atchFileYn = Y 일때 쉼표로 분리)
+     *     wrtrRlsYn         : 작성자 익명 여부 (기본 값 N)
+     *     cmntPsbltyYn      : 댓글 사용 유무 (기본 값 N)
+     *     replyPsbltyYn     : 답글 사용 유무 (기본 값 N)
+     *     actvtnYn          : 사용 여부 (기본 값 Y)
+     *     mdfrSn            : 수정자 키
+     * }
+     * @return
+     */
+    @PostMapping("/bbsApi/setBbs")
+    public ResultVO setBbs(@RequestBody TblBbs tblBbs){
+        return bbsAdminApiService.setBbs(tblBbs);
+    }
+
+    /**
+     * 게시판 삭제
+     * params
+     * {
+     *     bbsSn(필수)      : 게시판키
+     * }
+     * @param
+     * @return
+     */
+    @PostMapping("/bbsApi/setBbsDel")
+    public ResultVO setBbsDel(@RequestBody TblBbs tblBbs){
+        return bbsAdminApiService.setBbsDel(tblBbs);
     }
 
 }

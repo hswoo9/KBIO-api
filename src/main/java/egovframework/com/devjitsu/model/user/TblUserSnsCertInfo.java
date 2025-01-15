@@ -19,11 +19,11 @@ public class TblUserSnsCertInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_SNS_CERT_INFO_SN", length = 22)
     @Comment("사용자SNS인증정보일련번호")
-    private int userSnsCertInfoSn;
+    private long userSnsCertInfoSn;
 
     @Column(name = "USER_SN", length = 22, nullable = false, updatable = false)
     @Comment("사용자일련번호")
-    private int userSn;
+    private long userSn;
 
     @Column(name = "SNS_CLSF", length = 20, nullable = false, updatable = false)
     @Comment("SNS분류")
@@ -39,7 +39,7 @@ public class TblUserSnsCertInfo {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")

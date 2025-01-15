@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.QTblBbs;
+import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
@@ -19,6 +20,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -88,6 +90,51 @@ public class BbsAdminApiService {
         }catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setBbs(TblBbs tblBbs) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            tblBbsRepository.save(tblBbs);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getBbs(TblBbs tblBbs) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            resultVO.putResult("bbs", tblBbsRepository.findByBbsSn(tblBbs.getBbsSn()));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setBbsDel(TblBbs tblBbs) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblPst tblPst = QTblPst.tblPst;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            q.delete(tblPst).where(tblPst.bbsSn.eq(tblBbs.getBbsSn())).execute();
+            tblBbsRepository.delete(tblBbs);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
         return resultVO;

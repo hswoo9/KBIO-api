@@ -19,11 +19,11 @@ public class TblCnsltDtl {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CNSLT_DTL_SN", length = 22)
     @Comment("컨설팅신청상세일련번호")
-    private int cnsltDtlSn;
+    private long cnsltDtlSn;
 
     @Column(name = "CNSLT_APLY_SN", length = 22, nullable = false, updatable = false)
     @Comment("컨설팅신청일련번호")
-    private int cnsltAplySn;
+    private long cnsltAplySn;
 
     @Column(name = "DRCT_APLY_YN", nullable = false, columnDefinition = "CHAR(1) DEFAULT 'N'")
     @Comment("직접신청여부")
@@ -59,7 +59,7 @@ public class TblCnsltDtl {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")

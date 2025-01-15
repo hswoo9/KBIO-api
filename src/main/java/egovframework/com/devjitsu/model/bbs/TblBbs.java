@@ -19,7 +19,7 @@ public class TblBbs {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "BBS_SN", length = 22)
     @Comment("게시판일련번호")
-    private int bbsSn;
+    private long bbsSn;
 
     @Column(name = "BBS_NM", length = 256, nullable = false)
     @Comment("게시판명")
@@ -31,7 +31,7 @@ public class TblBbs {
 
     @Column(name = "ATCH_FILE_YN", nullable = false, columnDefinition = "CHAR(1)")
     @Comment("파일첨부가능여부")
-    private String atchFileYn;
+    private String atchFileYn = "N";
 
     @Column(name = "ATCH_FILE_KND_NM", length = 200)
     @Comment("첨부파일종류명")
@@ -39,19 +39,15 @@ public class TblBbs {
 
     @Column(name = "WRTR_RLS_YN", columnDefinition = "CHAR(1)")
     @Comment("작성자 공개유무")
-    private String wrtrRlsYn;
-
-    @Column(name = "WRTR_AUTHRT_STNG", length = 100)
-    @Comment("작성자 권한설정")
-    private String wrtrAuthrtStng;
+    private String wrtrRlsYn = "N";
 
     @Column(name = "CMNT_PSBLTY_YN", columnDefinition = "CHAR(1)")
     @Comment("댓글가능여부")
-    private String cmntPsbltyYn;
+    private String cmntPsbltyYn = "N";
 
     @Column(name = "REPLY_PSBLTY_YN", columnDefinition = "CHAR(1)")
     @Comment("답글 사용유무")
-    private String replyPsbltyYn;
+    private String replyPsbltyYn = "N";
 
     @Column(name = "BSC_PST_CNT", columnDefinition = "INT(10)")
     @Comment("기본 게시글 개수")
@@ -59,19 +55,7 @@ public class TblBbs {
 
     @Column(name = "PST_CTGRY_YN", columnDefinition = "CHAR(1)")
     @Comment("게시글 카테고리 사용유무")
-    private String pstCtgryYn;
-
-    @Column(name = "WRTR_AUTHRT_YN", columnDefinition = "CHAR(1)")
-    @Comment("작성권한 사용유무")
-    private String wrtrAuthrtYn;
-
-    @Column(name = "WRTR_AUTHRT_GROUP_PK", length = 50)
-    @Comment("작성권한 권한그룹 기본키")
-    private String wrtrAuthrtGroupPk;
-
-    @Column(name = "SORT_SEQ", columnDefinition = "INT(10)")
-    @Comment("정렬순서")
-    private Integer sortSeq;
+    private String pstCtgryYn = "N";
 
     @Column(name = "RMRK_CN", length = 2000)
     @Comment("비고내용")
@@ -83,7 +67,7 @@ public class TblBbs {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")
