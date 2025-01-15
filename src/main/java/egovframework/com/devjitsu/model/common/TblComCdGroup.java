@@ -19,7 +19,7 @@ public class TblComCdGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "GROUP_CD_SN", length = 22)
     @Comment("그룹코드일련번호")
-    private int groupCdSn;
+    private long groupCdSn;
 
     @Column(name = "GROUP_CD", length = 20, nullable = false, updatable = false)
     @Comment("그룹코드")
@@ -63,7 +63,7 @@ public class TblComCdGroup {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")

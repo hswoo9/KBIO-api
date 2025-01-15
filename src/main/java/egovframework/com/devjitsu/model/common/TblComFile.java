@@ -19,7 +19,7 @@ public class TblComFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ATCH_FILE_SN", length = 22)
     @Comment("파일일련번호")
-    private int atchFileSn;
+    private long atchFileSn;
 
     @Column(name = "STRG_FILE_NM", length = 100, nullable = false)
     @Comment("파일UUID")
@@ -35,7 +35,7 @@ public class TblComFile {
 
     @Column(name = "ATCH_FILE_SZ", length = 10, nullable = false)
     @Comment("첨부파일사이즈")
-    private int atchFileSz;
+    private long atchFileSz;
 
     @Column(name = "ATCH_FILE_EXTN_NM", length = 20, nullable = false)
     @Comment("첨부파일확장자")
@@ -51,7 +51,7 @@ public class TblComFile {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")

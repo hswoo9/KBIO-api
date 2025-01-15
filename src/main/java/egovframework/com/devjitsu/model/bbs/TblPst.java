@@ -19,7 +19,7 @@ public class TblPst {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PST_SN", length = 22)
     @Comment("게시물일련번호")
-    private int pstSn;
+    private long pstSn;
 
     @Column(name = "UPEND_NTC_YN", columnDefinition = "CHAR(1) DEFAULT 'N'")
     @Comment("상단공지여부")
@@ -39,11 +39,11 @@ public class TblPst {
 
     @Column(name = "BBS_SN", length = 22, nullable = false)
     @Comment("게시판일련번호")
-    private int bbsSn;
+    private long bbsSn;
 
     @Column(name = "BBS_CTGRY_SN", length = 22)
     @Comment("게시판카테고리일련번호")
-    private int bbsCtgrySn;
+    private Long bbsCtgrySn;
 
     @Column(name = "PST_TTL", length = 256)
     @Comment("게시글제목")
@@ -55,11 +55,11 @@ public class TblPst {
 
     @Column(name = "PST_INQ_CNT", length = 10, columnDefinition = "INT(10) DEFAULT 0")
     @Comment("조회수")
-    private int pstInqCnt = 0;
+    private long pstInqCnt = 0;
 
     @Column(name = "PST_GROUP", length = 10)
     @Comment("게시글그룹")
-    private int pstGroup;
+    private long pstGroup;
 
     @Column(name = "ORGNL_PST_SN", length = 22)
     @Comment("원글일련번호")
@@ -99,7 +99,7 @@ public class TblPst {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")
