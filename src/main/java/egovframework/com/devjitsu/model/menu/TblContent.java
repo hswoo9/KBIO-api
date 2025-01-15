@@ -55,7 +55,7 @@ public class TblContent {
 
     @Column(name = "MDFR_SN", columnDefinition = "INT(10)", insertable = false)
     @Comment("수정자일련번호")
-    private Integer mdfrSn;
+    private Long mdfrSn;
 
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")

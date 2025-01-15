@@ -1,5 +1,7 @@
 package egovframework.com.devjitsu.service.menu;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
@@ -8,12 +10,15 @@ import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.menu.*;
 import egovframework.com.devjitsu.repository.menu.TblAuthrtGroupMenuRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
+import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +31,7 @@ public class MenuAuthGroupApiService {
     private final EntityManager em;
     private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
     private final TblAuthrtGroupMenuRepository tblAuthrtGroupMenuRepository;
+    private final TblMenuAuthrtGroupUserRepository tblMenuAuthrtGroupUserRepository;
 
     public ResultVO getMenuAuthGroupList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
@@ -147,6 +153,60 @@ public class MenuAuthGroupApiService {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
+
+        return resultVO;
+    }
+
+    public ResultVO setMenuAuthGroupUser(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            Gson gson = new Gson();
+            List<TblMenuAuthrtGroupUser> tblMenuAuthrtGroupUsers = gson.fromJson(dto.get("authrtGroupUsers").toString(), new TypeToken<List<TblMenuAuthrtGroupUser>>() {}.getType());
+            for(TblMenuAuthrtGroupUser t : tblMenuAuthrtGroupUsers){
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                if (StringUtils.isEmpty(t.getAuthrtGrntDt())) {
+                    t.setAuthrtGrntDt(LocalDate.now().format(formatter));
+                    t.setActvtnYn("Y");
+                }else{
+                    LocalDate authDt = LocalDate.parse(t.getAuthrtGrntDt(), formatter);
+                    LocalDate currentDate = LocalDate.now();
+                    if (authDt.isAfter(currentDate)) {
+                        t.setActvtnYn("N");
+                    } else {
+                        t.setActvtnYn("Y");
+                    }
+                }
+
+                long duplicateCnt = q
+                        .selectFrom(qTblMenuAuthrtGroupUser)
+                        .where(
+                                qTblMenuAuthrtGroupUser.authrtGroupSn.eq(t.getAuthrtGroupSn())
+                                        .and(qTblMenuAuthrtGroupUser.userSn.eq(t.getUserSn()))
+                        ).fetchCount();
+
+                if(duplicateCnt == 0){
+                    tblMenuAuthrtGroupUserRepository.save(t);
+                }else{
+                    TblMenuAuthrtGroupUser existingAuthGrant = tblMenuAuthrtGroupUserRepository.findByAuthrtGroupSnAndUserSn(t.getAuthrtGroupSn(), t.getUserSn());
+                    existingAuthGrant.setUserNm(t.getUserNm());
+                    existingAuthGrant.setUserId(t.getUserId());
+                    existingAuthGrant.setAuthrtGrntDt(t.getAuthrtGrntDt());
+                    existingAuthGrant.setActvtnYn(t.getActvtnYn());
+                    existingAuthGrant.setMdfrSn(t.getMdfrSn() == null ? t.getCreatrSn() : t.getMdfrSn());
+                    tblMenuAuthrtGroupUserRepository.save(existingAuthGrant);
+                }
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
 
         return resultVO;
     }
