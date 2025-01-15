@@ -91,4 +91,19 @@ public class BbsAdminApiController {
         return bbsAdminApiService.setBbsDel(tblBbs);
     }
 
+    /**
+     * 게시글 리스트 조회
+     * params
+     * {
+     *    bbsSn(필수)      : 게시판키
+     *    searchType       : 검색유형
+     *    searchVal : 검색어
+     * }
+     * @return
+     */
+    @PostMapping("/bbsApi/getPstList.do")
+    public ResultVO getPstList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return bbsAdminApiService.getPstList(dto);
+    }
 }
