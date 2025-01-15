@@ -49,7 +49,7 @@ public class MemberApiController {
             @ApiResponse(responseCode = "200", description = "회원 ID 사용 가능"),
             @ApiResponse(responseCode = "400", description = "회원 ID 중복")
     })
-    @PostMapping(value = "/memberApi/membercheckid.do")
+    @PostMapping(value = "/memberApi/checkMemberId.do")
     public ResultVO checkMemberId(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.checkMemberId(dto);
@@ -64,7 +64,7 @@ public class MemberApiController {
             @ApiResponse(responseCode = "200", description = "회원가입 신청이 완료되었습니다."),
             @ApiResponse(responseCode = "400", description = "회원가입 신청 실패")
     })
-    @PostMapping(value = "/memberApi/insertmember.do")
+    @PostMapping(value = "/memberApi/insertMember.do")
     public ResultVO insertMember(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.insertMember(dto);
