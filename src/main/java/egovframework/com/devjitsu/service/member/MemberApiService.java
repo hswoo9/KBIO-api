@@ -1,6 +1,7 @@
 package egovframework.com.devjitsu.service.member;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
@@ -76,6 +77,35 @@ public class MemberApiService {
             resultVO.putResult("usedCnt", 0);  // 중복되지 않음
         }
 
+        return resultVO;
+    }
+
+    public ResultVO insertMember(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        // SearchDto에서 값 추출
+        String userNm = (String) dto.get("mberId");
+        String emplyrId = (String) dto.get("mberNm");
+        String password = (String) dto.get("password");
+        String houseAdres = (String) dto.get("searchAddress");
+        String emailAdres = (String) dto.get("emailPrefix") +"@"+  dto.get("emailDomain");
+        String mbtlnum = (String) dto.get("phonenum");
+
+        // LettnemplyrinfoVO에 데이터 설정
+        LettnemplyrinfoVO member = new LettnemplyrinfoVO();
+        member.setUserNm(userNm);
+        member.setEmplyrId(emplyrId);
+        member.setPassword(password);
+        member.setHouseAdres(houseAdres);
+        member.setEmailAdres(emailAdres);
+        member.setMbtlnum(mbtlnum);
+
+        // 데이터 저장
+        lettnemplyrinfoRepository.save(member);
+
+        // 성공 메시지 설정
+        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        resultVO.setResultMessage("회원 등록이 성공적으로 완료되었습니다.");
         return resultVO;
     }
 }

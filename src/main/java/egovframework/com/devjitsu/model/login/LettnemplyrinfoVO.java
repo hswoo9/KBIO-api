@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class LettnemplyrinfoVO {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_SN", length = 22)
     private int userSn;
 

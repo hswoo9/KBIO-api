@@ -54,4 +54,19 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.checkMemberId(dto);
     }
+
+    @Operation(
+            summary = "회원가입 신청",
+            description = "회원가입 신청하기",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원가입 신청이 완료되었습니다."),
+            @ApiResponse(responseCode = "400", description = "회원가입 신청 실패")
+    })
+    @PostMapping(value = "/memberApi/insertmember.do")
+    public ResultVO insertMember(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.insertMember(dto);
+    }
 }
