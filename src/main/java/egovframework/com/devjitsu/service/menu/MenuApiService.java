@@ -51,9 +51,16 @@ public class MenuApiService {
 
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
+            if (!StringUtils.isEmpty(dto.get("upperMenuSn"))) {
+                builder.and(tblMenu.upperMenuSn.eq(Long.parseLong(dto.get("upperMenuSn").toString())));
+            }
+
             if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
                 builder.and(tblMenu.actvtnYn.eq((String) dto.get("actvtnYn")));
             }
+
+
+
 
             List<TblMenu> menus = q.selectFrom(tblMenu).where(builder).orderBy(tblMenu.menuWholPath.asc()).fetch();
             List<TblMenu> returnMenus = new ArrayList<>();
