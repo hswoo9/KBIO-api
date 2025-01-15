@@ -20,7 +20,6 @@ public class MvnEntApiController {
 
     @PostMapping("/mvnEntApi/setMvnEnt")
     public ResultVO setMvnEnt(@RequestBody TblMvnEnt tblMvnEnt){
-        System.out.println("**들어오는 값** : " + tblMvnEnt);
         return mvnEntApiService.setMvnEnt(tblMvnEnt);
     }
 }

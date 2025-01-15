@@ -84,8 +84,8 @@ public class MemberApiService {
         ResultVO resultVO = new ResultVO();
 
         // SearchDto에서 값 추출
-        String userNm = (String) dto.get("mberId");
-        String emplyrId = (String) dto.get("mberNm");
+        String userNm = (String) dto.get("mberNm");
+        String emplyrId = (String) dto.get("mberId");
         String password = (String) dto.get("password");
         String houseAdres = (String) dto.get("searchAddress");
         String emailAdres = (String) dto.get("emailPrefix") +"@"+  dto.get("emailDomain");
