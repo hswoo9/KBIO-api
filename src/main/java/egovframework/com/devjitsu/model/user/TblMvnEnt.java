@@ -59,7 +59,7 @@ public class TblMvnEnt {
 
     @Column(name = "ENT_DADDR", length = 200)
     @Comment("기업상세주소")
-    private String entDaaddr;
+    private String entDaddr;
 
     @Column(name = "BZSTAT_NM", length = 100)
     @Comment("업태명")

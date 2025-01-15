@@ -31,10 +31,24 @@ public class MvnEntApiService {
         ResultVO resultVO = new ResultVO();
 
         try{
+            TblMvnEnt mvnEnt = new TblMvnEnt();
+
+            mvnEnt.setBrno(tblMvnEnt.getBrno());
+            mvnEnt.setMvnEntNm(tblMvnEnt.getMvnEntNm());
+            mvnEnt.setRpsvNm(tblMvnEnt.getRpsvNm());
+            mvnEnt.setZip(tblMvnEnt.getZip());
+            mvnEnt.setEntAddr(tblMvnEnt.getEntAddr());
+            mvnEnt.setEntDaddr(tblMvnEnt.getEntDaddr());
+            mvnEnt.setClsNm(tblMvnEnt.getClsNm());
+            mvnEnt.setEntTelno(tblMvnEnt.getEntTelno());
+            //mvnEnt.setFrstCrtDt(tblMvnEnt.getFrstCrtDt());
+
+            System.out.println("***mvnEnt*** : "+mvnEnt);
+
             QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
-            tblMvnEntRepository.save(tblMvnEnt);
+            tblMvnEntRepository.save(mvnEnt);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
