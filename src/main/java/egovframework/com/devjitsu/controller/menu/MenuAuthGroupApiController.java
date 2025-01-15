@@ -130,4 +130,18 @@ public class MenuAuthGroupApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return menuAuthGroupApiService.setMenuAuthGroupUser(dto);
     }
+
+    /**
+     * 권한 부여 삭제
+     * @param
+     * {
+     *     authrtGroupUserSns(필수)      : 권한 부여 키 (여러개 일시 쉼표로 분리)
+     * }
+     * @return
+     */
+    @PostMapping("/menuApi/setMenuAuthGroupUserDel.do")
+    public ResultVO setMenuAuthGroupUserDel(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return menuAuthGroupApiService.setMenuAuthGroupUserDel(dto);
+    }
 }

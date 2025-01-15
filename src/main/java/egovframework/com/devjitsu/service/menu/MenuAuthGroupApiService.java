@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -207,6 +208,28 @@ public class MenuAuthGroupApiService {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
+
+        return resultVO;
+    }
+
+    public ResultVO setMenuAuthGroupUserDel(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
+
+            String[] authrtGroupUserSns = dto.get("authrtGroupUserSns").toString().split(",");
+            for(String authrtGroupUserSn : authrtGroupUserSns){
+                q.delete(qTblMenuAuthrtGroupUser).where(qTblMenuAuthrtGroupUser.authrtGroupUserSn.eq(Long.valueOf(authrtGroupUserSn))).execute();
+
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
 
         return resultVO;
     }
