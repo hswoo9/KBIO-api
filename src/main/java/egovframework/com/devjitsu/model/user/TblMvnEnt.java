@@ -19,7 +19,7 @@ public class TblMvnEnt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MVN_ENT_SN" , length = 22)
     @Comment("입주기업일련번호")
-    private int mvnEntSn;
+    private long mvnEntSn;
 
     @Column(name = "BRNO", columnDefinition = "CHAR(10)")
     @Comment("사업자등록번호")
@@ -111,7 +111,7 @@ public class TblMvnEnt {
 
     @Column(name = "CPTL", length = 15)
     @Comment("자본금")
-    private int cptl;
+    private long cptl;
 
     @Column(name = "EUSE_CNPL", length = 11)
     @Comment("비상연락처")
@@ -135,7 +135,7 @@ public class TblMvnEnt {
 
     @Column(name = "EMP_CNT", length = 10)
     @Comment("직원수")
-    private int empCnt;
+    private long empCnt;
 
     @Column(name = "FCTRY_ZIP", columnDefinition = "CHAR(5)")
     @Comment("공장우편번호")
@@ -171,7 +171,7 @@ public class TblMvnEnt {
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
-    private int creatrSn;
+    private long creatrSn;
 
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")
@@ -179,7 +179,7 @@ public class TblMvnEnt {
 
     @Column(name = "MDFR_SN", columnDefinition = "INT(10)", insertable = false)
     @Comment("수정자일련번호")
-    private Integer mdfrSn;
+    private Long mdfrSn;
 
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
