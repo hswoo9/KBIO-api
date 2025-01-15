@@ -42,6 +42,21 @@ public class MenuAuthGroupApiController {
     }
 
     /**
+     * 메뉴 권한 그룹 리스트 페이징 추가
+     * @param
+     * {
+     *     authGroupName : 권한 그룹 이름
+     *     pageIndex : 기본 값 1
+     * }
+     * @return
+     */
+    @PostMapping("/menuApi/getMenuAuthGroupListOnPage.do")
+    public ResultVO getMenuAuthGroupListOnPage(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return menuAuthGroupApiService.getMenuAuthGroupListOnPage(dto);
+    }
+
+    /**
      * 메뉴 권한 그룹 조회
      * @param
      * {

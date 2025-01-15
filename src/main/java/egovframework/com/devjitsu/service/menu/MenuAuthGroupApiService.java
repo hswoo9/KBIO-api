@@ -8,18 +8,26 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.menu.*;
+import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
+import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroup;
+import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroupUser;
 import egovframework.com.devjitsu.repository.menu.TblAuthrtGroupMenuRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.bag.HashBag;
+import org.egovframe.rte.fdl.property.EgovPropertyService;
+import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +36,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional
 public class MenuAuthGroupApiService {
+
+    @Resource(name = "propertiesService")
+    protected EgovPropertyService propertyService;
 
     private final EntityManager em;
     private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
@@ -49,6 +60,44 @@ public class MenuAuthGroupApiService {
 
             List<TblMenuAuthrtGroup> authGroup = q.selectFrom(qTblMenuAuthrtGroup).where(builder).orderBy(qTblMenuAuthrtGroup.frstCrtDt.desc()).fetch();
             resultVO.putResult("menuAuthGroup", authGroup);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getMenuAuthGroupListOnPage(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            QTblMenuAuthrtGroup qTblMenuAuthrtGroup = QTblMenuAuthrtGroup.tblMenuAuthrtGroup;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            /** query DSL 조건 추가하는 방법 */
+            BooleanBuilder builder = new BooleanBuilder();
+            if (!StringUtils.isEmpty(dto.get("authGroupName"))) {
+                builder.and(qTblMenuAuthrtGroup.authrtGroupNm.contains((String) dto.get("authGroupName")));
+            }
+
+            List<TblMenuAuthrtGroup> authGroup = q.selectFrom(qTblMenuAuthrtGroup).where(builder).orderBy(qTblMenuAuthrtGroup.frstCrtDt.desc()).offset(paginationInfo.getFirstRecordIndex()).limit(paginationInfo.getRecordCountPerPage()).fetch();
+
+            Long totCnt = q.select(qTblMenuAuthrtGroup.count())
+                            .from(qTblMenuAuthrtGroup)
+                    .where(builder).orderBy(qTblMenuAuthrtGroup.frstCrtDt.desc()).fetchOne();
+            if(totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            resultVO.putResult("authGroup", authGroup);
+            resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
