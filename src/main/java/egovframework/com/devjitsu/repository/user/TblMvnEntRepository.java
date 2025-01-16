@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TblMvnEntRepository extends JpaRepository<TblMvnEnt, String>{
 
+    TblMvnEnt findByMvnEntSn(long mvnEntSn);
+
 }

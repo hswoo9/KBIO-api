@@ -1,6 +1,7 @@
 package egovframework.com.devjitsu.controller.user;
 
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.user.TblMvnEnt;
 import egovframework.com.devjitsu.service.user.MvnEntApiService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin("*")
@@ -21,5 +24,17 @@ public class MvnEntApiController {
     @PostMapping("/mvnEntApi/setMvnEnt")
     public ResultVO setMvnEnt(@RequestBody TblMvnEnt tblMvnEnt){
         return mvnEntApiService.setMvnEnt(tblMvnEnt);
+    }
+
+    @PostMapping("/mvnEntApi/getMvnEntList.do")
+    public ResultVO getMvnEntList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+        return mvnEntApiService.getMvnEntList(dto);
+    }
+
+    @PostMapping("/mvnEntApi/getRc")
+    public ResultVO getMvnEntOne(@RequestBody TblMvnEnt tblMvnEnt){
+        return mvnEntApiService.getRc(tblMvnEnt);
     }
 }
