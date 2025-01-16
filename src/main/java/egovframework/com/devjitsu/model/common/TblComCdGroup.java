@@ -1,5 +1,6 @@
 package egovframework.com.devjitsu.model.common;
 
+import egovframework.com.devjitsu.model.menu.TblMenu;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,8 @@ import org.hibernate.annotations.Comment;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "TBL_COM_CD_GROUP")
@@ -76,4 +79,7 @@ public class TblComCdGroup {
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
+
+    @Transient
+    private List<TblComCd> comCdList = new ArrayList<>();
 }
