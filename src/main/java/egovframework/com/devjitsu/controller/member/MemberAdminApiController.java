@@ -58,10 +58,10 @@ public class MemberAdminApiController {
      * 회원 삭제
      * @return
      */
-/*    @PostMapping("/memberApi/setNormalMemberDel")
-    public ResultVO setBbsDel(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
+    @PostMapping("/memberApi/setNormalMemberDel")
+    public ResultVO setNormalMemberDel(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
         return memberAdminApiService.setNormalMemberDel(lettnemplyrinfoVO);
-    }*/
+    }
 
 
 }

@@ -119,22 +119,19 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    /*public ResultVO setNormalMemberDel(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO setNormalMemberDel(LettnemplyrinfoVO lettnemplyrinfoVO) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            QTblPst tblPst = QTblPst.tblPst;
-            JPAQueryFactory q = new JPAQueryFactory(em);
-            q.delete(tblPst).where(lettnemplyrinfoVO.userSn.eq(lettnemplyrinfoVO.getUserSn())).execute();
-            tblBbsRepository.delete(lettnemplyrinfoVO);
+            tblMemberRepository.save(lettnemplyrinfoVO);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
             e.printStackTrace();
-            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
         return resultVO;
-    }*/
+    }
 
 
 }
