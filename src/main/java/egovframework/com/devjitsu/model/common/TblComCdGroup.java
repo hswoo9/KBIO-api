@@ -17,17 +17,17 @@ public class TblComCdGroup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "GROUP_CD_SN", length = 22)
-    @Comment("그룹코드일련번호")
-    private long groupCdSn;
+    @Column(name = "CD_GROUP_SN", length = 22)
+    @Comment("코드그룹일련번호")
+    private Long cdGroupSn;
 
-    @Column(name = "GROUP_CD", length = 20, nullable = false, updatable = false)
-    @Comment("그룹코드")
-    private String groupCd;
+    @Column(name = "CD_GROUP", length = 20, nullable = false, updatable = false)
+    @Comment("코드그룹")
+    private String cdGroup;
 
-    @Column(name = "GROUP_CD_NM", length = 100, nullable = false)
-    @Comment("그룹코드명")
-    private String groupCdNm;
+    @Column(name = "CD_GROUP_NM", length = 100, nullable = false)
+    @Comment("코드그룹명")
+    private String cdGroupNm;
 
     @Column(name = "ETC_MTTR1", length = 2000)
     @Comment("기타사항1")

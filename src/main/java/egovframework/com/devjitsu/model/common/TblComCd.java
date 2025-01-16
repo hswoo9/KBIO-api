@@ -21,9 +21,9 @@ public class TblComCd {
     @Comment("공통코드일련번호")
     private long comCdSn;
 
-    @Column(name = "COM_CD_GROUP_SN", length = 22, nullable = false, updatable = false)
-    @Comment("공통코드그룹일련번호")
-    private long comCdGroupSn;
+    @Column(name = "CD_GROUP_SN", length = 22, nullable = false, updatable = false)
+    @Comment("코드그룹일련번호")
+    private long cdGroupSn;
 
     @Column(name = "CD", length = 20, nullable = false)
     @Comment("공통코드")
