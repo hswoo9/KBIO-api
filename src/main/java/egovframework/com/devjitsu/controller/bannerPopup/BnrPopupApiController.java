@@ -35,6 +35,14 @@ public class BnrPopupApiController {
         return bnrPopupApiService.getBnrPopupListOnPage(dto);
     }
 
+    /**
+     * 배너팝업 단일 조회
+     * @param
+     * {
+     *     bnrPopupSn : 배너팝업일련번호 (필수)
+     * }
+     * @return
+     */
     @PostMapping("/pannerPopupApi/getBnrPopup")
     public ResultVO getBnrPopup(@RequestBody TblBnrPopup tblBnrPopup) {
         return bnrPopupApiService.getBnrPopup(tblBnrPopup);
