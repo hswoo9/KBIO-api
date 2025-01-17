@@ -29,9 +29,10 @@ public class CommonApiController {
      * @param params
      * @return
      */
-    @PostMapping("/commonApi/getComCdGroupList")
-    public ResultVO getComCdGroupList(@RequestBody Map<String, Object> params) {
-        return commonApiService.getComCdGroupList(params);
+    @PostMapping("/commonApi/getComCdGroupList.do")
+    public ResultVO getComCdGroupList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return commonApiService.getComCdGroupList(dto);
     }
 
     /**
@@ -154,6 +155,20 @@ public class CommonApiController {
     @PostMapping("/commonApi/getComCd")
     public ResultVO getComCd(@RequestBody TblComCd tblComCd) {
         return commonApiService.getComCd(tblComCd);
+    }
+
+    /**
+     * 공통 코드 리스트 조회
+     * @param
+     * {
+     *     cdGroupSn : 코드일련번호(필수)
+     * }
+     * @return
+     */
+    @PostMapping("/commonApi/getComCdList.do")
+    public ResultVO getComCdList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return commonApiService.getComCdList(dto);
     }
 
     /**

@@ -69,17 +69,32 @@ public class CommonApiService {
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
 
-    public ResultVO getComCdGroupList(Map<String, Object> params) {
+    public ResultVO getComCdGroupList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
         QTblComCdGroup qTblComCdGroup = QTblComCdGroup.tblComCdGroup;
+        QTblComCd qTblComCd = QTblComCd.tblComCd;
         JPAQueryFactory q = new JPAQueryFactory(em);
 
         /** query DSL 조건 추가하는 방법 */
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
+        if (!StringUtils.isEmpty(dto.get("cdGroupSn"))) {
+            builder.and(qTblComCdGroup.cdGroupSn.eq(Long.valueOf(Integer.parseInt(dto.get("cdGroupSn").toString()))));
+        }
+        List<TblComCdGroup> cdGroupList = q.selectFrom(qTblComCdGroup).where(builder).orderBy(qTblComCdGroup.frstCrtDt.desc()).fetch();
+        if(cdGroupList.size() > 0){
 
-        resultVO.putResult("rs",  q.selectFrom(qTblComCdGroup).where(builder).orderBy(qTblComCdGroup.frstCrtDt.desc()).fetch());
+            for( TblComCdGroup tccg : cdGroupList){
+                BooleanBuilder builder2 = new BooleanBuilder();
+                if(!StringUtils.isEmpty(tccg.getCdGroupSn())){
+                    builder2.and(qTblComCd.cdGroupSn.eq(tccg.getCdGroupSn()));
+                    List<TblComCd> comCdList = q.selectFrom(qTblComCd).join(qTblComCdGroup).on(qTblComCd.cdGroupSn.eq(qTblComCdGroup.cdGroupSn)).where(builder2).orderBy(qTblComCd.sortSeq.asc()).fetch();
+                    tccg.setComCdList(comCdList);
+                }
+            }
+        }
+        resultVO.putResult("cdGroupList",  cdGroupList);
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         return resultVO;
     }
@@ -216,6 +231,26 @@ public class CommonApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
             BooleanBuilder builder = new BooleanBuilder();
             resultVO.putResult("comCd", tblComCdRepository.findByComCdSn(tblComCd.getComCdSn()));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+        return resultVO;
+    }
+
+    public ResultVO getComCdList(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+        try {
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+            if (!StringUtils.isEmpty(dto.get("cdGroupSn"))) {
+                builder.and(qTblComCd.cdGroupSn.eq(Long.valueOf(Integer.parseInt(dto.get("cdGroupSn").toString()))));
+            }
+
+            List<TblComCd> tblComCdList = q.selectFrom(qTblComCd).where(builder).orderBy(qTblComCd.sortSeq.asc()).fetch();
+
+            resultVO.putResult("comCdList", tblComCdList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
