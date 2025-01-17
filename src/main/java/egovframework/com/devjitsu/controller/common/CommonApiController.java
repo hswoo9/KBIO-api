@@ -2,6 +2,7 @@ package egovframework.com.devjitsu.controller.common;
 
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,4 +42,17 @@ public class CommonApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return commonApiService.getRedisUserInfo(dto);
     }
+
+    /**
+     * 첨부파일 삭제 (공통)
+     * {
+     *     atchFileSn : 첨부파일 키
+     * }
+     * @return
+     */
+    @PostMapping("/commonApi/setFileDel")
+    public ResultVO setFileDel(@RequestBody TblComFile tblComFile) {
+        return commonApiService.setFileDel(tblComFile);
+    }
+
 }

@@ -1,12 +1,15 @@
 package egovframework.com.devjitsu.model.bbs;
 
+import egovframework.com.devjitsu.model.common.TblComFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "TBL_PST")
@@ -19,19 +22,19 @@ public class TblPst {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PST_SN", length = 22)
     @Comment("게시물일련번호")
-    private long pstSn;
+    private Long pstSn;
 
     @Column(name = "UPEND_NTC_YN", columnDefinition = "CHAR(1) DEFAULT 'N'")
     @Comment("상단공지여부")
-    private String upendNtcYn;
+    private String upendNtcYn = "N";
 
-    @Column(name = "NTC_BGNG_DT")
+    @Column(name = "NTC_BGNG_DT", columnDefinition = "CHAR(8)")
     @Comment("공지시작일")
-    private LocalDateTime ntcBgngDt;
+    private String ntcBgngDt;
 
-    @Column(name = "NTC_END_DATE")
+    @Column(name = "NTC_END_DATE", columnDefinition = "CHAR(8)")
     @Comment("공지종료일")
-    private LocalDateTime ntcEndDate;
+    private String ntcEndDate;
 
     @Column(name = "OTSD_LINK", length = 100)
     @Comment("외부링크")
@@ -63,7 +66,7 @@ public class TblPst {
 
     @Column(name = "ORGNL_PST_SN", length = 22)
     @Comment("원글일련번호")
-    private Integer orgnlPstSn;
+    private Long orgnlPstSn;
 
     @Column(name = "CMNT_LEVEL", length = 10)
     @Comment("답글레벨")
@@ -112,4 +115,10 @@ public class TblPst {
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
+
+    @OneToMany(mappedBy = "pstSn", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<TblPstCmnt> replies;
+
+    @Transient
+    private List<TblComFile> pstFiles;
 }

@@ -19,6 +19,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import org.egovframe.rte.fdl.idgnr.EgovIdGnrService;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.springframework.stereotype.Component;
@@ -148,7 +150,55 @@ public class EgovFileMngUtil {
 	return result;
     }
 
-    /**
+	/**
+	 * 첨부파일 저장
+	 * @param files
+	 * @return
+	 * @throws Exception
+	 */
+	public List<TblComFile> devFileInf(List<MultipartFile> files, String subPath, String psnTblPk, long fileCnt) throws Exception {
+		long fileKey = fileCnt;
+		String storePathString = propertyService.getString("Globals.fileStorePath") + subPath;
+		/**
+		 * storePathString = /home/upload/bbs/6/pst/141
+		 */
+
+		File saveFolder = new File(EgovWebUtil.filePathBlackList(storePathString));
+		if (!saveFolder.exists() || saveFolder.isFile()) {
+			saveFolder.mkdirs();
+		}
+
+		String filePath = "";
+		List<TblComFile> result  = new ArrayList<>();
+
+		for(MultipartFile f : files){
+			TblComFile comFile = new TblComFile();
+			String orginFileName = f.getOriginalFilename();
+			int index = orginFileName.lastIndexOf(".");
+			String fileExt = orginFileName.substring(index + 1);
+			String newName = EgovStringUtil.getTimeStamp() + "_" + fileKey;
+			long _size = f.getSize();
+			if (!"".equals(orginFileName)) {
+				filePath = storePathString + File.separator + newName + "." + fileExt;
+				f.transferTo(new File(EgovWebUtil.filePathBlackList(filePath)));
+			}
+			comFile.setStrgFileNm(newName);
+			comFile.setAtchFileNm(orginFileName);
+			comFile.setAtchFilePathNm(storePathString);
+			comFile.setAtchFileSz(_size);
+			comFile.setAtchFileExtnNm(fileExt);
+			comFile.setPsnTblPk(psnTblPk);
+
+			fileKey++;
+
+			result.add(comFile);
+		}
+
+		return result;
+	}
+
+
+	/**
      * 첨부파일을 서버에 저장한다.
      *
      * @param file
@@ -470,4 +520,22 @@ public class EgovFileMngUtil {
     	fin.close();
 	//*/
     }
+
+	public boolean deleteFile(String[] fileNames, String filePath) {
+		boolean returnFlag = true;
+		if(fileNames != null && fileNames.length > 0){
+			for(int i = 0 ; i < fileNames.length; i++){
+				File orifile = new File(filePath + fileNames[i]);
+				if(orifile.exists()){
+					boolean deleteFlag = orifile.delete();
+					if(!deleteFlag){
+						returnFlag = false;
+						break;
+					}
+				}
+			}
+		}
+
+		return returnFlag;
+	}
 }

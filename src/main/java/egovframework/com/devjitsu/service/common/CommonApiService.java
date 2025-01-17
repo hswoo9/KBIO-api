@@ -6,9 +6,11 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.querydsl.core.BooleanBuilder;
 import egovframework.com.cmm.ResponseCode;
+import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.repository.common.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.common.TblComCdRepository;
@@ -26,6 +28,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.Map;
@@ -39,6 +42,9 @@ public class CommonApiService {
 
     @Autowired
     private RedisApiService redisApiService;
+
+    @Resource(name = "EgovFileMngUtil")
+    private EgovFileMngUtil fileUtil;
 
     /**
      * jpa 부등호
@@ -76,6 +82,25 @@ public class CommonApiService {
         resultVO.putResult("rs", redisApiService.getRedis(0, String.valueOf(dto.get("userSn"))));
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
+        return resultVO;
+    }
+
+    public ResultVO setFileDel(TblComFile tblComFile) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            boolean isDelete = fileUtil.deleteFile(new String[]{tblComFile.getStrgFileNm()}, tblComFile.getAtchFilePathNm());
+            if(isDelete){
+                tblComFileRepository.delete(tblComFile);
+            }else{
+                throw new Exception();
+            }
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
         return resultVO;
     }
 }

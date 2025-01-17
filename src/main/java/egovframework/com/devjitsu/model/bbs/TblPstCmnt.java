@@ -21,7 +21,7 @@ public class TblPstCmnt {
     @Comment("게시물댓글일련번호")
     private long pstRelySn;
 
-    @Column(name = "PST_SN", length = 22)
+    @Column(name = "PST_SN", length = 22, nullable = false, updatable = false)
     @Comment("게시물일련번호")
     private long pstSn;
 
