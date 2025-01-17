@@ -69,4 +69,19 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.insertMember(dto);
     }
+
+    @Operation(
+            summary = "회원가입시 입주기업/유관기관 조회",
+            description = "입주기업 유관기관 있는지 조회",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "입주기업/유관기관 조회 완료"),
+            @ApiResponse(responseCode = "400", description = "입주기업/유관기관 조회 실패")
+    })
+    @PostMapping(value = "/memberApi/checkBusiness.do")
+    public ResultVO checkBusiness(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.checkBusiness(dto);
+    }
 }

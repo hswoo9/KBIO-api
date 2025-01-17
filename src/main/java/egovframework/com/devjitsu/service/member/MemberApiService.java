@@ -7,7 +7,9 @@ import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
+import egovframework.com.devjitsu.model.user.QTblMvnEnt;
 import egovframework.com.devjitsu.model.user.QTblUserSnsCertInfo;
+import egovframework.com.devjitsu.model.user.TblMvnEnt;
 import egovframework.com.devjitsu.model.user.TblUserSnsCertInfo;
 import egovframework.com.devjitsu.repository.common.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.common.TblComCdRepository;
@@ -75,6 +77,30 @@ public class MemberApiService {
             // 사용 가능한 ID일 경우
             resultVO.setResultCode(200);  // 사용 가능한 아이디 코드
             resultVO.putResult("usedCnt", 0);  // 중복되지 않음
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO checkBusiness(SearchDto dto) {
+
+        ResultVO resultVO = new ResultVO();
+
+        QTblMvnEnt tblMvnEnt = QTblMvnEnt.tblMvnEnt;
+
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        TblMvnEnt List = q.selectFrom(tblMvnEnt)
+                .where(tblMvnEnt.brno.eq(dto.get("businessNumber").toString()))
+                .fetchOne();
+
+        if (List != null) {
+            resultVO.setResultCode(200);
+            resultVO.putResult("businessCnt", 1);
+            resultVO.putResult("businessData", List);
+        } else {
+            resultVO.setResultCode(400);
+            resultVO.putResult("businessCnt", 0);
+            resultVO.putResult("businessData", null);
         }
 
         return resultVO;
