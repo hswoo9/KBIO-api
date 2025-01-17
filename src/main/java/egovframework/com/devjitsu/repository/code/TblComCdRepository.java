@@ -1,8 +1,6 @@
-package egovframework.com.devjitsu.repository.common;
+package egovframework.com.devjitsu.repository.code;
 
 import egovframework.com.devjitsu.model.common.TblComCd;
-import egovframework.com.devjitsu.model.common.TblComCdGroup;
-import egovframework.com.devjitsu.model.common.TblComFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

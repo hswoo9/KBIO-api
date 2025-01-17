@@ -3,36 +3,20 @@ package egovframework.com.devjitsu.service.member;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
-import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.user.QTblMvnEnt;
-import egovframework.com.devjitsu.model.user.QTblUserSnsCertInfo;
 import egovframework.com.devjitsu.model.user.TblMvnEnt;
-import egovframework.com.devjitsu.model.user.TblUserSnsCertInfo;
-import egovframework.com.devjitsu.repository.common.TblComCdGroupRepository;
-import egovframework.com.devjitsu.repository.common.TblComCdRepository;
-import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
-import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
