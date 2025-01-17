@@ -7,24 +7,17 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
-import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
-import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
-import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroupUser;
-import egovframework.com.devjitsu.model.menu.TblMenu;
-import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroup;
-import egovframework.com.devjitsu.repository.common.TblComCdGroupRepository;
-import egovframework.com.devjitsu.repository.common.TblComCdRepository;
-import egovframework.com.devjitsu.repository.common.TblComFileRepository;
-import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.code.TblComFileRepository;
 import lombok.RequiredArgsConstructor;
+import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.util.Map;
 
@@ -52,10 +45,10 @@ public class CommonApiService {
      * loe : <=
      */
     /**
-     *  query DSL 조건 추가하는 방법
-     *  BooleanBuilder builder = new BooleanBuilder();
-     *  builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
-     * */
+     * query DSL 조건 추가하는 방법
+     * BooleanBuilder builder = new BooleanBuilder();
+     * builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
+     */
     private final TblComCdRepository tblComCdRepository;
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
@@ -70,7 +63,7 @@ public class CommonApiService {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
 
-        resultVO.putResult("rs",  q.selectFrom(qTblComCdGroup).where(builder).orderBy(qTblComCdGroup.frstCrtDt.desc()).fetch());
+        resultVO.putResult("rs", q.selectFrom(qTblComCdGroup).where(builder).orderBy(qTblComCdGroup.frstCrtDt.desc()).fetch());
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         return resultVO;
     }
@@ -88,13 +81,13 @@ public class CommonApiService {
 
         try {
             boolean isDelete = fileUtil.deleteFile(new String[]{tblComFile.getStrgFileNm()}, tblComFile.getAtchFilePathNm());
-            if(isDelete){
+            if (isDelete) {
                 tblComFileRepository.delete(tblComFile);
-            }else{
+            } else {
                 throw new Exception();
             }
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
