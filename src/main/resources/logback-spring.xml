@@ -33,33 +33,33 @@
 	</appender>
 
 	<!-- File에 로그 출력 세팅 -->
-	<appender name="FILE"
+	<!--<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<!-- 파일 경로 설정 -->
+		&lt;!&ndash; 파일 경로 설정 &ndash;&gt;
 		<file>${LOG_PATH}/${LOG_FILE_NAME}.log</file>
 
-		<!-- 출력패턴 설정 -->
+		&lt;!&ndash; 출력패턴 설정 &ndash;&gt;
 		<encoder
 			class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<pattern>${LOG_PATTERN}</pattern>
 		</encoder>
 
-		<!-- Rolling 정책 -->
+		&lt;!&ndash; Rolling 정책 &ndash;&gt;
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<!-- .gz,.zip 등을 넣으면 자동 일자별 로그파일 압축 -->
+			&lt;!&ndash; .gz,.zip 등을 넣으면 자동 일자별 로그파일 압축 &ndash;&gt;
 			<fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log
 			</fileNamePattern>
 			<timeBasedFileNamingAndTriggeringPolicy
 				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<!-- 파일당 최고 용량 kb, mb, gb -->
+				&lt;!&ndash; 파일당 최고 용량 kb, mb, gb &ndash;&gt;
 				<maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
 			</timeBasedFileNamingAndTriggeringPolicy>
-			<!-- 일자별 로그파일 최대 보관주기(~일), 해당 설정일 이상된 파일은 자동으로 제거 -->
+			&lt;!&ndash; 일자별 로그파일 최대 보관주기(~일), 해당 설정일 이상된 파일은 자동으로 제거 &ndash;&gt;
 			<maxHistory>${LOG_MAX_HISTORY}</maxHistory>
-			<!--<MinIndex>1</MinIndex> <MaxIndex>10</MaxIndex> -->
+			&lt;!&ndash;<MinIndex>1</MinIndex> <MaxIndex>10</MaxIndex> &ndash;&gt;
 		</rollingPolicy>
-	</appender>
+	</appender>-->
 
 	<logger name="java.sql" level="${LOG_LEVEL}" />
 	<logger name="egovframework" level="${LOG_LEVEL}" />
@@ -74,6 +74,6 @@
 		<appender-ref ref="CONSOLE" />
 
 		<!-- 위에 설정한 파일 설정 추가 -->
-		<appender-ref ref="FILE" />
+		<!--<appender-ref ref="FILE" />-->
 	</root>
 </Configuration>
