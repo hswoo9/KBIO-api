@@ -209,9 +209,18 @@ public class BbsAdminApiService {
                             PstDto.class,
                             qTblPst.pstSn,
                             new CaseBuilder()
-                                    .when(qTblPst.upendNtcYn.eq("Y"))
-//                                            .and(qTblPst.ntcBgngDt.loe(now))
-//                                            .and(qTblPst.ntcEndDate.goe(now)))
+                                    .when(qTblPst.upendNtcYn.eq("Y")
+                                            .and(
+                                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcBgngDt).loe(
+                                                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                                                )
+                                            )
+                                            .and(
+                                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcEndDate).goe(
+                                                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                                                )
+                                            )
+                                    )
                                     .then("Y")
                                     .otherwise("N").as("upendNtcYn"),
                             qTblPst.bbsSn,
@@ -229,8 +238,17 @@ public class BbsAdminApiService {
                     .orderBy(
                         new CaseBuilder()
                                 .when(qTblPst.upendNtcYn.eq("Y")
-                                        .and(qTblPst.ntcBgngDt.substring(0, 8).loe("ㄴㅁㅁㄴ"))  // String을 잘라서 비교
-                                        .and(qTblPst.ntcEndDate.substring(0, 8).goe("ㅁㄴㅇㅁㄴㅇ")))
+                                    .and(
+                                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcBgngDt).loe(
+                                                Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                                        )
+                                    )
+                                    .and(
+                                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcEndDate).goe(
+                                                Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                                        )
+                                    )
+                                )
                                 .then(0)
                                 .otherwise(1)
                                 .asc(),  // ASC로 정렬

@@ -19,7 +19,7 @@ public class TblMvnEnt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MVN_ENT_SN" , length = 22)
     @Comment("입주기업일련번호")
-    private long mvnEntSn;
+    private Long mvnEntSn;
 
     @Column(name = "BRNO", columnDefinition = "CHAR(10)")
     @Comment("사업자등록번호")

@@ -21,7 +21,7 @@ public class TblMenu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MENU_SN", length = 22)
     @Comment("메뉴일련번호")
-    private long menuSn;
+    private Long menuSn;
 
     @Column(name = "UPPER_MENU_SN", length = 22, nullable = false)
     @Comment("상위메뉴일련번호")

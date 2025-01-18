@@ -19,7 +19,7 @@ public class TblContent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CONTS_SN", length = 22)
     @Comment("메뉴콘텐츠일련번호")
-    private long contsSn;
+    private Long contsSn;
 
     @Column(name = "MENU_SN", length = 22)
     @Comment("메뉴일련번호")

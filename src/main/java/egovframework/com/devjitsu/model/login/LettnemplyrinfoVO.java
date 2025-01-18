@@ -18,7 +18,7 @@ public class LettnemplyrinfoVO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_SN", length = 22)
-    private long userSn;
+    private Long userSn;
 
     @Column(name = "EMPLYR_ID", length = 20)
     private String emplyrId;

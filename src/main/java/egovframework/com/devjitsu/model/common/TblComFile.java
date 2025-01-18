@@ -19,7 +19,7 @@ public class TblComFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ATCH_FILE_SN", length = 22)
     @Comment("파일일련번호")
-    private long atchFileSn;
+    private Long atchFileSn;
 
     @Column(name = "STRG_FILE_NM", length = 100, nullable = false)
     @Comment("파일UUID")

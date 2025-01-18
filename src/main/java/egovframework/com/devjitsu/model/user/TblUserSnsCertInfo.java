@@ -19,7 +19,7 @@ public class TblUserSnsCertInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_SNS_CERT_INFO_SN", length = 22)
     @Comment("사용자SNS인증정보일련번호")
-    private long userSnsCertInfoSn;
+    private Long userSnsCertInfoSn;
 
     @Column(name = "USER_SN", length = 22, nullable = false, updatable = false)
     @Comment("사용자일련번호")
