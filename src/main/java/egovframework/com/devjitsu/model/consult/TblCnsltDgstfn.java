@@ -20,7 +20,7 @@ public class TblCnsltDgstfn {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CNSLT_DGSTFN_SN", length = 22)
     @Comment("컨설팅만족도일련번호")
-    private long cnsltDgstfnSn;
+    private Long cnsltDgstfnSn;
 
     @Column(name = "CNSLT_APLY_SN", length = 22, nullable = false, updatable = false)
     @Comment("컨설팅신청일련번호")

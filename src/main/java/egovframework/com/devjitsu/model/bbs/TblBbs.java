@@ -20,7 +20,7 @@ public class TblBbs {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "BBS_SN", length = 22)
     @Comment("게시판일련번호")
-    private long bbsSn;
+    private Long bbsSn;
 
     @Column(name = "BBS_NM", length = 256, nullable = false)
     @Comment("게시판명")

@@ -20,7 +20,7 @@ public class TblPstCmnt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PST_RELY_SN", length = 22)
     @Comment("게시물댓글일련번호")
-    private long pstRelySn;
+    private Long pstRelySn;
 
     @Column(name = "PST_SN", length = 22, nullable = false, updatable = false)
     @Comment("게시물일련번호")
