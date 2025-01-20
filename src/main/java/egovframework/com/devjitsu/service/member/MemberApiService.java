@@ -167,7 +167,6 @@ public class MemberApiService {
         // 이메일 전송
         boolean emailSent = sendEmail(
                 lettnemplyrinfoVO.getEmailAdres(),
-                "임시 비밀번호 발급",
                 "안녕하세요. 회원님의 임시 비밀번호는 다음과 같습니다: " + tempPassword + "\n로그인 후 비밀번호를 변경해 주세요."
         );
 
@@ -199,7 +198,7 @@ public class MemberApiService {
     }
 
 
-    private boolean sendEmail(String to, String subject, String body) {
+    private boolean sendEmail(String to, String body) {
         String host = "smtp.gmail.com";
         final String username = "gksthe@gmail.com";
         final String password = "mqhgtubmkdtpsoaa";
@@ -220,7 +219,7 @@ public class MemberApiService {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-            message.setSubject(subject);
+            message.setSubject("임시 비밀번호 발급");
             message.setText(body);
 
             Transport.send(message);
