@@ -36,7 +36,18 @@ public class MemberApiService {
     private final EntityManager em;
     private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
 
-
+    /**
+     * jpa 부등호
+     * gt : >
+     * lt : <
+     * goe : >=
+     * loe : <=
+     */
+    /**
+     *  query DSL 조건 추가하는 방법
+     *  BooleanBuilder builder = new BooleanBuilder();
+     *  builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
+     * */
     public ResultVO checkMemberId(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
