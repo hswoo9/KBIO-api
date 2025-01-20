@@ -99,4 +99,19 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.findId(dto);
     }
+
+    @Operation(
+            summary = "회원 PASSWORD 찾기",
+            description = "회원 id, name, email가져와서 이메일로 전달",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 패스워드 변경 완료"),
+            @ApiResponse(responseCode = "400", description = "회원 패스워드 변경 실패")
+    })
+    @PostMapping(value = "/memberApi/findPassword.do")
+    public ResultVO findPassword(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.findPassword(dto);
+    }
 }

@@ -17,6 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.Random;
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.util.Properties;
 
 @Service
 @RequiredArgsConstructor
@@ -31,21 +35,9 @@ public class MemberApiService {
 
     private final EntityManager em;
     private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
-    /**
-     * jpa 부등호
-     * gt : >
-     * lt : <
-     * goe : >=
-     * loe : <=
-     */
-    /**
-     *  query DSL 조건 추가하는 방법
-     *  BooleanBuilder builder = new BooleanBuilder();
-     *  builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
-     * */
+
 
     public ResultVO checkMemberId(SearchDto dto) {
-
         ResultVO resultVO = new ResultVO();
 
         QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
@@ -55,32 +47,31 @@ public class MemberApiService {
                 .fetchOne();
 
         if (lettnemplyrinfoVO != null) {
-            resultVO.setResultCode(400);  // 중복된 아이디 코드
-            resultVO.putResult("usedCnt", 1);  // 1개 중복된 아이디 존재
+            resultVO.setResultCode(400);
+            resultVO.putResult("usedCnt", 1);
         } else {
-            // 사용 가능한 ID일 경우
-            resultVO.setResultCode(200);  // 사용 가능한 아이디 코드
-            resultVO.putResult("usedCnt", 0);  // 중복되지 않음
+            resultVO.setResultCode(200);
+            resultVO.putResult("usedCnt", 0);
         }
 
         return resultVO;
     }
 
-    public ResultVO checkBusiness(SearchDto dto) {
 
+    public ResultVO checkBusiness(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
         QTblMvnEnt tblMvnEnt = QTblMvnEnt.tblMvnEnt;
 
-        JPAQueryFactory q = new JPAQueryFactory(em);
-        TblMvnEnt List = q.selectFrom(tblMvnEnt)
+        TblMvnEnt businessInfo = new JPAQueryFactory(em)
+                .selectFrom(tblMvnEnt)
                 .where(tblMvnEnt.brno.eq(dto.get("businessNumber").toString()))
                 .fetchOne();
 
-        if (List != null) {
+        if (businessInfo != null) {
             resultVO.setResultCode(200);
             resultVO.putResult("businessCnt", 1);
-            resultVO.putResult("businessData", List);
+            resultVO.putResult("businessData", businessInfo);
         } else {
             resultVO.setResultCode(400);
             resultVO.putResult("businessCnt", 0);
@@ -90,42 +81,33 @@ public class MemberApiService {
         return resultVO;
     }
 
+
     public ResultVO insertMember(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
-        // SearchDto에서 값 추출
-        String userNm = (String) dto.get("mberNm");
-        String emplyrId = (String) dto.get("mberId");
-        String password = (String) dto.get("password");
-        String houseAdres = (String) dto.get("searchAddress");
-        String emailAdres = (String) dto.get("emailPrefix") +"@"+  dto.get("emailDomain");
-        String mbtlnum = (String) dto.get("phonenum");
-
-        // LettnemplyrinfoVO에 데이터 설정
         LettnemplyrinfoVO member = new LettnemplyrinfoVO();
-        member.setUserNm(userNm);
-        member.setEmplyrId(emplyrId);
-        member.setPassword(password);
-        member.setHouseAdres(houseAdres);
-        member.setEmailAdres(emailAdres);
-        member.setMbtlnum(mbtlnum);
+        member.setUserNm((String) dto.get("mberNm"));
+        member.setEmplyrId((String) dto.get("mberId"));
+        member.setPassword((String) dto.get("password"));
+        member.setHouseAdres((String) dto.get("searchAddress"));
+        member.setEmailAdres(dto.get("emailPrefix") + "@" + dto.get("emailDomain"));
+        member.setMbtlnum((String) dto.get("phonenum"));
 
-        // 데이터 저장
         lettnemplyrinfoRepository.save(member);
 
-        // 성공 메시지 설정
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         resultVO.setResultMessage("회원 등록이 성공적으로 완료되었습니다.");
         return resultVO;
     }
 
+
+
     public ResultVO findId(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
-        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
 
-        LettnemplyrinfoVO lettnemplyrinfoVO = queryFactory
+        LettnemplyrinfoVO lettnemplyrinfoVO = new JPAQueryFactory(em)
                 .selectFrom(qLettnemplyrinfoVO)
                 .where(
                         qLettnemplyrinfoVO.userNm.eq(dto.get("name").toString())
@@ -144,4 +126,97 @@ public class MemberApiService {
         return resultVO;
     }
 
+    public ResultVO findPassword(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+        LettnemplyrinfoVO lettnemplyrinfoVO = new JPAQueryFactory(em)
+                .selectFrom(qLettnemplyrinfoVO)
+                .where(
+                        qLettnemplyrinfoVO.emplyrId.eq((String) dto.get("id"))
+                                .and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("name")))
+                                .and(qLettnemplyrinfoVO.emailAdres.eq((String) dto.get("email")))
+                )
+                .fetchOne();
+
+        // 회원 정보가 없을 경우
+        if (lettnemplyrinfoVO == null) {
+            resultVO.setResultCode(400);
+            resultVO.putResult("message", "회원 정보를 찾을 수 없습니다.");
+            return resultVO;
+        }
+
+        // 임시 비밀번호 생성
+        String tempPassword = generateRandomPassword();
+
+        // 비밀번호를 VO에 설정 및 저장
+        lettnemplyrinfoVO.setPassword(tempPassword);
+        lettnemplyrinfoRepository.save(lettnemplyrinfoVO);
+
+        // 이메일 전송
+        boolean emailSent = sendEmail(
+                lettnemplyrinfoVO.getEmailAdres(),
+                "임시 비밀번호 발급",
+                "안녕하세요. 회원님의 임시 비밀번호는 다음과 같습니다: " + tempPassword + "\n로그인 후 비밀번호를 변경해 주세요."
+        );
+
+        // 이메일 전송 실패 처리
+        if (!emailSent) {
+            resultVO.setResultCode(400);
+            resultVO.putResult("message", "임시 비밀번호 이메일 전송에 실패했습니다.");
+            return resultVO;
+        }
+
+        // 성공 응답 처리
+        resultVO.setResultCode(200);
+        resultVO.putResult("message", "임시 비밀번호가 이메일로 발송되었습니다.");
+        return resultVO;
+    }
+
+
+    private String generateRandomPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder password = new StringBuilder();
+        Random random = new Random();
+
+        for (int i = 0; i < 10; i++) {
+            int index = random.nextInt(chars.length());
+            password.append(chars.charAt(index));
+        }
+
+        return password.toString();
+    }
+
+
+    private boolean sendEmail(String to, String subject, String body) {
+        String host = "smtp.gmail.com";
+        final String username = "gksthe@gmail.com";
+        final String password = "mqhgtubmkdtpsoaa";
+
+        Properties properties = new Properties();
+        properties.put("mail.smtp.host", host);
+        properties.put("mail.smtp.port", "587");
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(properties, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+
+        try {
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(username));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            message.setSubject(subject);
+            message.setText(body);
+
+            Transport.send(message);
+            return true;
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
