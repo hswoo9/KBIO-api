@@ -118,4 +118,30 @@ public class MemberApiService {
         resultVO.setResultMessage("회원 등록이 성공적으로 완료되었습니다.");
         return resultVO;
     }
+
+    public ResultVO findId(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+
+        LettnemplyrinfoVO lettnemplyrinfoVO = queryFactory
+                .selectFrom(qLettnemplyrinfoVO)
+                .where(
+                        qLettnemplyrinfoVO.userNm.eq(dto.get("name").toString())
+                                .and(qLettnemplyrinfoVO.emailAdres.eq(dto.get("email").toString()))
+                )
+                .fetchOne();
+
+        if (lettnemplyrinfoVO != null) {
+            resultVO.setResultCode(200);
+            resultVO.putResult("memberId", lettnemplyrinfoVO.getEmplyrId());
+        } else {
+            resultVO.setResultCode(400);
+            resultVO.putResult("memberId", null);
+        }
+
+        return resultVO;
+    }
+
 }

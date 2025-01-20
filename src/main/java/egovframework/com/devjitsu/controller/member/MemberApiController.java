@@ -84,4 +84,19 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.checkBusiness(dto);
     }
+
+    @Operation(
+            summary = "회원 ID 찾기",
+            description = "회원 name, email가져와서 ID 찾기",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 ID 조회 완료"),
+            @ApiResponse(responseCode = "400", description = "회원 ID 조회 실패")
+    })
+    @PostMapping(value = "/memberApi/findId.do")
+    public ResultVO findId(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.findId(dto);
+    }
 }
