@@ -51,7 +51,7 @@ public class BnrPopupApiController {
     @PostMapping("/bannerPopupApi/setBnrPopup")
     public ResultVO setBnrPopup(
             @ModelAttribute TblBnrPopup tblBnrPopup,
-            @RequestParam(value = "files") List<MultipartFile> files){
+            @RequestParam(value = "files", required = false) List<MultipartFile> files){
         return bnrPopupApiService.setBnrPopup(tblBnrPopup, files);
     }
 
