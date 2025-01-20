@@ -1,12 +1,16 @@
 package egovframework.com.devjitsu.model.bannerPopup;
 
+import egovframework.com.devjitsu.model.common.TblComFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "TBL_BNR_POPUP")
@@ -89,6 +93,7 @@ public class TblBnrPopup {
     @Comment("생성자일련번호")
     private long creatrSn;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @Comment("최초생성일시")
     private LocalDateTime frstCrtDt = LocalDateTime.now();
@@ -100,4 +105,7 @@ public class TblBnrPopup {
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
+
+    @Transient
+    private List<TblComFile> tblComFiles;
 }

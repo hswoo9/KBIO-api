@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TblBnrPopupRepository extends JpaRepository<TblBnrPopup, String> {
 
-    TblComCdGroup findByBnrPopupSn(Long bnrPopupSn);
+    TblBnrPopup findByBnrPopupSn(Long bnrPopupSn);
 }
