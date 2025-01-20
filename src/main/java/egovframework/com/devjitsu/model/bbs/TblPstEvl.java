@@ -24,9 +24,9 @@ public class TblPstEvl {
     @Comment("게시물평가일련번호")
     private Long pstEvlSn;
 
-    @Column(name = "BBS_SN", length = 22, nullable = false)
-    @Comment("게시판일련번호")
-    private long bbsSn;
+    @Column(name = "PST_SN", length = 22, nullable = false)
+    @Comment("게시글일련번호")
+    private long pstSn;
 
     @Column(name = "EVL_USER_SN", length = 22, nullable = false)
     @Comment("평가사용자일련번호")
@@ -46,7 +46,7 @@ public class TblPstEvl {
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
-    private String actvtnYn;
+    private String actvtnYn = "Y";
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")

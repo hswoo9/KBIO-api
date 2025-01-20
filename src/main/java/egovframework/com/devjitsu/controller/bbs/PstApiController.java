@@ -2,6 +2,7 @@ package egovframework.com.devjitsu.controller.bbs;
 
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.TblPst;
+import egovframework.com.devjitsu.model.bbs.TblPstEvl;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.service.bbs.BbsAdminApiService;
 import egovframework.com.devjitsu.service.bbs.PstApiService;
@@ -90,5 +91,21 @@ public class PstApiController {
     @PostMapping("/pstApi/setPstDel")
     public ResultVO setPstDel(@RequestBody TblPst tblPst) {
         return pstApiService.setPstDel(tblPst);
+    }
+
+    /**
+     * 게시글 평가
+     * params
+     * {
+     *    pstSn(필수)      : 게시글키
+     *    evlUserSn(필수)      : 평가사용자일련번호
+     *    evlArtclNo(필수)      : 평가항목번호
+     *    creatrSn(필수)      : 생성자일련번호
+     * }
+     * @return
+     */
+    @PostMapping("/pstApi/setPstEvl")
+    public ResultVO setPstEvl(@RequestBody TblPstEvl tblPstEvl) {
+        return pstApiService.setPstEvl(tblPstEvl);
     }
 }

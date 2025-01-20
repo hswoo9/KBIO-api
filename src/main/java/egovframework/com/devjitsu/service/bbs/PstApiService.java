@@ -19,6 +19,7 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
+import egovframework.com.devjitsu.repository.bbs.TblPstEvlRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +64,7 @@ public class PstApiService {
      * */
     private final TblBbsRepository tblBbsRepository;
     private final TblPstRepository tblPstRepository;
+    private final TblPstEvlRepository tblPstEvlRepository;
     private final TblComFileRepository tblComFileRepository;
 
     public ResultVO getPstList(SearchDto dto) {
@@ -268,6 +270,20 @@ public class PstApiService {
 
         try {
             deletePstRecursively(tblPst);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setPstEvl(TblPstEvl tblPstEvl) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            tblPstEvlRepository.save(tblPstEvl);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
             e.printStackTrace();
