@@ -15,10 +15,18 @@ public class PstDto {
     private String upendNtcYn;
     private long bbsSn;
     private String pstTtl;
-    private long pstInqCnt;
+    private Long pstInqCnt;
     private String rlsYn;
     private String actvtnYn;
-    private long creatrSn;
+    private Long orgnlPstSn;
+    private Long creatrSn;
     private LocalDateTime frstCrtDt;
-    private long fileCnt;
+    private Long fileCnt;
+    private String position;
+
+    public PstDto(long pstSn, String pstTtl, String position) {
+        this.pstSn = pstSn;
+        this.pstTtl = pstTtl;
+        this.position = position;
+    }
 }

@@ -1,10 +1,12 @@
 package egovframework.com.devjitsu.service.bbs;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -29,7 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -108,28 +113,30 @@ public class PstApiService {
                             PstDto.class,
                             qTblPst.pstSn,
                             new CaseBuilder()
-                                    .when(qTblPst.upendNtcYn.eq("Y")
-                                            .and(
-                                                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcBgngDt).loe(
-                                                            Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
-                                                    )
-                                            )
-                                            .and(
-                                                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcEndDate).goe(
-                                                            Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
-                                                    )
-                                            )
+                                .when(qTblPst.upendNtcYn.eq("Y")
+                                    .and(
+                                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcBgngDt).loe(
+                                                Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                                        )
                                     )
-                                    .then("Y")
-                                    .otherwise("N").as("upendNtcYn"),
+                                    .and(
+                                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcEndDate).goe(
+                                                Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                                        )
+                                    )
+                                )
+                                .then("Y")
+                                .otherwise("N").as("upendNtcYn"),
                             qTblPst.bbsSn,
                             qTblPst.pstTtl,
                             qTblPst.pstInqCnt,
                             qTblPst.rlsYn,
                             qTblPst.actvtnYn,
+                            qTblPst.orgnlPstSn,
                             qTblPst.creatrSn,
                             qTblPst.frstCrtDt,
-                            fileCnt
+                            fileCnt,
+                            Expressions.constant("")
                         )
                     )
                     .from(qTblPst)
@@ -183,6 +190,7 @@ public class PstApiService {
             tblPst = tblPstRepository.findByPstSn(tblPst.getPstSn());
             tblPst.setPstFiles(tblComFileRepository.findByPsnTblPk("pst_" + tblPst.getPstSn()));
             resultVO.putResult("pst", tblPst);
+            resultVO.putResult("pstPrevNext", getPstPrevNext(tblPst));
             resultVO.putResult("bbs", getBbs(tblPst.getBbsSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
@@ -204,17 +212,25 @@ public class PstApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             if(!StringUtils.isEmpty(tblPst.getOrgnlPstSn())) {
-                NumberPath<Integer> maxCmntLevel = qTblPst.cmntLevel;
-                JPAQuery<Integer> query = q
-                        .select(Expressions.numberTemplate(Integer.class, "COALESCE(MAX({0}), 0) + 1", maxCmntLevel))
-                        .from(qTblPst)
-                        .where(qTblPst.bbsSn.eq(tblPst.getBbsSn())
-                                .and(qTblPst.pstGroup.eq(tblPst.getPstGroup())));
-                Integer nextReplyLevel = query.fetchOne();
-                tblPst.setCmntLevel(nextReplyLevel);
+                TblPst orgnlPst = q.selectFrom(qTblPst).where(qTblPst.pstSn.eq(tblPst.getOrgnlPstSn())).fetchOne();
+                if(orgnlPst.getRlsYn().equals("Y")) {
+                    tblPst.setRlsYn(orgnlPst.getRlsYn());
+                    tblPst.setPrvtPswd(orgnlPst.getPrvtPswd());
+                }
+
+                if(StringUtils.isEmpty(tblPst.getCmntLevel())){
+                    NumberPath<Integer> maxCmntLevel = qTblPst.cmntLevel;
+                    JPAQuery<Integer> query = q
+                            .select(Expressions.numberTemplate(Integer.class, "COALESCE(MAX({0}), 0) + 1", maxCmntLevel))
+                            .from(qTblPst)
+                            .where(qTblPst.bbsSn.eq(tblPst.getBbsSn())
+                                    .and(qTblPst.pstGroup.eq(tblPst.getPstGroup())));
+                    Integer nextReplyLevel = query.fetchOne();
+                    tblPst.setCmntLevel(nextReplyLevel);
+                }
             }
 
-            if(StringUtils.isEmpty(tblPst.getPstSn())){
+            if(StringUtils.isEmpty(tblPst.getPstGroup())){
                 /** 등록 */
                 NumberPath<Long> maxArticleGroup = qTblPst.pstGroup;
                 JPAQuery<Integer> group  = q
@@ -263,6 +279,21 @@ public class PstApiService {
 
     public TblBbs getBbs(long bbsSn) {
         return tblBbsRepository.findByBbsSn(bbsSn);
+    }
+
+    private List<PstDto> getPstPrevNext(TblPst tblPst){
+        List<Object[]> results = tblPstRepository.getPrevNextPSt(tblPst.getBbsSn(), tblPst.getPstSn());
+        List<PstDto> pstDtos = new ArrayList<>();
+        for (Object[] result : results) {
+            PstDto pstDto = new PstDto(
+                    Long.valueOf((Integer) result[0]),
+                    (String) result[1],        // pstTtl
+                    (String) result[2]        // position
+            );
+            pstDtos.add(pstDto);
+        }
+
+        return pstDtos;
     }
 
     private void deletePstRecursively(TblPst tblPst) throws Exception {
