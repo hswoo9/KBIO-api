@@ -11,6 +11,7 @@ import egovframework.com.devjitsu.model.user.TblMvnEnt;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
+import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -93,13 +94,15 @@ public class MemberApiService {
     }
 
 
-    public ResultVO insertMember(SearchDto dto) {
+    public ResultVO insertMember(SearchDto dto) throws Exception {
         ResultVO resultVO = new ResultVO();
 
         LettnemplyrinfoVO member = new LettnemplyrinfoVO();
         member.setUserNm((String) dto.get("mberNm"));
         member.setEmplyrId((String) dto.get("mberId"));
-        member.setPassword((String) dto.get("password"));
+        //member.setPassword((String) dto.get("password"));
+        String hashedPswd = EgovFileScrty.encryptPassword((String)dto.get("password"),(String) dto.get("mberId"));
+        member.setPassword(hashedPswd);
         member.setHouseAdres((String) dto.get("searchAddress"));
         member.setEmailAdres(dto.get("emailPrefix") + "@" + dto.get("emailDomain"));
         member.setMbtlnum((String) dto.get("phonenum"));

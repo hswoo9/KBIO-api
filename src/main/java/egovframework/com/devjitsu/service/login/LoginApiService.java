@@ -99,6 +99,7 @@ public class LoginApiService {
         JPAQueryFactory q = new JPAQueryFactory(em);
         BooleanBuilder builder = new BooleanBuilder();
 
+        /**ID확인*/
         if(dto.getLoginType().equals("base")){
             lettnemplyrinfoVO = q.selectFrom(qLettnemplyrinfoVO).where(qLettnemplyrinfoVO.emplyrId.eq(dto.getId())).fetchOne();
         }else{

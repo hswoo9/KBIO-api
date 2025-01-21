@@ -65,7 +65,7 @@ public class MemberApiController {
             @ApiResponse(responseCode = "400", description = "회원가입 신청 실패")
     })
     @PostMapping(value = "/memberApi/insertMember.do")
-    public ResultVO insertMember(HttpServletRequest request) {
+    public ResultVO insertMember(HttpServletRequest request)throws Exception {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.insertMember(dto);
     }
