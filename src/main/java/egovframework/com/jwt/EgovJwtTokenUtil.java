@@ -90,7 +90,8 @@ public class EgovJwtTokenUtil implements Serializable{
         claims.put("id", loginVO.getEmplyrId() );
         claims.put("name", loginVO.getUserNm() );
         claims.put("userSe", "ADM" );
-        claims.put("orgnztId", loginVO.getOrgnztId() );
+        //claims.put("orgnztId", loginVO.getOrgnztId() );
+        claims.put("orgnztId", loginVO.getEmplyrId() );
         claims.put("type", subject);
 
     	log.debug("===>>> secret = "+SECRET_KEY);
