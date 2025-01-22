@@ -19,6 +19,7 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
+import egovframework.com.devjitsu.repository.bbs.TblPstCmntRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstEvlRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -64,6 +65,7 @@ public class PstApiService {
      * */
     private final TblBbsRepository tblBbsRepository;
     private final TblPstRepository tblPstRepository;
+    private final TblPstCmntRepository tblPstCmntRepository;
     private final TblPstEvlRepository tblPstEvlRepository;
     private final TblComFileRepository tblComFileRepository;
 
@@ -191,6 +193,7 @@ public class PstApiService {
         try {
             tblPst = tblPstRepository.findByPstSn(tblPst.getPstSn());
             tblPst.setPstFiles(tblComFileRepository.findByPsnTblPk("pst_" + tblPst.getPstSn()));
+            tblPst.setPstCmnt(getPstCmnt(tblPst));
             resultVO.putResult("pst", tblPst);
             resultVO.putResult("pstPrevNext", getPstPrevNext(tblPst));
             resultVO.putResult("bbs", getBbs(tblPst.getBbsSn()));
@@ -279,6 +282,111 @@ public class PstApiService {
         return resultVO;
     }
 
+    public ResultVO getPstCmntList(TblPst tblPst) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            resultVO.putResult("pstCmntList", getPstCmnt(tblPst));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public List<TblPstCmnt> getPstCmnt(TblPst tblPst){
+        QTblPstCmnt qTblPstCmnt = QTblPstCmnt.tblPstCmnt;
+        JPAQueryFactory q = new JPAQueryFactory(em);
+
+        List<TblPstCmnt> pstCmntList = q
+                .selectFrom(qTblPstCmnt)
+                .where(qTblPstCmnt.pstSn.eq(tblPst.getPstSn()).and(qTblPstCmnt.actvtnYn.eq("Y")))
+                .orderBy(qTblPstCmnt.cmntGrp.asc(), qTblPstCmnt.cmntSeq.asc()).fetch();
+        return pstCmntList;
+    }
+
+    public ResultVO setPstCmnt(TblPstCmnt tblPstCmnt) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblPstCmnt qTblPstCmnt = QTblPstCmnt.tblPstCmnt;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            if(!StringUtils.isEmpty(tblPstCmnt.getUpPstCmntSn())){
+                /** 댓글 순서 */
+                NumberPath<Long> maxCmntSeq = qTblPstCmnt.cmntSeq;
+                JPAQuery<Long> upPstCmntSeq  = q
+                        .select(Expressions.numberTemplate(Long.class, "COALESCE(MAX({0}), 0) + 1", maxCmntSeq))
+                        .from(qTblPstCmnt)
+                        .where(qTblPstCmnt.cmntGrp.eq(tblPstCmnt.getCmntGrp()).and(qTblPstCmnt.pstCmntSn.eq(tblPstCmnt.getUpPstCmntSn())));
+
+                JPAQuery<Long> upSubPstCmntSeq  = q
+                        .select(Expressions.numberTemplate(Long.class, "COALESCE(MAX({0}), 0) + 1", maxCmntSeq))
+                        .from(qTblPstCmnt)
+                        .where(qTblPstCmnt.cmntGrp.eq(tblPstCmnt.getCmntGrp()).and(qTblPstCmnt.upPstCmntSn.eq(tblPstCmnt.getUpPstCmntSn())));
+
+                Long upPstCmntSeqVal = upPstCmntSeq.fetchOne();
+                Long upSubPstCmntSeqVal = upSubPstCmntSeq.fetchOne();
+
+                if(upPstCmntSeqVal > upSubPstCmntSeqVal){
+                    tblPstCmnt.setCmntSeq(upPstCmntSeqVal);
+                }else{
+                    tblPstCmnt.setCmntSeq(upSubPstCmntSeqVal);
+                }
+
+                NumberPath<Long> maxCmntStp = qTblPstCmnt.cmntStp;
+                JPAQuery<Long> seq = q
+                        .select(Expressions.numberTemplate(Long.class, "COALESCE(MAX({0}), 0) + 1", maxCmntStp))
+                        .from(qTblPstCmnt)
+                        .where(qTblPstCmnt.cmntGrp.eq(tblPstCmnt.getCmntGrp())
+                                .and(qTblPstCmnt.pstCmntSn.eq(tblPstCmnt.getUpPstCmntSn())));
+                tblPstCmnt.setCmntStp(seq.fetchOne());
+
+
+                q.update(qTblPstCmnt)
+                        .set(qTblPstCmnt.cmntSeq, qTblPstCmnt.cmntSeq.add(1))
+                        .where(
+                                qTblPstCmnt.cmntSeq.goe(tblPstCmnt.getCmntSeq())
+                                        .and(qTblPstCmnt.pstSn.eq(tblPstCmnt.getPstSn()))
+                        ).execute();
+            }
+
+            if(StringUtils.isEmpty(tblPstCmnt.getCmntGrp())) {
+                NumberPath<Long> cmntGroup = qTblPstCmnt.cmntGrp;
+                JPAQuery<Long> maxCmntGroup  = q
+                        .select(Expressions.numberTemplate(Long.class, "COALESCE(MAX({0}), 0) + 1", cmntGroup))
+                        .from(qTblPstCmnt)
+                        .where(qTblPstCmnt.pstSn.eq(tblPstCmnt.getPstSn()));
+                tblPstCmnt.setCmntGrp(maxCmntGroup.fetchOne());
+            }
+
+            tblPstCmntRepository.save(tblPstCmnt);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setPstCmntDel(TblPstCmnt tblPstCmnt) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            deletePstCmntRecursively(tblPstCmnt);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
     public ResultVO setPstEvl(TblPstEvl tblPstEvl) {
         ResultVO resultVO = new ResultVO();
 
@@ -334,5 +442,18 @@ public class PstApiService {
         }
 
         tblPstRepository.delete(tblPst);
+    }
+
+    private void deletePstCmntRecursively(TblPstCmnt tblPstCmnt) {
+        QTblPstCmnt qTblPstCmnt = QTblPstCmnt.tblPstCmnt;
+
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        /** 답글 삭제 */
+        List<TblPstCmnt> childrenCmnt = q.selectFrom(qTblPstCmnt).where(qTblPstCmnt.upPstCmntSn.eq(tblPstCmnt.getPstCmntSn())).fetch();
+        for (TblPstCmnt cmnt : childrenCmnt) {
+            deletePstCmntRecursively(cmnt);
+        }
+
+        tblPstCmntRepository.delete(tblPstCmnt);
     }
 }

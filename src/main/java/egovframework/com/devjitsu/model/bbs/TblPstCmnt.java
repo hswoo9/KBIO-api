@@ -18,41 +18,45 @@ public class TblPstCmnt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PST_RELY_SN", length = 22)
+    @Column(name = "PST_CMNT_SN", length = 22)
     @Comment("게시물댓글일련번호")
-    private Long pstRelySn;
+    private Long pstCmntSn;
 
     @Column(name = "PST_SN", length = 22, nullable = false, updatable = false)
     @Comment("게시물일련번호")
     private long pstSn;
 
-    @Column(name = "CMNT_CN", length = 4000)
+    @Column(name = "CMNT_CN", length = 2000, nullable = false)
     @Comment("댓글내용")
     private String cmntCn;
 
-    @Column(name = "CMNT_GRP", length = 22)
-    @Comment("원글일련번호")
-    private Integer cmntGrp;
+    @Column(name = "CMNT_GRP", length = 10)
+    @Comment("댓글그룹")
+    private Long cmntGrp;
+
+    @Column(name = "UP_PST_CMNT_SN", length = 22)
+    @Comment("상위댓글일련번호")
+    private Long upPstCmntSn;
 
     @Column(name = "CMNT_SEQ", length = 10)
     @Comment("댓글순서")
-    private long cmntSeq;
+    private Long cmntSeq;
 
-    @Column(name = "CMNT_LEVEL", length = 10)
-    @Comment("댓글깊이")
-    private long cmntLevel;
+    @Column(name = "CMNT_STP", length = 10)
+    @Comment("댓글단계")
+    private Long cmntStp;
 
-    @Column(name = "CMNT_RLS_EN", length = 10)
+    @Column(name = "RLS_EN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("공개유무")
-    private long cmntRlsEn;
+    private String rlsEn = "Y";
 
     @Column(name = "PRVT_PSWD", length = 50)
-    @Comment("게시글제목")
+    @Comment("비공개비밀번호")
     private String prvtPswd;
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
-    private String actvtnYn;
+    private String actvtnYn = "Y";
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")

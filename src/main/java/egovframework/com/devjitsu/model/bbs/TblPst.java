@@ -118,8 +118,8 @@ public class TblPst {
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
 
-    @OneToMany(mappedBy = "pstSn", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<TblPstCmnt> replies;
+    @Transient
+    private List<TblPstCmnt> pstCmnt;
 
     @Transient
     private List<TblComFile> pstFiles;

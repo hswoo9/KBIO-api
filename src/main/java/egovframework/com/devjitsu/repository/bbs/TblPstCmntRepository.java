@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface TblPstComntRepository extends JpaRepository<TblPstCmnt, String> {
+public interface TblPstCmntRepository extends JpaRepository<TblPstCmnt, String> {
 
 }

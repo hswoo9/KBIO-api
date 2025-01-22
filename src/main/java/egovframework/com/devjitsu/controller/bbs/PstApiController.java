@@ -2,6 +2,7 @@ package egovframework.com.devjitsu.controller.bbs;
 
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.TblPst;
+import egovframework.com.devjitsu.model.bbs.TblPstCmnt;
 import egovframework.com.devjitsu.model.bbs.TblPstEvl;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.service.bbs.BbsAdminApiService;
@@ -26,7 +27,7 @@ public class PstApiController {
      * 게시글 리스트 조회
      * params
      * {
-     *    bbsSn(필수)      : 게시판키
+     *    bbsSn(필수)       : 게시판키
      *    searchType       : 검색유형
      *    searchVal : 검색어
      * }
@@ -94,13 +95,55 @@ public class PstApiController {
     }
 
     /**
-     * 게시글 평가
+     * 게시글 댓글 리스트 조회
      * params
      * {
      *    pstSn(필수)      : 게시글키
+     * }
+     * @return
+     */
+    @PostMapping("/pstApi/getPstCmntList")
+    public ResultVO getPstCmntList(@RequestBody TblPst tblPst) {
+        return pstApiService.getPstCmntList(tblPst);
+    }
+
+    /**
+     * 게시글 댓글 저장
+     * params
+     * {
+     *    pstSn(필수)     : 게시글키
+     *    cmntCn(필수)    : 댓글내용
+     *
+     *    cmntGrp        : 원댓글 대댓글시 필수
+     * }
+     * @return
+     */
+    @PostMapping("/pstApi/setPstCmnt")
+    public ResultVO setPstCmnt(@RequestBody TblPstCmnt tblPstCmnt) {
+        return pstApiService.setPstCmnt(tblPstCmnt);
+    }
+
+    /**
+     * 게시글 댓글 삭제
+     * params
+     * {
+     *    pstSn(필수)     : 게시글키
+     * }
+     * @return
+     */
+    @PostMapping("/pstApi/setPstCmntDel")
+    public ResultVO setPstCmntDel(@RequestBody TblPstCmnt tblPstCmnt) {
+        return pstApiService.setPstCmntDel(tblPstCmnt);
+    }
+
+    /**
+     * 게시글 평가
+     * params
+     * {
+     *    pstSn(필수)          : 게시글키
      *    evlUserSn(필수)      : 평가사용자일련번호
-     *    evlArtclNo(필수)      : 평가항목번호
-     *    creatrSn(필수)      : 생성자일련번호
+     *    evlArtclNo(필수)     : 평가항목번호
+     *    creatrSn(필수)       : 생성자일련번호
      * }
      * @return
      */
