@@ -104,4 +104,41 @@ public class MemberAdminApiController {
     public ResultVO getApprovalMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
         return memberAdminApiService.getApprovalMember(lettnemplyrinfoVO);
     }
+
+    /**
+     * 대기회원 조회
+     * @return
+     */
+    @PostMapping("/memberApi/getWaitMemberList.do")
+    public ResultVO getWaitMemberList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberAdminApiService.getWaitMemberList(dto);
+    }
+
+    /**
+     * 대기회원 승인
+     * @return
+     */
+    @PostMapping("/memberApi/setWaitMemberApproval")
+    public ResultVO setWaitMemberApproval(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
+        return memberAdminApiService.setWaitMemberApproval(lettnemplyrinfoVO);
+    }
+
+    /**
+     * 대기회원 반려
+     * @return
+     */
+    @PostMapping("/memberApi/setWaitMemberReject")
+    public ResultVO setWaitMemberReject(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
+        return memberAdminApiService.setWaitMemberReject(lettnemplyrinfoVO);
+    }
+
+    /**
+     * 대기회원 수정
+     * @return
+     */
+    @PostMapping("/memberApi/getWaitMember")
+    public ResultVO getWaitMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
+        return memberAdminApiService.getWaitMember(lettnemplyrinfoVO);
+    }
 }
