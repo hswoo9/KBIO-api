@@ -141,4 +141,61 @@ public class MemberAdminApiController {
     public ResultVO getWaitMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
         return memberAdminApiService.getWaitMember(lettnemplyrinfoVO);
     }
+
+    /**
+     * 반려회원 조회
+     * @return
+     */
+    @PostMapping("/memberApi/getRejectMemberList.do")
+    public ResultVO getRejectMemberList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberAdminApiService.getRejectMemberList(dto);
+    }
+
+    /**
+     * 반려회원 재승인
+     * @return
+     */
+    @PostMapping("/memberApi/setRejectMemberApproval")
+    public ResultVO setRejectMemberApproval(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
+        return memberAdminApiService.setRejectMemberApproval(lettnemplyrinfoVO);
+    }
+
+    /**
+     * 반려회원 수정
+     * @return
+     */
+    @PostMapping("/memberApi/getRejectMember")
+    public ResultVO getRejectMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
+        return memberAdminApiService.getRejectMember(lettnemplyrinfoVO);
+    }
+
+    /**
+     * 정지회원 조회
+     * @return
+     */
+    @PostMapping("/memberApi/getStopMemberList.do")
+    public ResultVO getStopMemberList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberAdminApiService.getStopMemberList(dto);
+    }
+
+    /**
+     * 정지회원 해제
+     * @return
+     */
+    @PostMapping("/memberApi/setStopMemberApproval")
+    public ResultVO setStopMemberApproval(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
+        return memberAdminApiService.setStopMemberApproval(lettnemplyrinfoVO);
+    }
+
+    /**
+     * 정지회원 수정
+     * @return
+     */
+    @PostMapping("/memberApi/getStopMember")
+    public ResultVO getStopMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
+        return memberAdminApiService.getStopMember(lettnemplyrinfoVO);
+    }
+
 }

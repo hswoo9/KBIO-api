@@ -365,4 +365,193 @@ public class MemberAdminApiService {
 
     }
 
+    public ResultVO getRejectMemberList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qLettnemplyrinfoVO.zip.eq("R"));
+
+            if (!StringUtils.isEmpty(dto.get("userSn"))) {
+                builder.and(qLettnemplyrinfoVO.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+            }
+            if (!StringUtils.isEmpty(dto.get("userNm"))) {
+                builder.and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("userNm")));
+            }
+
+            List<LettnemplyrinfoVO> getRejectMemberList = q.selectFrom(qLettnemplyrinfoVO)
+                    .where(builder)
+                    .orderBy(qLettnemplyrinfoVO.userSn.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+            Long totCnt = q.select(qLettnemplyrinfoVO.count())
+                    .from(qLettnemplyrinfoVO)
+                    .where(builder)
+                    .fetchOne();
+            if (totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            // Set response data
+            resultVO.putResult("getRejectMemberList", getRejectMemberList);
+            resultVO.putPaginationInfo(paginationInfo);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+
+    public ResultVO setRejectMemberApproval(LettnemplyrinfoVO lettnemplyrinfoVO) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QLettnemplyrinfoVO qLettnemplyrinfo = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+
+            long updatedCount = new JPAQueryFactory(em)
+                    .update(qLettnemplyrinfo)
+                    .set(qLettnemplyrinfo.zip, "Y")
+                    .where(qLettnemplyrinfo.userSn.eq(lettnemplyrinfoVO.getUserSn()))
+                    .execute();
+
+            if (updatedCount > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("승인되었습니다.");
+            } else {
+                resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+                resultVO.setResultMessage("해당 회원이 존재하지 않습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getRejectMember(LettnemplyrinfoVO lettnemplyrinfoVO) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            resultVO.putResult("member", tblMemberRepository.findByUserSn(lettnemplyrinfoVO.getUserSn()));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+
+    }
+
+    public ResultVO getStopMemberList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qLettnemplyrinfoVO.zip.eq("S"));
+
+            if (!StringUtils.isEmpty(dto.get("userSn"))) {
+                builder.and(qLettnemplyrinfoVO.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+            }
+            if (!StringUtils.isEmpty(dto.get("userNm"))) {
+                builder.and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("userNm")));
+            }
+
+            List<LettnemplyrinfoVO> getStopMemberList = q.selectFrom(qLettnemplyrinfoVO)
+                    .where(builder)
+                    .orderBy(qLettnemplyrinfoVO.userSn.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+            Long totCnt = q.select(qLettnemplyrinfoVO.count())
+                    .from(qLettnemplyrinfoVO)
+                    .where(builder)
+                    .fetchOne();
+            if (totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            // Set response data
+            resultVO.putResult("getStopMemberList", getStopMemberList);
+            resultVO.putPaginationInfo(paginationInfo);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setStopMemberApproval(LettnemplyrinfoVO lettnemplyrinfoVO) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QLettnemplyrinfoVO qLettnemplyrinfo = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+
+            long updatedCount = new JPAQueryFactory(em)
+                    .update(qLettnemplyrinfo)
+                    .set(qLettnemplyrinfo.zip, "Y")
+                    .where(qLettnemplyrinfo.userSn.eq(lettnemplyrinfoVO.getUserSn()))
+                    .execute();
+
+            if (updatedCount > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("승인되었습니다.");
+            } else {
+                resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+                resultVO.setResultMessage("해당 회원이 존재하지 않습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getStopMember(LettnemplyrinfoVO lettnemplyrinfoVO) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            resultVO.putResult("member", tblMemberRepository.findByUserSn(lettnemplyrinfoVO.getUserSn()));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+
+    }
+
 }
