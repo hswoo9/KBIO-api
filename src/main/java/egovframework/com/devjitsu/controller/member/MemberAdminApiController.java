@@ -198,4 +198,14 @@ public class MemberAdminApiController {
         return memberAdminApiService.getStopMember(lettnemplyrinfoVO);
     }
 
+    /**
+     * 탈토회원 조회
+     * @return
+     */
+    @PostMapping("/memberApi/getCancelMemberList.do")
+    public ResultVO getCancelMemberList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberAdminApiService.getCancelMemberList(dto);
+    }
+
 }

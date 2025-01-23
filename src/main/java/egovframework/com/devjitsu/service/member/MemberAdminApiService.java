@@ -554,4 +554,54 @@ public class MemberAdminApiService {
 
     }
 
+
+    public ResultVO getCancelMemberList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qLettnemplyrinfoVO.zip.eq("C"));
+
+            if (!StringUtils.isEmpty(dto.get("userSn"))) {
+                builder.and(qLettnemplyrinfoVO.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+            }
+            if (!StringUtils.isEmpty(dto.get("userNm"))) {
+                builder.and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("userNm")));
+            }
+
+            List<LettnemplyrinfoVO> getCancelMemberList = q.selectFrom(qLettnemplyrinfoVO)
+                    .where(builder)
+                    .orderBy(qLettnemplyrinfoVO.userSn.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+            Long totCnt = q.select(qLettnemplyrinfoVO.count())
+                    .from(qLettnemplyrinfoVO)
+                    .where(builder)
+                    .fetchOne();
+            if (totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            // Set response data
+            resultVO.putResult("getCancelMemberList", getCancelMemberList);
+            resultVO.putPaginationInfo(paginationInfo);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
 }
