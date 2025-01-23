@@ -133,5 +133,17 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
+    public ResultVO resetMemberPassword(LettnemplyrinfoVO lettnemplyrinfoVO) {
+        ResultVO resultVO = new ResultVO();
 
+        try {
+            tblMemberRepository.save(lettnemplyrinfoVO);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
 }

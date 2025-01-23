@@ -6,6 +6,9 @@ import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.service.bbs.BbsAdminApiService;
 import egovframework.com.devjitsu.service.member.MemberAdminApiService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,5 +66,14 @@ public class MemberAdminApiController {
         return memberAdminApiService.setNormalMemberDel(lettnemplyrinfoVO);
     }
 
+
+    /**
+     * 회원 비밀번호 초기화
+     * @return
+     */
+    @PostMapping(value = "/memberApi/resetMemberPassword")
+    public ResultVO resetMemberPassword(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
+        return memberAdminApiService.resetMemberPassword(lettnemplyrinfoVO);
+    }
 
 }
