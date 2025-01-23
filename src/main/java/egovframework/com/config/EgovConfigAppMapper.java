@@ -37,9 +37,6 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
  *
  */
 @Configuration
-@PropertySources({
-	@PropertySource("classpath:/application-dev.properties")
-})
 public class EgovConfigAppMapper {
 	@Autowired
 	DataSource dataSource;

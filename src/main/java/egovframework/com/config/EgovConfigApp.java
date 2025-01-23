@@ -17,9 +17,6 @@ import org.springframework.context.annotation.PropertySources;
 //	EgovConfigAppValidator.class,
 //	EgovConfigAppWhitelist.class
 //})
-@PropertySources({
-	@PropertySource("classpath:/application-dev.properties")
-}) //CAUTION: min JDK 8
 public class EgovConfigApp {
 
 }
