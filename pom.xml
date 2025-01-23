@@ -6,8 +6,7 @@
 	<artifactId>kbio</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0.0</version>
-	<name>egovframework</name>
-	<url>example.egovframework.com</url>
+	<name>K-BIO_API</name>
 
 	<licenses>
 		<license>
@@ -402,7 +401,7 @@
 	<build>
 		<defaultGoal>install</defaultGoal>
 		<directory>${basedir}/target</directory>
-		<finalName>sht_webapp</finalName>
+		<finalName>K-BIO_API</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
