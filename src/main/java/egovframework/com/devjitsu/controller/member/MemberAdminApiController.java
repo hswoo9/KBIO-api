@@ -76,4 +76,32 @@ public class MemberAdminApiController {
         return memberAdminApiService.resetMemberPassword(lettnemplyrinfoVO);
     }
 
+
+    /**
+     * 승인된회원 조회
+     * @return
+     */
+    @PostMapping("/memberApi/getApprovalMemberList.do")
+    public ResultVO getApprovalMemberList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberAdminApiService.getApprovalMemberList(dto);
+    }
+
+    /**
+     * 승인된회원 정지
+     * @return
+     */
+    @PostMapping("/memberApi/setApprovalMemberDel")
+    public ResultVO setApprovalMemberDel(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
+        return memberAdminApiService.setApprovalMemberDel(lettnemplyrinfoVO);
+    }
+
+    /**
+     * 승인된회원 수정
+     * @return
+     */
+    @PostMapping("/memberApi/getApprovalMember")
+    public ResultVO getApprovalMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
+        return memberAdminApiService.getApprovalMember(lettnemplyrinfoVO);
+    }
 }
