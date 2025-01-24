@@ -172,23 +172,6 @@ public class EgovBBSAttributeManageServiceImpl extends EgovAbstractServiceImpl i
 
 	BoardMasterVO result = attrbMngDAO.selectBBSMasterInf(searchVO);
 
-	String flag = propertyService.getString("Globals.addedOptions");
-	if (flag != null && flag.trim().equalsIgnoreCase("true")) {
-	    BoardMasterVO options = addedOptionsDAO.selectAddedOptionsInf(searchVO);
-
-	    if (options != null) {
-		if (options.getCommentAt().equals("Y")) {
-		    result.setOption("comment");
-		}
-
-		if (options.getStsfdgAt().equals("Y")) {
-		    result.setOption("stsfdg");
-		}
-	    } else {
-		result.setOption("na");	// 미지정 상태로 수정 가능 (이미 지정된 경우는 수정 불가로 처리)
-	    }
-	}
-
 	return result;
 	////-------------------------------
 
@@ -222,22 +205,6 @@ public class EgovBBSAttributeManageServiceImpl extends EgovAbstractServiceImpl i
 	//---------------------------------
 	// 2009.06.26 : 2단계 기능 추가
 	//---------------------------------
-	String flag = propertyService.getString("Globals.addedOptions");
-	if (flag != null && flag.trim().equalsIgnoreCase("true")) {
-	    if (boardMaster.getOption().equals("na")) {
-		return;
-	    }
-	    BoardMasterVO options = addedOptionsDAO.selectAddedOptionsInf(boardMaster);
-
-	    if (options == null) {
-		boardMaster.setFrstRegisterId(boardMaster.getLastUpdusrId());
-		addedOptionsDAO.insertAddedOptionsInf(boardMaster);
-	    } else {
-		//수정 기능 제외 (새롭게 선택사항을 지정한 insert만 처리함)
-		//addedOptionsDAO.updateAddedOptionsInf(boardMaster);
-		log.debug("BBS Master update ignored...");
-	    }
-	}
 	////-------------------------------
     }
 

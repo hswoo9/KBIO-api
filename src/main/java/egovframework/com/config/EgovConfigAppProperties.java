@@ -33,17 +33,14 @@ public class EgovConfigAppProperties {
 	@Value("${Globals.fileStorePath}")
 	private String fileStorePath;
 
-	@Value("${Globals.addedOptions}")
-	private String addedOptions;
-
 	@Value("${Globals.pageUnit}")
 	private String pageUnit;
 	@Value("${Globals.pageSize}")
 	private String pageSize;
 	@Value("${Globals.posblAtchFileSize}")
 	private String posblAtchFileSize;
-	
-	
+
+
 	@Bean(destroyMethod = "destroy")
 	public EgovPropertyServiceImpl propertiesService() {
 		EgovPropertyServiceImpl egovPropertyServiceImpl = new EgovPropertyServiceImpl();
@@ -53,7 +50,6 @@ public class EgovConfigAppProperties {
 		properties.put("Globals.pageSize", pageSize);
 		properties.put("Globals.posblAtchFileSize", posblAtchFileSize);
 		properties.put("Globals.fileStorePath", fileStorePath);
-		properties.put("Globals.addedOptions", addedOptions);
 
 		egovPropertyServiceImpl.setProperties(properties);
 		return egovPropertyServiceImpl;
