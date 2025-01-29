@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NotificationMessage {
+    private String sendType;
     private String userSn;
     private String title;
     private String content;

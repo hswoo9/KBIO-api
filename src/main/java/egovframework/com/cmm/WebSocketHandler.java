@@ -46,13 +46,21 @@ public class WebSocketHandler extends TextWebSocketHandler {
         if(msg != null){
             Gson gson = new Gson();
             NotificationMessage notificationMessage = gson.fromJson(msg, new TypeToken<NotificationMessage>() {}.getType());
-
-            if(notificationMessage.getUserSn() != null){
-                String target = notificationMessage.getUserSn();
-                WebSocketSession targetSession = users.get(target);
-                if(targetSession != null) {
-                    TextMessage tmpMsg = new TextMessage(gson.toJson(notificationMessage));
-                    targetSession.sendMessage(tmpMsg);
+            if(notificationMessage.getSendType().equals("all")){
+                for(WebSocketSession user : users.values()){
+                    if(user != null) {
+                        TextMessage tmpMsg = new TextMessage(gson.toJson(notificationMessage));
+                        user.sendMessage(tmpMsg);
+                    }
+                }
+            }else{
+                if(notificationMessage.getUserSn() != null){
+                    String target = notificationMessage.getUserSn();
+                    WebSocketSession targetSession = users.get(target);
+                    if(targetSession != null) {
+                        TextMessage tmpMsg = new TextMessage(gson.toJson(notificationMessage));
+                        targetSession.sendMessage(tmpMsg);
+                    }
                 }
             }
         }
