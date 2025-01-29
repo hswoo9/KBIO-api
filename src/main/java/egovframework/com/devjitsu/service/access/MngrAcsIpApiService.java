@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -129,5 +130,12 @@ public class MngrAcsIpApiService {
         }
 
         return resultVO;
+    }
+
+    public List<String> getMngrIps() {
+        List<TblMngrAcsIp> allowedIps = tblMngrAcsIpRepository.findAll();
+        return allowedIps.stream()
+                .map(TblMngrAcsIp::getIpAddr)
+                .collect(Collectors.toList());
     }
 }

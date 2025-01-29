@@ -19,6 +19,16 @@ public class CommonApiController {
     @Autowired
     private CommonApiService commonApiService;
 
+
+    /**
+     * 관리자 아이피 체크
+     * @return
+     */
+    @PostMapping("/commonApi/getMngrAcsIpChk")
+    public ResultVO getMngrAcsIpChk(HttpServletRequest request) {
+        return commonApiService.getMngrAcsIpChk(request);
+    }
+
     /**
      * 공통코드그룹 조회
      * @param params

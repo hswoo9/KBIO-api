@@ -4,12 +4,14 @@ import com.querydsl.core.BooleanBuilder;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.cmm.util.AccessIP;
 import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
+import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -30,6 +34,9 @@ public class CommonApiService {
 
     @Autowired
     private RedisApiService redisApiService;
+
+    @Autowired
+    private MngrAcsIpApiService mngrAcsIpApiService;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -90,6 +97,28 @@ public class CommonApiService {
         } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getMngrAcsIpChk(HttpServletRequest request) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            String clientIp = request.getRemoteAddr();
+            List<String> mngrAcsIps = mngrAcsIpApiService.getMngrIps();
+
+            if (!mngrAcsIps.contains(clientIp)) {
+                resultVO.setResultCode(ResponseCode.AUTH_ERROR.getCode());
+                resultVO.setResultMessage(ResponseCode.AUTH_ERROR.getMessage());
+            }else{
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.AUTH_ERROR.getCode());
+            resultVO.setResultMessage(ResponseCode.AUTH_ERROR.getMessage());
         }
 
         return resultVO;
