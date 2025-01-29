@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class NotificationMessage {
+public class MessageDto {
     private String sendType;
     private String userSn;
     private String title;

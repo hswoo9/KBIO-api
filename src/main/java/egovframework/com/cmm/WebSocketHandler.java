@@ -2,7 +2,7 @@ package egovframework.com.cmm;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import egovframework.com.devjitsu.model.common.NotificationMessage;
+import egovframework.com.devjitsu.model.common.MessageDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -45,20 +45,20 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         if(msg != null){
             Gson gson = new Gson();
-            NotificationMessage notificationMessage = gson.fromJson(msg, new TypeToken<NotificationMessage>() {}.getType());
-            if(notificationMessage.getSendType().equals("all")){
+            MessageDto messageDto = gson.fromJson(msg, new TypeToken<MessageDto>() {}.getType());
+            if(messageDto.getSendType().equals("all")){
                 for(WebSocketSession user : users.values()){
                     if(user != null) {
-                        TextMessage tmpMsg = new TextMessage(gson.toJson(notificationMessage));
+                        TextMessage tmpMsg = new TextMessage(gson.toJson(messageDto));
                         user.sendMessage(tmpMsg);
                     }
                 }
             }else{
-                if(notificationMessage.getUserSn() != null){
-                    String target = notificationMessage.getUserSn();
+                if(messageDto.getUserSn() != null){
+                    String target = messageDto.getUserSn();
                     WebSocketSession targetSession = users.get(target);
                     if(targetSession != null) {
-                        TextMessage tmpMsg = new TextMessage(gson.toJson(notificationMessage));
+                        TextMessage tmpMsg = new TextMessage(gson.toJson(messageDto));
                         targetSession.sendMessage(tmpMsg);
                     }
                 }
