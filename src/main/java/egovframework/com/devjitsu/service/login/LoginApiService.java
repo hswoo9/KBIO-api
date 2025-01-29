@@ -90,7 +90,7 @@ public class LoginApiService {
      *  builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
      * */
 
-    public ResultVO actionLogin(LoginDto dto) throws Exception {
+    public ResultVO actionLogin(LoginDto dto, HttpServletRequest request) throws Exception {
         ResultVO resultVO = new ResultVO();
 
         QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
@@ -143,6 +143,7 @@ public class LoginApiService {
             resultVO.putResult("jToken", jwtTokenUtil.generateTokenJpa(lettnemplyrinfoVO));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
+            request.getSession().setAttribute("lettnemplyrinfoVO", lettnemplyrinfoVO);
             redisApiService.setRedis(0, String.valueOf(lettnemplyrinfoVO.getUserSn()), lettnemplyrinfoVO, null);
         }
 

@@ -52,7 +52,7 @@ public class LoginApiController {
     })
     @PostMapping(value = "/loginApi/loginAction")
     public ResultVO loginAction(@RequestBody LoginDto loginDto, HttpServletRequest request, ModelMap model) throws Exception {
-        return loginApiService.actionLogin(loginDto);
+        return loginApiService.actionLogin(loginDto, request);
     }
 
     /**
