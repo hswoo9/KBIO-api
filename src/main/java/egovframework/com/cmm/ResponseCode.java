@@ -3,6 +3,7 @@ package egovframework.com.cmm;
 public enum ResponseCode {
 
 	SUCCESS(200, "성공했습니다."),
+	AUTH_IP_ERROR(401, "접근이 허용되지 않은 아이피입니다."),
 	AUTH_ERROR(403, "인가된 사용자가 아닙니다."),
 	NOT_EQ_PASSWORD(500, "비밀번호가 일치하지 않습니다."),
 	NOT_USER(404, "일치하는 사용자가 없습니다."),

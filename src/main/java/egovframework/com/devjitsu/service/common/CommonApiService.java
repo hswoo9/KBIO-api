@@ -110,15 +110,15 @@ public class CommonApiService {
             List<String> mngrAcsIps = mngrAcsIpApiService.getMngrIps();
 
             if (!mngrAcsIps.contains(clientIp)) {
-                resultVO.setResultCode(ResponseCode.AUTH_ERROR.getCode());
-                resultVO.setResultMessage(ResponseCode.AUTH_ERROR.getMessage());
+                resultVO.setResultCode(ResponseCode.AUTH_IP_ERROR.getCode());
+                resultVO.setResultMessage(ResponseCode.AUTH_IP_ERROR.getMessage());
             }else{
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             }
         } catch (Exception e) {
             e.printStackTrace();
-            resultVO.setResultCode(ResponseCode.AUTH_ERROR.getCode());
-            resultVO.setResultMessage(ResponseCode.AUTH_ERROR.getMessage());
+            resultVO.setResultCode(ResponseCode.AUTH_IP_ERROR.getCode());
+            resultVO.setResultMessage(ResponseCode.AUTH_IP_ERROR.getMessage());
         }
 
         return resultVO;
