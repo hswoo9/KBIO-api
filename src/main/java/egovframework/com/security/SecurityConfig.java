@@ -60,6 +60,7 @@ public class SecurityConfig {
 
     };
     private static final String[] ORIGINS_WHITELIST = {
+            "http://133.186.250.158",
             "http://localhost:3000",
             "http://localhost:3002",
     };

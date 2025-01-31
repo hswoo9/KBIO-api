@@ -31,11 +31,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        HttpSession httpSession = (HttpSession) session.getAttributes().get("HTTP_SESSION");
-        if (httpSession != null) {
-            httpSession.removeAttribute("lettnemplyrinfoVO");
+        String senderId = getMemberId(session);
+        if (senderId != null) {
+            users.remove(senderId);  // 세션 종료 시 세션 제거
         }
-
         super.afterConnectionClosed(session, status);
     }
 
