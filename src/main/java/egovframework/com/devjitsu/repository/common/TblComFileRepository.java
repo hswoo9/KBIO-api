@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface TblComFileRepository extends JpaRepository<TblComFile, String> {
+    TblComFile findByAtchFileSn(Long atchFileSn);
     List<TblComFile> findByPsnTblPk(String psnTblPk);
 }

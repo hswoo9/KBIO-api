@@ -63,7 +63,7 @@ public class TblPst {
 
     @Column(name = "PST_GROUP", length = 10)
     @Comment("게시글그룹")
-    private long pstGroup;
+    private Long pstGroup;
 
     @Column(name = "ORGNL_PST_SN", length = 22)
     @Comment("원글일련번호")

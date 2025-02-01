@@ -242,7 +242,7 @@ public class PstApiService {
                         .select(Expressions.numberTemplate(Integer.class, "COALESCE(MAX({0}), 0) + 1", maxArticleGroup))
                         .from(qTblPst)
                         .where(qTblPst.bbsSn.eq(tblPst.getBbsSn()));
-                tblPst.setPstGroup(group.fetchOne());
+                tblPst.setPstGroup(Long.valueOf(group.fetchOne()));
             }
 
             tblPstRepository.save(tblPst);

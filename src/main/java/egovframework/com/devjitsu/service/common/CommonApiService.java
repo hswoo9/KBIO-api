@@ -15,13 +15,30 @@ import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import javax.annotation.Resource;
+import javax.net.ssl.*;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +77,29 @@ public class CommonApiService {
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
 
+    public ResultVO getMngrAcsIpChk(HttpServletRequest request) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            String clientIp = request.getRemoteAddr();
+            System.out.println("clientIp = " + clientIp);
+            List<String> mngrAcsIps = mngrAcsIpApiService.getMngrIps();
+
+            if (!mngrAcsIps.contains(clientIp)) {
+                resultVO.setResultCode(ResponseCode.AUTH_IP_ERROR.getCode());
+                resultVO.setResultMessage(ResponseCode.AUTH_IP_ERROR.getMessage());
+            }else{
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.AUTH_IP_ERROR.getCode());
+            resultVO.setResultMessage(ResponseCode.AUTH_IP_ERROR.getMessage());
+        }
+
+        return resultVO;
+    }
+
     public ResultVO getComCdGroupList(Map<String, Object> params) {
         ResultVO resultVO = new ResultVO();
 
@@ -83,6 +123,27 @@ public class CommonApiService {
         return resultVO;
     }
 
+    public ResponseEntity<org.springframework.core.io.Resource> getFileDownLoad(TblComFile tblComFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        tblComFile = tblComFileRepository.findByAtchFileSn(tblComFile.getAtchFileSn());
+        String fileNm = tblComFile.getAtchFileNm();
+        Path filePath = Paths.get(tblComFile.getAtchFilePathNm() + "/" + tblComFile.getStrgFileNm() + "." + tblComFile.getAtchFileExtnNm());
+        org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new FileNotFoundException("파일을 찾을 수 없습니다: " + fileNm);
+        }
+
+        String contentType = Files.probeContentType(filePath);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(fileNm, StandardCharsets.UTF_8.toString()) + "\"")
+                .body(resource);
+    }
+
     public ResultVO setFileDel(TblComFile tblComFile) {
         ResultVO resultVO = new ResultVO();
 
@@ -97,28 +158,6 @@ public class CommonApiService {
         } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
-        }
-
-        return resultVO;
-    }
-
-    public ResultVO getMngrAcsIpChk(HttpServletRequest request) {
-        ResultVO resultVO = new ResultVO();
-
-        try {
-            String clientIp = request.getRemoteAddr();
-            List<String> mngrAcsIps = mngrAcsIpApiService.getMngrIps();
-
-            if (!mngrAcsIps.contains(clientIp)) {
-                resultVO.setResultCode(ResponseCode.AUTH_IP_ERROR.getCode());
-                resultVO.setResultMessage(ResponseCode.AUTH_IP_ERROR.getMessage());
-            }else{
-                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultVO.setResultCode(ResponseCode.AUTH_IP_ERROR.getCode());
-            resultVO.setResultMessage(ResponseCode.AUTH_IP_ERROR.getMessage());
         }
 
         return resultVO;

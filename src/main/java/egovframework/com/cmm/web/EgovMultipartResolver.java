@@ -79,7 +79,7 @@ public class EgovMultipartResolver extends CommonsMultipartResolver {
 		// 스프링 3.0변경으로 수정한 부분
 		MultiValueMap<String, MultipartFile> multipartFiles = new LinkedMultiValueMap<String, MultipartFile>();
 		Map<String, String[]> multipartParameters = new HashMap<String, String[]>();
-		String whiteListFileUploadExtensions = EgovProperties.getProperty("Globals.fileUpload.Extensions");
+//		String whiteListFileUploadExtensions = EgovProperties.getProperty("Globals.fileUpload.Extensions");
 		Map<String, String> mpParamContentTypes = new HashMap<String, String>();
 
 		// Extract multipart files and multipart parameters.
@@ -124,22 +124,22 @@ public class EgovMultipartResolver extends CommonsMultipartResolver {
 				String fileName = file.getOriginalFilename();
 				String fileExtension = EgovFileUploadUtil.getFileExtension(fileName);
 				log.debug("Found File Extension = "+fileExtension);
-				if (whiteListFileUploadExtensions == null || "".equals(whiteListFileUploadExtensions)) {
-					log.debug("The file extension whitelist has not been set.");
-				} else {
+//				if (whiteListFileUploadExtensions == null || "".equals(whiteListFileUploadExtensions)) {
+//					log.debug("The file extension whitelist has not been set.");
+//				} else {
 					if (fileName == null || "".equals(fileName)) {
 						log.debug("No file name.");
 					} else {
 						if ("".equals(fileExtension)) { // 확장자 없는 경우 처리 불가
 							throw new SecurityException("[No file extension] File extension not allowed.");
 						}
-						if ((whiteListFileUploadExtensions+".").contains("."+fileExtension.toLowerCase()+".")) {
-							log.debug("File extension allowed.");
-						} else {
-							throw new SecurityException("["+fileExtension+"] File extension not allowed.");
-						}
+//						if ((whiteListFileUploadExtensions+".").contains("."+fileExtension.toLowerCase()+".")) {
+//							log.debug("File extension allowed.");
+//						} else {
+//							throw new SecurityException("["+fileExtension+"] File extension not allowed.");
+//						}
 					}
-				}
+//				}
 
 			}
 		}

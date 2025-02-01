@@ -6,9 +6,20 @@ import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 @RestController
@@ -18,7 +29,6 @@ public class CommonApiController {
 
     @Autowired
     private CommonApiService commonApiService;
-
 
     /**
      * 관리자 아이피 체크
@@ -51,6 +61,18 @@ public class CommonApiController {
     }
 
     /**
+     * 첨부파일 다운로드 (공통)
+     * {
+     *     atchFileSn : 첨부파일 키
+     * }
+     * @return
+     */
+    @PostMapping("/commonApi/getFileDownLoad")
+    public ResponseEntity<Resource> getFileDownLoad(@RequestBody TblComFile tblComFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return commonApiService.getFileDownLoad(tblComFile, request, response);
+    }
+
+    /**
      * 첨부파일 삭제 (공통)
      * {
      *     atchFileSn : 첨부파일 키
@@ -61,5 +83,6 @@ public class CommonApiController {
     public ResultVO setFileDel(@RequestBody TblComFile tblComFile) {
         return commonApiService.setFileDel(tblComFile);
     }
+
 
 }
