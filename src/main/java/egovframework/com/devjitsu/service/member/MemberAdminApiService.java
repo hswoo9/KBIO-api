@@ -7,9 +7,9 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
-import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
-import egovframework.com.devjitsu.repository.member.TblMemberRepository;
+import egovframework.com.devjitsu.model.user.QTblUser;
+import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
@@ -32,15 +32,7 @@ public class MemberAdminApiService {
 
     private final EntityManager em;
 
-    /**
-     * jpa 부등호
-     * gt : >
-     * lt : <
-     * goe : >=
-     * loe : <=
-     */
-
-    private final TblMemberRepository tblMemberRepository;
+    private final TblUserRepository tblUserRepository;
 
     public ResultVO getNormalMemberList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
@@ -54,31 +46,30 @@ public class MemberAdminApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             JPAQueryFactory q = new JPAQueryFactory(em);
-            QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
-                builder.and(qLettnemplyrinfoVO.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+                builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("userNm"))) {
-                builder.and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("userNm")));
+            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
+                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
             }
 
-            List<LettnemplyrinfoVO> getNormalMemberList = q.selectFrom(qLettnemplyrinfoVO)
+            List<TblUser> getNormalMemberList = q.selectFrom(qTblUser)
                     .where(builder)
-                    .orderBy(qLettnemplyrinfoVO.userSn.desc())
+                    .orderBy(qTblUser.userSn.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q.select(qLettnemplyrinfoVO.count())
-                    .from(qLettnemplyrinfoVO)
+            Long totCnt = q.select(qTblUser.count())
+                    .from(qTblUser)
                     .where(builder)
                     .fetchOne();
             if (totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            // Set response data
             resultVO.putResult("getNormalMemberList", getNormalMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -90,29 +81,27 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO getNormalMember(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO getNormalMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            resultVO.putResult("member", tblMemberRepository.findByUserSn(lettnemplyrinfoVO.getUserSn()));
+            resultVO.putResult("member", tblUserRepository.findByUserSn(tblUser.getUserSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
-
     }
 
-
-    public ResultVO setNormalMember(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO setNormalMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            tblMemberRepository.save(lettnemplyrinfoVO);
+            tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
@@ -120,13 +109,13 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO setNormalMemberDel(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO setNormalMemberDel(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            tblMemberRepository.save(lettnemplyrinfoVO);
+            tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
@@ -134,16 +123,16 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO setApprovalMemberDel(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO setApprovalMemberDel(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            QLettnemplyrinfoVO qLettnemplyrinfo = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             long updatedCount = new JPAQueryFactory(em)
-                    .update(qLettnemplyrinfo)
-                    .set(qLettnemplyrinfo.zip, "N")
-                    .where(qLettnemplyrinfo.userSn.eq(lettnemplyrinfoVO.getUserSn()))
+                    .update(qTblUser)
+                    .set(qTblUser.actvtnYn, "N")
+                    .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
             if (updatedCount > 0) {
@@ -163,13 +152,13 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO resetMemberPassword(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO resetMemberPassword(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            tblMemberRepository.save(lettnemplyrinfoVO);
+            tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
@@ -189,33 +178,32 @@ public class MemberAdminApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             JPAQueryFactory q = new JPAQueryFactory(em);
-            QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qLettnemplyrinfoVO.zip.eq("Y"));
+            builder.and(qTblUser.actvtnYn.eq("Y"));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
-                builder.and(qLettnemplyrinfoVO.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+                builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("userNm"))) {
-                builder.and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("userNm")));
+            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
+                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
             }
 
-            List<LettnemplyrinfoVO> getApprovalMemberList = q.selectFrom(qLettnemplyrinfoVO)
+            List<TblUser> getApprovalMemberList = q.selectFrom(qTblUser)
                     .where(builder)
-                    .orderBy(qLettnemplyrinfoVO.userSn.desc())
+                    .orderBy(qTblUser.userSn.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q.select(qLettnemplyrinfoVO.count())
-                    .from(qLettnemplyrinfoVO)
+            Long totCnt = q.select(qTblUser.count())
+                    .from(qTblUser)
                     .where(builder)
                     .fetchOne();
             if (totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            // Set response data
             resultVO.putResult("getApprovalMemberList", getApprovalMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -227,19 +215,18 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO getApprovalMember(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO getApprovalMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            resultVO.putResult("member", tblMemberRepository.findByUserSn(lettnemplyrinfoVO.getUserSn()));
+            resultVO.putResult("member", tblUserRepository.findByUserSn(tblUser.getUserSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
-
     }
 
     public ResultVO getWaitMemberList(SearchDto dto) {
@@ -254,33 +241,32 @@ public class MemberAdminApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             JPAQueryFactory q = new JPAQueryFactory(em);
-            QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qLettnemplyrinfoVO.zip.eq("W"));
+            builder.and(qTblUser.actvtnYn.eq("W"));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
-                builder.and(qLettnemplyrinfoVO.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+                builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("userNm"))) {
-                builder.and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("userNm")));
+            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
+                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
             }
 
-            List<LettnemplyrinfoVO> getWaitMemberList = q.selectFrom(qLettnemplyrinfoVO)
+            List<TblUser> getWaitMemberList = q.selectFrom(qTblUser)
                     .where(builder)
-                    .orderBy(qLettnemplyrinfoVO.userSn.desc())
+                    .orderBy(qTblUser.userSn.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q.select(qLettnemplyrinfoVO.count())
-                    .from(qLettnemplyrinfoVO)
+            Long totCnt = q.select(qTblUser.count())
+                    .from(qTblUser)
                     .where(builder)
                     .fetchOne();
             if (totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            // Set response data
             resultVO.putResult("getWaitMemberList", getWaitMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -292,16 +278,16 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO setWaitMemberApproval(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO setWaitMemberApproval(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            QLettnemplyrinfoVO qLettnemplyrinfo = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             long updatedCount = new JPAQueryFactory(em)
-                    .update(qLettnemplyrinfo)
-                    .set(qLettnemplyrinfo.zip, "Y")
-                    .where(qLettnemplyrinfo.userSn.eq(lettnemplyrinfoVO.getUserSn()))
+                    .update(qTblUser)
+                    .set(qTblUser.actvtnYn, "Y")
+                    .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
             if (updatedCount > 0) {
@@ -321,16 +307,16 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO setWaitMemberReject(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO setWaitMemberReject(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            QLettnemplyrinfoVO qLettnemplyrinfo = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             long updatedCount = new JPAQueryFactory(em)
-                    .update(qLettnemplyrinfo)
-                    .set(qLettnemplyrinfo.zip, "R")
-                    .where(qLettnemplyrinfo.userSn.eq(lettnemplyrinfoVO.getUserSn()))
+                    .update(qTblUser)
+                    .set(qTblUser.actvtnYn, "R")
+                    .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
             if (updatedCount > 0) {
@@ -350,19 +336,18 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO getWaitMember(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO getWaitMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            resultVO.putResult("member", tblMemberRepository.findByUserSn(lettnemplyrinfoVO.getUserSn()));
+            resultVO.putResult("member", tblUserRepository.findByUserSn(tblUser.getUserSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
-
     }
 
     public ResultVO getRejectMemberList(SearchDto dto) {
@@ -377,33 +362,32 @@ public class MemberAdminApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             JPAQueryFactory q = new JPAQueryFactory(em);
-            QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qLettnemplyrinfoVO.zip.eq("R"));
+            builder.and(qTblUser.actvtnYn.eq("R"));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
-                builder.and(qLettnemplyrinfoVO.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+                builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("userNm"))) {
-                builder.and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("userNm")));
+            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
+                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
             }
 
-            List<LettnemplyrinfoVO> getRejectMemberList = q.selectFrom(qLettnemplyrinfoVO)
+            List<TblUser> getRejectMemberList = q.selectFrom(qTblUser)
                     .where(builder)
-                    .orderBy(qLettnemplyrinfoVO.userSn.desc())
+                    .orderBy(qTblUser.userSn.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q.select(qLettnemplyrinfoVO.count())
-                    .from(qLettnemplyrinfoVO)
+            Long totCnt = q.select(qTblUser.count())
+                    .from(qTblUser)
                     .where(builder)
                     .fetchOne();
             if (totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            // Set response data
             resultVO.putResult("getRejectMemberList", getRejectMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -415,17 +399,16 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-
-    public ResultVO setRejectMemberApproval(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO setRejectMemberApproval(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            QLettnemplyrinfoVO qLettnemplyrinfo = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             long updatedCount = new JPAQueryFactory(em)
-                    .update(qLettnemplyrinfo)
-                    .set(qLettnemplyrinfo.zip, "Y")
-                    .where(qLettnemplyrinfo.userSn.eq(lettnemplyrinfoVO.getUserSn()))
+                    .update(qTblUser)
+                    .set(qTblUser.actvtnYn, "Y")
+                    .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
             if (updatedCount > 0) {
@@ -445,19 +428,18 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO getRejectMember(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO getRejectMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            resultVO.putResult("member", tblMemberRepository.findByUserSn(lettnemplyrinfoVO.getUserSn()));
+            resultVO.putResult("member", tblUserRepository.findByUserSn(tblUser.getUserSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
-
     }
 
     public ResultVO getStopMemberList(SearchDto dto) {
@@ -472,33 +454,32 @@ public class MemberAdminApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             JPAQueryFactory q = new JPAQueryFactory(em);
-            QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qLettnemplyrinfoVO.zip.eq("S"));
+            builder.and(qTblUser.actvtnYn.eq("S"));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
-                builder.and(qLettnemplyrinfoVO.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+                builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("userNm"))) {
-                builder.and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("userNm")));
+            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
+                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
             }
 
-            List<LettnemplyrinfoVO> getStopMemberList = q.selectFrom(qLettnemplyrinfoVO)
+            List<TblUser> getStopMemberList = q.selectFrom(qTblUser)
                     .where(builder)
-                    .orderBy(qLettnemplyrinfoVO.userSn.desc())
+                    .orderBy(qTblUser.userSn.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q.select(qLettnemplyrinfoVO.count())
-                    .from(qLettnemplyrinfoVO)
+            Long totCnt = q.select(qTblUser.count())
+                    .from(qTblUser)
                     .where(builder)
                     .fetchOne();
             if (totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            // Set response data
             resultVO.putResult("getStopMemberList", getStopMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -510,16 +491,16 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO setStopMemberApproval(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO setStopMemberApproval(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            QLettnemplyrinfoVO qLettnemplyrinfo = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             long updatedCount = new JPAQueryFactory(em)
-                    .update(qLettnemplyrinfo)
-                    .set(qLettnemplyrinfo.zip, "Y")
-                    .where(qLettnemplyrinfo.userSn.eq(lettnemplyrinfoVO.getUserSn()))
+                    .update(qTblUser)
+                    .set(qTblUser.actvtnYn, "Y")
+                    .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
             if (updatedCount > 0) {
@@ -539,21 +520,19 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO getStopMember(LettnemplyrinfoVO lettnemplyrinfoVO) {
+    public ResultVO getStopMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            resultVO.putResult("member", tblMemberRepository.findByUserSn(lettnemplyrinfoVO.getUserSn()));
+            resultVO.putResult("member", tblUserRepository.findByUserSn(tblUser.getUserSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
-
     }
-
 
     public ResultVO getCancelMemberList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
@@ -567,33 +546,32 @@ public class MemberAdminApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             JPAQueryFactory q = new JPAQueryFactory(em);
-            QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+            QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qLettnemplyrinfoVO.zip.eq("C"));
+            builder.and(qTblUser.actvtnYn.eq("C"));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
-                builder.and(qLettnemplyrinfoVO.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+                builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("userNm"))) {
-                builder.and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("userNm")));
+            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
+                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
             }
 
-            List<LettnemplyrinfoVO> getCancelMemberList = q.selectFrom(qLettnemplyrinfoVO)
+            List<TblUser> getCancelMemberList = q.selectFrom(qTblUser)
                     .where(builder)
-                    .orderBy(qLettnemplyrinfoVO.userSn.desc())
+                    .orderBy(qTblUser.userSn.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q.select(qLettnemplyrinfoVO.count())
-                    .from(qLettnemplyrinfoVO)
+            Long totCnt = q.select(qTblUser.count())
+                    .from(qTblUser)
                     .where(builder)
                     .fetchOne();
             if (totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            // Set response data
             resultVO.putResult("getCancelMemberList", getCancelMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
