@@ -131,7 +131,7 @@ public class LoginApiService {
             return resultVO;
         }else {
             if(dto.getLoginType().equals("base")){
-                if(!tblUser.getPswd().equals(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId()))){
+                if(!tblUser.getUserPw().equals(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId()))){
                     resultVO.setResultCode(ResponseCode.NOT_EQ_PASSWORD.getCode());
                     resultVO.setResultMessage(ResponseCode.NOT_EQ_PASSWORD.getMessage());
                     return resultVO;

@@ -27,9 +27,9 @@ public class TblUser {
   @Comment("회원구분")
   private long mbrType;
 
-  @Column(name = "PSWD", length = 200)
+  @Column(name = "USER_PW", length = 200)
   @Comment("비밀번호")
-  private String pswd;
+  private String userPw;
 
   @Column(name = "USER_ID", length = 20)
   @Comment("사용자ID")
@@ -39,29 +39,33 @@ public class TblUser {
   @Comment("한글성명")
   private String kornFlnm;
 
-  @Column(name = "USER_MBL_TELNO", length = 11)
+  @Column(name = "MBL_TELNO", length = 11)
   @Comment("사용자휴대전화번호")
-  private String userMblTelno;
+  private String mblTelno;
 
-  @Column(name = "USER_EML_ADDR", length = 320)
+  @Column(name = "EMAIL", length = 320)
   @Comment("사용자이메일")
-  private String userEmlAddr;
+  private String email;
 
-  @Column(name = "USER_ZIP", columnDefinition = "CHAR(9)")
+  @Column(name = "ZIP", columnDefinition = "CHAR(9)")
   @Comment("사용자우편번호")
-  private String userZip;
+  private String zip;
 
-  @Column(name = "USER_ADDR", length = 200)
+  @Column(name = "ADDR", length = 200)
   @Comment("사용자주소")
-  private String userAddr;
+  private String addr;
 
-  @Column(name = "USER_DADDR", length = 200)
+  @Column(name = "DADDR", length = 200)
   @Comment("사용자상세주소")
-  private String userDaddr;
+  private String daddr;
 
   @Column(name = "JOIN_YMD", columnDefinition = "CHAR(8)")
   @Comment("가입일시")
   private String joinYmd;
+
+  @Column(name = "SWTC_YMD", columnDefinition = "CHAR(8)")
+  @Comment("전환일")
+  private String swtcYmd;
 
   @Column(name = "EML_RCPTN_AGRE_YN", columnDefinition = "CHAR(1)")
   @Comment("메일수신동의여부")
@@ -74,14 +78,6 @@ public class TblUser {
   @Column(name = "INFO_RLS_YN", columnDefinition = "CHAR(1)")
   @Comment("정보공개여부")
   private String infoRlsYn;
-
-  @Column(name = "RMRK_CN", length = 2000)
-  @Comment("비고내용")
-  private String rmrkCn;
-
-  @Column(name = "SORT_SEQ", length = 10)
-  @Comment("정렬순서")
-  private long sortSeq;
 
   @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1)")
   @Comment("활성여부")
