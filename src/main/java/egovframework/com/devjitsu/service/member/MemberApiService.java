@@ -104,7 +104,6 @@ public class MemberApiService {
         TblUser member = new TblUser(); // TblUser 엔티티로 변경
         member.setKornFlnm((String) dto.get("kornFlnm")); // 성명
         member.setUserId((String) dto.get("userId")); // 사용자 ID
-        // 비밀번호 해시 처리
         String hashedPswd = EgovFileScrty.encryptPassword((String) dto.get("userPw"), (String) dto.get("userId"));
         member.setUserPw(hashedPswd); // 비밀번호
         member.setAddr((String) dto.get("addr")); // 주소
@@ -116,10 +115,8 @@ public class MemberApiService {
         member.setSmsRcptnAgreYn((String) dto.get("smsRcptnAgreYn")); // SMS 수신 동의 여부
         member.setInfoRlsYn((String) dto.get("infoRlsYn")); // 정보 공개 여부
         member.setActvtnYn("W"); // 활성 여부 기본값 설정
+        member.setMbrType((Integer) dto.get("mbrType")); // 회원 타입
 
-        // 추가적인 필드 설정이 필요할 경우 여기에 추가
-
-        // 회원 정보 저장
         TblUserRepository.save(member);
 
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
