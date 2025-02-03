@@ -1,9 +1,11 @@
 package egovframework.com.devjitsu.model.menu;
 
+import egovframework.com.devjitsu.model.user.TblUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -26,32 +28,13 @@ public class TblMenuAuthrtGroupUser {
     private long authrtGroupSn;
 
     @Column(name = "USER_SN", length = 22)
-    @Comment("사용자사번")
+    @Comment("사용자일련번호")
     private long userSn;
 
-    @Column(name = "USER_NM", length = 100)
-    @Comment("사용자이름")
-    private String userNm;
-
-    @Column(name = "USER_ID", length = 100)
-    @Comment("사용자아이디")
-    private String userId;
-
-    @Column(name = "USER_DEPT_NM", length = 100)
-    @Comment("사용자부서이름")
-    private String userDeptNm;
-
-    @Column(name = "USER_JBTTL", length = 100)
-    @Comment("사용자직책")
-    private String userJbttl;
-
-    @Column(name = "USER_JBGD", length = 100)
-    @Comment("사용자직급")
-    private String userJbgd;
-
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "AUTHRT_GRNT_DT")
     @Comment("권한부여일")
-    private String authrtGrntDt;
+    private LocalDateTime authrtGrntDt;
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
@@ -61,7 +44,8 @@ public class TblMenuAuthrtGroupUser {
     @Comment("생성자일련번호")
     private long creatrSn;
 
-    @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", updatable = false)
     @Comment("최초생성일시")
     private LocalDateTime frstCrtDt = LocalDateTime.now();
 
@@ -72,4 +56,9 @@ public class TblMenuAuthrtGroupUser {
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_SN", referencedColumnName = "USER_SN", insertable = false, updatable = false)
+    private TblUser tblUser;
+
 }

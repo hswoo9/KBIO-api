@@ -13,6 +13,7 @@ import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroup;
 import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroupUser;
+import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.repository.menu.TblAuthrtGroupMenuRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupUserRepository;
@@ -201,19 +202,26 @@ public class MenuAuthGroupApiService {
 
         try {
             QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
+            QTblUser qTblUser = QTblUser.tblUser;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblMenuAuthrtGroupUser.authrtGroupSn.eq(Long.parseLong((String) dto.get("authrtGroupSn"))));
+            builder.and(qTblMenuAuthrtGroupUser.authrtGroupSn.eq(Long.parseLong(String.valueOf(dto.get("authrtGroupSn")))));
 
             if (!StringUtils.isEmpty(dto.get("userId"))) {
-                builder.and(qTblMenuAuthrtGroupUser.userId.contains((String) dto.get("userId")));
+                builder.and(qTblUser.userId.contains((String) dto.get("userId")));
             }
             if (!StringUtils.isEmpty(dto.get("userNm"))) {
-                builder.and(qTblMenuAuthrtGroupUser.userNm.contains((String) dto.get("userNm")));
+                builder.and(qTblUser.kornFlnm.contains((String) dto.get("userNm")));
             }
 
-            List<TblMenuAuthrtGroupUser> menuAuthGroupUser = q.selectFrom(qTblMenuAuthrtGroupUser).where(builder).orderBy(qTblMenuAuthrtGroupUser.frstCrtDt.desc()).fetch();
+            //List<TblMenuAuthrtGroupUser> menuAuthGroupUser = q.selectFrom(qTblMenuAuthrtGroupUser).join(qTblUser).on(qTblUser.userSn.eq(qTblMenuAuthrtGroupUser.userSn)).where(builder).orderBy(qTblMenuAuthrtGroupUser.frstCrtDt.desc()).fetch();
+            List<TblMenuAuthrtGroupUser> menuAuthGroupUser = q
+                    .selectFrom(qTblMenuAuthrtGroupUser)
+                    .join(qTblMenuAuthrtGroupUser.tblUser, qTblUser).fetchJoin()
+                    .where(builder)
+                    .orderBy(qTblMenuAuthrtGroupUser.frstCrtDt.desc())
+                    .fetch();
             resultVO.putResult("menuAuthGroupUser",  menuAuthGroupUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
@@ -228,18 +236,13 @@ public class MenuAuthGroupApiService {
         ResultVO resultVO = new ResultVO();
 
         try {
-            QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
-            JPAQueryFactory q = new JPAQueryFactory(em);
-
             Gson gson = new Gson();
             List<TblMenuAuthrtGroupUser> tblMenuAuthrtGroupUsers = gson.fromJson(dto.get("authrtGroupUsers").toString(), new TypeToken<List<TblMenuAuthrtGroupUser>>() {}.getType());
             for(TblMenuAuthrtGroupUser t : tblMenuAuthrtGroupUsers){
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 if (StringUtils.isEmpty(t.getAuthrtGrntDt())) {
-                    t.setAuthrtGrntDt(LocalDate.now().format(formatter));
                     t.setActvtnYn("Y");
                 }else{
-                    LocalDate authDt = LocalDate.parse(t.getAuthrtGrntDt(), formatter);
+                    LocalDate authDt = LocalDate.from(t.getAuthrtGrntDt());
                     LocalDate currentDate = LocalDate.now();
                     if (authDt.isAfter(currentDate)) {
                         t.setActvtnYn("N");
@@ -247,25 +250,7 @@ public class MenuAuthGroupApiService {
                         t.setActvtnYn("Y");
                     }
                 }
-
-                long duplicateCnt = q
-                        .selectFrom(qTblMenuAuthrtGroupUser)
-                        .where(
-                                qTblMenuAuthrtGroupUser.authrtGroupSn.eq(t.getAuthrtGroupSn())
-                                        .and(qTblMenuAuthrtGroupUser.userSn.eq(t.getUserSn()))
-                        ).fetchCount();
-
-                if(duplicateCnt == 0){
-                    tblMenuAuthrtGroupUserRepository.save(t);
-                }else{
-                    TblMenuAuthrtGroupUser existingAuthGrant = tblMenuAuthrtGroupUserRepository.findByAuthrtGroupSnAndUserSn(t.getAuthrtGroupSn(), t.getUserSn());
-                    existingAuthGrant.setUserNm(t.getUserNm());
-                    existingAuthGrant.setUserId(t.getUserId());
-                    existingAuthGrant.setAuthrtGrntDt(t.getAuthrtGrntDt());
-                    existingAuthGrant.setActvtnYn(t.getActvtnYn());
-                    existingAuthGrant.setMdfrSn(t.getMdfrSn() == null ? t.getCreatrSn() : t.getMdfrSn());
-                    tblMenuAuthrtGroupUserRepository.save(existingAuthGrant);
-                }
+                tblMenuAuthrtGroupUserRepository.save(t);
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
