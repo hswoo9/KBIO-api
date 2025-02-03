@@ -2,9 +2,10 @@ package egovframework.com.cmm;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import egovframework.com.devjitsu.model.common.MessageDto;
-import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
+import egovframework.com.devjitsu.model.user.TblUserMsg;
+import egovframework.com.devjitsu.repository.user.TblUserMsgRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
+import egovframework.let.utl.fcc.service.EgovFormBasedFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,11 +15,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO.lettnemplyrinfoVO;
 
 @Slf4j
 @Component
@@ -26,8 +24,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     private Map<String, WebSocketSession> users = new ConcurrentHashMap<>();
 
-    @Autowired
-    private RedisApiService redisApiService;
+    private final TblUserMsgRepository tblUserMsgRepository;
+
+    public WebSocketHandler(TblUserMsgRepository tblUserMsgRepository) {
+        this.tblUserMsgRepository = tblUserMsgRepository;
+    }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -52,24 +53,28 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         if(msg != null){
             Gson gson = new Gson();
-            MessageDto messageDto = gson.fromJson(msg, new TypeToken<MessageDto>() {}.getType());
-            if(messageDto.getSendType().equals("all")){
+            TblUserMsg tblUserMsg = gson.fromJson(msg, new TypeToken<TblUserMsg>() {}.getType());
+            if(tblUserMsg.getSendType().equals("all")){
                 for(WebSocketSession user : users.values()){
                     if(user != null) {
-                        TextMessage tmpMsg = new TextMessage(gson.toJson(messageDto));
+                        TextMessage tmpMsg = new TextMessage(gson.toJson(tblUserMsg));
                         user.sendMessage(tmpMsg);
                     }
                 }
             }else{
-                if(messageDto.getUserSn() != null){
-                    String target = messageDto.getUserSn();
+                if(tblUserMsg.getRcptnUserSn() != null){
+                    String target = tblUserMsg.getRcptnUserSn().toString();
                     WebSocketSession targetSession = users.get(target);
                     if(targetSession != null) {
-                        TextMessage tmpMsg = new TextMessage(gson.toJson(messageDto));
+                        TextMessage tmpMsg = new TextMessage(gson.toJson(tblUserMsg));
                         targetSession.sendMessage(tmpMsg);
                     }
                 }
             }
+
+            tblUserMsg.setSndngYmd(EgovFormBasedFileUtil.getTodayString());
+            tblUserMsg.setCreatrSn(tblUserMsg.getDsptchUserSn());
+            tblUserMsgRepository.save(tblUserMsg);
         }
     }
 

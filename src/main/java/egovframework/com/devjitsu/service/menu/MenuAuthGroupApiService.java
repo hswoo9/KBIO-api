@@ -6,6 +6,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.devjitsu.model.access.TblMngrAcsIp;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.menu.*;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -296,5 +298,16 @@ public class MenuAuthGroupApiService {
         }
 
         return resultVO;
+    }
+
+    public List<Long> getMenuAuthrtGroups(long userSn) {
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
+
+        List<TblMenuAuthrtGroupUser> menuAuthrtGroupUsers = q.selectFrom(qTblMenuAuthrtGroupUser).where(qTblMenuAuthrtGroupUser.userSn.eq(userSn)).fetch();
+
+        return menuAuthrtGroupUsers.stream()
+                .map(TblMenuAuthrtGroupUser::getAuthrtGroupSn)
+                .collect(Collectors.toList());
     }
 }

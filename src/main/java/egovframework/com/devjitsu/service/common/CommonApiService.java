@@ -1,6 +1,7 @@
 package egovframework.com.devjitsu.service.common;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
@@ -8,10 +9,15 @@ import egovframework.com.cmm.util.AccessIP;
 import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.menu.*;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
+import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
+import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
 import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
+import egovframework.com.devjitsu.service.menu.MenuAuthGroupApiService;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +28,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.net.ssl.*;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -39,6 +47,7 @@ import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +60,9 @@ public class CommonApiService {
 
     @Autowired
     private RedisApiService redisApiService;
+
+    @Autowired
+    private MenuAuthGroupApiService menuAuthGroupApiService;
 
     @Autowired
     private MngrAcsIpApiService mngrAcsIpApiService;
@@ -76,6 +88,53 @@ public class CommonApiService {
     private final TblComCdRepository tblComCdRepository;
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
+    private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
+
+    public ResultVO getMenu(HttpServletRequest request) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QTblMenu qTblMenu = QTblMenu.tblMenu;
+            QTblAuthrtGroupMenu qTblAuthrtGroupMenu = QTblAuthrtGroupMenu.tblAuthrtGroupMenu;
+
+            List<Long> menuAuthrtGroups = new ArrayList<>();
+
+            if(!StringUtils.isEmpty(request.getSession().getAttribute("userSn"))){
+                menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups((Long) request.getSession().getAttribute("userSn"));
+            }else{
+                menuAuthrtGroups.add(Long.valueOf(1));
+            }
+
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qTblMenu.actvtnYn.eq("Y"));
+            builder.and(Expressions.booleanTemplate("FIND_IN_SET({0}, {1}) > 0", qTblAuthrtGroupMenu.authrtGroupSn, menuAuthrtGroups));
+
+            if(!StringUtils.isEmpty(dto.get("menuSeq"))){
+                builder.and(qTblMenu.menuSeq.eq((Long) dto.get("menuSeq")));
+            }
+
+            if(!StringUtils.isEmpty(dto.get("upperMenuSn"))){
+                builder.and(qTblMenu.upperMenuSn.eq((Long) dto.get("upperMenuSn")));
+            }
+
+            List<TblMenu> menuList = 
+                    q.selectFrom(qTblMenu)
+                        .join(qTblAuthrtGroupMenu).on(qTblMenu.menuSn.eq(qTblAuthrtGroupMenu.menuSn))
+                        .where(builder).groupBy(qTblMenu.menuSn).orderBy(qTblMenu.upperMenuSn.asc(), qTblMenu.menuSortSeq.asc()).fetch();
+
+            System.out.println("menuList = " + menuList);
+            
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
 
     public ResultVO getMngrAcsIpChk(HttpServletRequest request) {
         ResultVO resultVO = new ResultVO();

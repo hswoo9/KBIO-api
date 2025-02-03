@@ -191,9 +191,15 @@ public class PstApiService {
     public ResultVO getPst(TblPst tblPst) {
         ResultVO resultVO = new ResultVO();
         try {
+            QTblPst qTblPst = QTblPst.tblPst;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
             tblPst = tblPstRepository.findByPstSn(tblPst.getPstSn());
             tblPst.setPstFiles(tblComFileRepository.findByPsnTblPk("pst_" + tblPst.getPstSn()));
             tblPst.setPstCmnt(getPstCmnt(tblPst));
+
+            q.update(qTblPst).set(qTblPst.pstInqCnt, qTblPst.pstInqCnt.add(1)).where(qTblPst.pstSn.eq(tblPst.getPstSn()));
+
             resultVO.putResult("pst", tblPst);
             resultVO.putResult("pstPrevNext", getPstPrevNext(tblPst));
             resultVO.putResult("bbs", getBbs(tblPst.getBbsSn()));

@@ -31,6 +31,16 @@ public class CommonApiController {
     private CommonApiService commonApiService;
 
     /**
+     * 사용자 메뉴 조회
+     * @return
+     */
+    @PostMapping("/commonApi/getMenu.do")
+    public ResultVO getMenu(HttpServletRequest request) {
+        return commonApiService.getMenu(request);
+    }
+
+
+    /**
      * 관리자 아이피 체크
      * @return
      */
