@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TBL_BBS")
+@Table(name = "TBL_BBS", catalog = "SCHM_BIO_CMS")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,9 +26,9 @@ public class TblBbs {
     @Comment("게시판명")
     private String bbsNm;
 
-    @Column(name = "BBS_TYPE", length = 20, nullable = false)
+    @Column(name = "BBS_TYPE_NM", length = 20, nullable = false)
     @Comment("게시판종류명")
-    private String bbsType;
+    private String bbsTypeNm;
 
     @Column(name = "ATCH_FILE_YN", nullable = false, columnDefinition = "CHAR(1)")
     @Comment("파일첨부가능여부")
@@ -46,9 +46,9 @@ public class TblBbs {
     @Comment("댓글가능여부")
     private String cmntPsbltyYn = "N";
 
-    @Column(name = "REPLY_PSBLTY_YN", columnDefinition = "CHAR(1)")
+    @Column(name = "ANS_PSBLTY_YN", columnDefinition = "CHAR(1)")
     @Comment("답글 사용유무")
-    private String replyPsbltyYn = "N";
+    private String ansPsbltyYn = "N";
 
     @Column(name = "BSC_PST_CNT", columnDefinition = "INT(10)")
     @Comment("기본 게시글 개수")

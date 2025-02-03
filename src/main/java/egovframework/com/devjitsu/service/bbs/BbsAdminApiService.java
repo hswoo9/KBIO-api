@@ -70,7 +70,7 @@ public class BbsAdminApiService {
                 builder.and(qTblBbs.bbsNm.contains((String) dto.get("bbsNm")));
             }
             if (!StringUtils.isEmpty(dto.get("bbsType"))) {
-                builder.and(qTblBbs.bbsType.eq((String) dto.get("bbsType")));
+                builder.and(qTblBbs.bbsTypeNm.eq((String) dto.get("bbsTypeNm")));
             }
 
             List<TblBbs> bbsList = q.selectFrom(qTblBbs)
@@ -157,7 +157,7 @@ public class BbsAdminApiService {
 
         JPAQueryFactory q = new JPAQueryFactory(em);
         /** 답글 삭제 */
-        List<TblPst> replyPsts = q.selectFrom(qTblPst).where(qTblPst.orgnlPstSn.eq(tblPst.getPstSn())).fetch();
+        List<TblPst> replyPsts = q.selectFrom(qTblPst).where(qTblPst.upPstSn.eq(tblPst.getPstSn())).fetch();
         for (TblPst replyPst : replyPsts) {
             deletePstRecursively(replyPst);
         }

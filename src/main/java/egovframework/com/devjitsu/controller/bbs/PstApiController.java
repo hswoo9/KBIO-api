@@ -65,9 +65,9 @@ public class PstApiController {
      *     upendNtcYn    : 공지 유무(기본값 N)
      *     ntcBgngDt     : 공지 시작일 (공지 유무 Y일시 필수)
      *     ntcEndDate    : 공지 종료일 (공지 유무 Y일시 필수)
-     *     otsdLink      : 관련링크
-     *     orgnlPstSn    : 원글키(답글시 필수)
-     *     cmntPicSn     : 답글 작성 담당자 키
+     *     linkUrlAddr   : 연계URL주소
+     *     upPstSn       : 상위게시물일련번호(답글시 필수)
+     *     ansUserSn     : 답글 작성 사용자 키
      *     rlsYn         : 비공개 유무
      *     prvtPswd      : 비공개 비밀번호 (비공개인 경우 필수)
      * }

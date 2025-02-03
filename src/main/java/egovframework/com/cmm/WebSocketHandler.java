@@ -4,8 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import egovframework.com.devjitsu.model.common.MessageDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
+import egovframework.com.devjitsu.service.common.RedisApiService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -15,11 +18,16 @@ import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO.lettnemplyrinfoVO;
+
 @Slf4j
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
 
     private Map<String, WebSocketSession> users = new ConcurrentHashMap<>();
+
+    @Autowired
+    private RedisApiService redisApiService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -68,12 +76,12 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     private String getMemberId(WebSocketSession session){
         Map<String, Object> httpSession = session.getAttributes();
-        LettnemplyrinfoVO lettnemplyrinfoVO = (LettnemplyrinfoVO) httpSession.get("lettnemplyrinfoVO");
+        String userSn = String.valueOf(httpSession.get("userSn")) == null ? "" : String.valueOf(httpSession.get("userSn"));
 
-        if(lettnemplyrinfoVO == null) {
+        if(StringUtils.isEmpty(userSn)) {
             return session.getId();
         } else {
-            return String.valueOf(lettnemplyrinfoVO.getUserSn());
+            return userSn;
         }
     }
 }

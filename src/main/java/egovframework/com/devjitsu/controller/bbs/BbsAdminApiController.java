@@ -67,7 +67,7 @@ public class BbsAdminApiController {
      *     atchFileKndNm     : 첨부허용 확장자 (atchFileYn = Y 일때 쉼표로 분리)
      *     wrtrRlsYn         : 작성자 익명 여부 (기본 값 N)
      *     cmntPsbltyYn      : 댓글 사용 유무 (기본 값 N)
-     *     replyPsbltyYn     : 답글 사용 유무 (기본 값 N)
+     *     ansPsbltyYn     : 답글 사용 유무 (기본 값 N)
      *     actvtnYn          : 사용 여부 (기본 값 Y)
      *     mdfrSn            : 수정자 키
      * }

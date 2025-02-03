@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "TBL_PST")
+@Table(name = "TBL_PST", catalog = "SCHM_BIO_CMS")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,17 +37,17 @@ public class TblPst {
     @Comment("공지종료일")
     private String ntcEndDate;
 
-    @Column(name = "OTSD_LINK", length = 100)
-    @Comment("외부링크")
-    private String otsdLink;
+    @Column(name = "LINK_URL_ADDR", length = 100)
+    @Comment("연계URL주소")
+    private String linkUrlAddr;
 
     @Column(name = "BBS_SN", length = 22, nullable = false)
     @Comment("게시판일련번호")
     private long bbsSn;
 
-    @Column(name = "BBS_CTGRY_SN", length = 22)
-    @Comment("게시판카테고리일련번호")
-    private Long bbsCtgrySn;
+    @Column(name = "BBS_CLSF", length = 22)
+    @Comment("게시판분류(공통코드일련번호)")
+    private Long bbsClsf;
 
     @Column(name = "PST_TTL", length = 256)
     @Comment("게시글제목")
@@ -65,17 +65,17 @@ public class TblPst {
     @Comment("게시글그룹")
     private Long pstGroup;
 
-    @Column(name = "ORGNL_PST_SN", length = 22)
-    @Comment("원글일련번호")
-    private Long orgnlPstSn;
+    @Column(name = "UP_PST_SN", length = 22)
+    @Comment("상위게시물일련번호")
+    private Long upPstSn;
 
-    @Column(name = "CMNT_LEVEL", length = 10)
-    @Comment("답글레벨")
-    private Integer cmntLevel;
+    @Column(name = "ANS_STP", length = 10)
+    @Comment("답글단계")
+    private Integer ansStp;
 
-    @Column(name = "CMNT_PIC_SN", length = 22)
-    @Comment("답글담당자사번")
-    private Integer cmntPicSn;
+    @Column(name = "ANS_USER_SN", length = 22)
+    @Comment("답글사용자일련번호")
+    private Long ansUserSn;
 
     @Column(name = "RLS_YN", columnDefinition = "CHAR(1)")
     @Comment("공개여부")

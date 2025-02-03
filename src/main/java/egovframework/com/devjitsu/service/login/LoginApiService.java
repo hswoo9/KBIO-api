@@ -143,7 +143,7 @@ public class LoginApiService {
             resultVO.putResult("jToken", jwtTokenUtil.generateTokenJpa(lettnemplyrinfoVO));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
-            request.getSession().setAttribute("lettnemplyrinfoVO", lettnemplyrinfoVO);
+            request.getSession().setAttribute("userSn", lettnemplyrinfoVO.getUserSn());
             redisApiService.setRedis(0, String.valueOf(lettnemplyrinfoVO.getUserSn()), lettnemplyrinfoVO, null);
         }
 

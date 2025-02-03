@@ -136,7 +136,7 @@ public class PstApiService {
                             qTblPst.pstInqCnt,
                             qTblPst.rlsYn,
                             qTblPst.actvtnYn,
-                            qTblPst.orgnlPstSn,
+                            qTblPst.upPstSn,
                             qTblPst.creatrSn,
                             qTblPst.frstCrtDt,
                             fileCnt,
@@ -163,7 +163,7 @@ public class PstApiService {
                                 .otherwise(1)
                                 .asc(),  // ASC로 정렬
                         qTblPst.pstGroup.desc(),
-                        qTblPst.cmntLevel.asc(),
+                        qTblPst.ansStp.asc(),
                         qTblPst.frstCrtDt.desc()
                     )
                     .offset(paginationInfo.getFirstRecordIndex())
@@ -216,22 +216,22 @@ public class PstApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
-            if(!StringUtils.isEmpty(tblPst.getOrgnlPstSn())) {
-                TblPst orgnlPst = q.selectFrom(qTblPst).where(qTblPst.pstSn.eq(tblPst.getOrgnlPstSn())).fetchOne();
+            if(!StringUtils.isEmpty(tblPst.getUpPstSn())) {
+                TblPst orgnlPst = q.selectFrom(qTblPst).where(qTblPst.pstSn.eq(tblPst.getUpPstSn())).fetchOne();
                 if(orgnlPst.getRlsYn().equals("Y")) {
                     tblPst.setRlsYn(orgnlPst.getRlsYn());
                     tblPst.setPrvtPswd(orgnlPst.getPrvtPswd());
                 }
 
-                if(StringUtils.isEmpty(tblPst.getCmntLevel())){
-                    NumberPath<Integer> maxCmntLevel = qTblPst.cmntLevel;
+                if(StringUtils.isEmpty(tblPst.getAnsStp())){
+                    NumberPath<Integer> maxAnsStp = qTblPst.ansStp;
                     JPAQuery<Integer> query = q
-                            .select(Expressions.numberTemplate(Integer.class, "COALESCE(MAX({0}), 0) + 1", maxCmntLevel))
+                            .select(Expressions.numberTemplate(Integer.class, "COALESCE(MAX({0}), 0) + 1", maxAnsStp))
                             .from(qTblPst)
                             .where(qTblPst.bbsSn.eq(tblPst.getBbsSn())
                                     .and(qTblPst.pstGroup.eq(tblPst.getPstGroup())));
-                    Integer nextReplyLevel = query.fetchOne();
-                    tblPst.setCmntLevel(nextReplyLevel);
+                    Integer nextAnsStp = query.fetchOne();
+                    tblPst.setAnsStp(nextAnsStp);
                 }
             }
 
@@ -426,7 +426,7 @@ public class PstApiService {
 
         JPAQueryFactory q = new JPAQueryFactory(em);
         /** 답글 삭제 */
-        List<TblPst> replyPsts = q.selectFrom(qTblPst).where(qTblPst.orgnlPstSn.eq(tblPst.getPstSn())).fetch();
+        List<TblPst> replyPsts = q.selectFrom(qTblPst).where(qTblPst.upPstSn.eq(tblPst.getPstSn())).fetch();
         for (TblPst replyPst : replyPsts) {
             deletePstRecursively(replyPst);
         }

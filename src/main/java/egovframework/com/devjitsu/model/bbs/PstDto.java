@@ -18,7 +18,7 @@ public class PstDto {
     private Long pstInqCnt;
     private String rlsYn;
     private String actvtnYn;
-    private Long orgnlPstSn;
+    private Long upPstSn;
     private Long creatrSn;
     private LocalDateTime frstCrtDt;
     private Long fileCnt;
