@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TBL_COM_FILE")
+@Table(name = "TBL_COM_FILE", catalog = "SCHM_BIO_COM")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

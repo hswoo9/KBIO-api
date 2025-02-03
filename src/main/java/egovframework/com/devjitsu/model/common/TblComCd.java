@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TBL_COM_CD")
+@Table(name = "TBL_COM_CD", catalog = "SCHM_BIO_COM")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,13 +25,13 @@ public class TblComCd {
     @Comment("코드그룹일련번호")
     private long cdGroupSn;
 
-    @Column(name = "CD", length = 20, nullable = false)
+    @Column(name = "COM_CD", length = 20, nullable = false)
     @Comment("공통코드")
-    private String cd;
+    private String comCd;
 
-    @Column(name = "CD_NM", length = 100, nullable = false)
+    @Column(name = "COM_CD_NM", length = 100, nullable = false)
     @Comment("공통코드명")
-    private String cdNm;
+    private String comCdNm;
 
     @Column(name = "ETC_MTTR1", length = 2000)
     @Comment("기타사항1")

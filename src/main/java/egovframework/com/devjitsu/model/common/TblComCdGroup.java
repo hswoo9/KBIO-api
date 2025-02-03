@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "TBL_COM_CD_GROUP")
+@Table(name = "TBL_COM_CD_GROUP", catalog = "SCHM_BIO_COM")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
