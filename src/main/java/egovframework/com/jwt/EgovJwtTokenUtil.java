@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
+import egovframework.com.devjitsu.model.user.TblUser;
 import org.springframework.stereotype.Component;
 
 import egovframework.com.cmm.LoginVO;
@@ -58,7 +59,7 @@ public class EgovJwtTokenUtil implements Serializable{
         return doGenerateToken(loginVO, "Authorization");
     }
 
-    public String generateTokenJpa(LettnemplyrinfoVO loginVO) {
+    public String generateTokenJpa(TblUser loginVO) {
         return doGenerateTokenJpa(loginVO, "Authorization");
     }
 
@@ -83,15 +84,15 @@ public class EgovJwtTokenUtil implements Serializable{
             .signWith(SignatureAlgorithm.HS512, SECRET_KEY).compact();
     }
 
-    private String doGenerateTokenJpa(LettnemplyrinfoVO loginVO, String subject) {
+    private String doGenerateTokenJpa(TblUser loginVO, String subject) {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userSn", loginVO.getUserSn() );
-        claims.put("id", loginVO.getEmplyrId() );
-        claims.put("name", loginVO.getUserNm() );
+        claims.put("id", loginVO.getUserId() );
+        claims.put("name", loginVO.getKornFlnm() );
         claims.put("userSe", "ADM" );
         //claims.put("orgnztId", loginVO.getOrgnztId() );
-        claims.put("orgnztId", loginVO.getEmplyrId() );
+        claims.put("orgnztId", loginVO.getUserId() );
         claims.put("type", subject);
 
     	log.debug("===>>> secret = "+SECRET_KEY);

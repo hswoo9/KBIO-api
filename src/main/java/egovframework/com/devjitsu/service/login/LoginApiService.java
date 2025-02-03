@@ -12,7 +12,9 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.LoginDto;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
+import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.QTblUserSnsCertInfo;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
@@ -93,15 +95,15 @@ public class LoginApiService {
     public ResultVO actionLogin(LoginDto dto, HttpServletRequest request) throws Exception {
         ResultVO resultVO = new ResultVO();
 
-        QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
-        LettnemplyrinfoVO lettnemplyrinfoVO;
+        QTblUser qTblUser = QTblUser.tblUser;
+        TblUser tblUser;
 
         JPAQueryFactory q = new JPAQueryFactory(em);
         BooleanBuilder builder = new BooleanBuilder();
 
         /**ID확인*/
         if(dto.getLoginType().equals("base")){
-            lettnemplyrinfoVO = q.selectFrom(qLettnemplyrinfoVO).where(qLettnemplyrinfoVO.emplyrId.eq(dto.getId())).fetchOne();
+            tblUser = q.selectFrom(qTblUser).where(qTblUser.userId.eq(dto.getId())).fetchOne();
         }else{
             QTblUserSnsCertInfo qTblUserSnsCertInfo = QTblUserSnsCertInfo.tblUserSnsCertInfo;
             if(dto.getSnsType().equals("naver")){
@@ -115,10 +117,10 @@ public class LoginApiService {
             /** join 추가해야함 */
             builder.and(qTblUserSnsCertInfo.snsClsf.eq(dto.getSnsType()));
             builder.and(qTblUserSnsCertInfo.snsUnqNo.eq(dto.getSnsId()));
-            lettnemplyrinfoVO = q.select(qLettnemplyrinfoVO).from(qTblUserSnsCertInfo).join(qLettnemplyrinfoVO).on(qTblUserSnsCertInfo.userSn.eq(qLettnemplyrinfoVO.userSn)).where(builder).fetchFirst();
+            tblUser = q.select(qTblUser).from(qTblUserSnsCertInfo).join(qTblUser).on(qTblUserSnsCertInfo.userSn.eq(qTblUser.userSn)).where(builder).fetchFirst();
         }
 
-        if(lettnemplyrinfoVO == null){
+        if(tblUser == null){
             if(dto.getLoginType().equals("base")){
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
                 resultVO.setResultMessage(ResponseCode.NOT_USER.getMessage());
@@ -129,30 +131,30 @@ public class LoginApiService {
             return resultVO;
         }else {
             if(dto.getLoginType().equals("base")){
-                if(!lettnemplyrinfoVO.getPassword().equals(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId()))){
+                if(!tblUser.getPswd().equals(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId()))){
                     resultVO.setResultCode(ResponseCode.NOT_EQ_PASSWORD.getCode());
                     resultVO.setResultMessage(ResponseCode.NOT_EQ_PASSWORD.getMessage());
                     return resultVO;
                 }
             }
 
-            resultVO.putResult("userSn", lettnemplyrinfoVO.getUserSn());
-            resultVO.putResult("userId", lettnemplyrinfoVO.getEmplyrId());
-            resultVO.putResult("userName", lettnemplyrinfoVO.getUserNm());
-            resultVO.putResult("userSe", lettnemplyrinfoVO.getUserSn() == 1 ? "ADM" : "UDR");
-            resultVO.putResult("jToken", jwtTokenUtil.generateTokenJpa(lettnemplyrinfoVO));
+            resultVO.putResult("userSn", tblUser.getUserSn());
+            resultVO.putResult("userId", tblUser.getUserId());
+            resultVO.putResult("userName", tblUser.getKornFlnm());
+            resultVO.putResult("userSe", tblUser.getUserSn() == 1 ? "ADM" : "UDR");
+            resultVO.putResult("jToken", jwtTokenUtil.generateTokenJpa(tblUser));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
-            request.getSession().setAttribute("userSn", lettnemplyrinfoVO.getUserSn());
-            redisApiService.setRedis(0, String.valueOf(lettnemplyrinfoVO.getUserSn()), lettnemplyrinfoVO, null);
+            request.getSession().setAttribute("userSn", tblUser.getUserSn());
+            redisApiService.setRedis(0, String.valueOf(tblUser.getUserSn()), resultVO, null);
         }
 
         return resultVO;
     }
 
-    public ResultVO actionLogout(LettnemplyrinfoVO lettnemplyrinfoVO, HttpServletRequest request, HttpServletResponse response) {
+    public ResultVO actionLogout(TblUser tblUser, HttpServletRequest request, HttpServletResponse response) {
         ResultVO resultVO = new ResultVO();
-        redisApiService.delRedis(0, String.valueOf(lettnemplyrinfoVO.getUserSn()));
+        redisApiService.delRedis(0, String.valueOf(tblUser.getUserSn()));
         new SecurityContextLogoutHandler().logout(request, response, null);
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());

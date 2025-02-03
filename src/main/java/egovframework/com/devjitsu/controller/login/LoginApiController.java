@@ -5,6 +5,7 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.LoginDto;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import egovframework.com.devjitsu.service.login.LoginApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
@@ -70,8 +71,8 @@ public class LoginApiController {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
     })
     @PostMapping(value = "/loginApi/logoutAction")
-    public ResultVO logoutAction(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return loginApiService.actionLogout(lettnemplyrinfoVO, request, response);
+    public ResultVO logoutAction(@RequestBody TblUser tblUser, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        return loginApiService.actionLogout(tblUser, request, response);
     }
 
 }
