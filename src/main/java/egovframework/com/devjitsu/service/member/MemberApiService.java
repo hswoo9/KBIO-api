@@ -129,22 +129,22 @@ public class MemberApiService {
     public ResultVO findId(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
-        QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
+        QTblUser qTblUser = QTblUser.tblUser;
 
-        LettnemplyrinfoVO lettnemplyrinfoVO = new JPAQueryFactory(em)
-                .selectFrom(qLettnemplyrinfoVO)
+        TblUser tblUser = new JPAQueryFactory(em)
+                .selectFrom(qTblUser)
                 .where(
-                        qLettnemplyrinfoVO.userNm.eq(dto.get("name").toString())
-                                .and(qLettnemplyrinfoVO.emailAdres.eq(dto.get("email").toString()))
+                        qTblUser.kornFlnm.eq(dto.get("name").toString())
+                                .and(qTblUser.email.eq(dto.get("email").toString()))
                 )
                 .fetchOne();
 
-        if (lettnemplyrinfoVO != null) {
+        if (tblUser != null) {
             resultVO.setResultCode(200);
-            resultVO.putResult("memberId", lettnemplyrinfoVO.getEmplyrId());
+            resultVO.putResult("userId", tblUser.getUserId());
         } else {
             resultVO.setResultCode(400);
-            resultVO.putResult("memberId", null);
+            resultVO.putResult("userId", null);
         }
 
         return resultVO;
