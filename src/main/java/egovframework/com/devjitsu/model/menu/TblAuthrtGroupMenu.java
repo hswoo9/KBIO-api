@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TBL_AUTHRT_GROUP_MENU")
+@Table(name = "TBL_AUTHRT_GROUP_MENU", catalog = "SCHM_BIO_CMS")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

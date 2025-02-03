@@ -7,8 +7,11 @@ import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.user.QTblMvnEnt;
+import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.TblMvnEnt;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
+import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
 import egovframework.let.utl.sim.service.EgovFileScrty;
@@ -36,6 +39,7 @@ public class MemberApiService {
 
     private final EntityManager em;
     private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
+    private final TblUserRepository TblUserRepository;
 
     /**
      * jpa 부등호
@@ -52,18 +56,18 @@ public class MemberApiService {
     public ResultVO checkMemberId(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
-        QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
-        LettnemplyrinfoVO lettnemplyrinfoVO = new JPAQueryFactory(em)
-                .selectFrom(qLettnemplyrinfoVO)
-                .where(qLettnemplyrinfoVO.emplyrId.eq(dto.get("memberId").toString()))
+        QTblUser qTblUser = QTblUser.tblUser;
+        TblUser tblUser = new JPAQueryFactory(em)
+                .selectFrom(qTblUser)
+                .where(qTblUser.userId.eq(dto.get("userId").toString()))
                 .fetchOne();
 
-        if (lettnemplyrinfoVO != null) {
+        if (tblUser != null) {
             resultVO.setResultCode(400);
-            resultVO.putResult("usedCnt", 1);
+            resultVO.putResult("usedCnt", 1); // 아이디가 사용 중인 경우
         } else {
             resultVO.setResultCode(200);
-            resultVO.putResult("usedCnt", 0);
+            resultVO.putResult("usedCnt", 0); // 아이디가 사용 가능
         }
 
         return resultVO;
@@ -97,17 +101,26 @@ public class MemberApiService {
     public ResultVO insertMember(SearchDto dto) throws Exception {
         ResultVO resultVO = new ResultVO();
 
-        LettnemplyrinfoVO member = new LettnemplyrinfoVO();
-        member.setUserNm((String) dto.get("mberNm"));
-        member.setEmplyrId((String) dto.get("mberId"));
-        //member.setPassword((String) dto.get("password"));
-        String hashedPswd = EgovFileScrty.encryptPassword((String)dto.get("password"),(String) dto.get("mberId"));
-        member.setPassword(hashedPswd);
-        member.setHouseAdres((String) dto.get("searchAddress"));
-        member.setEmailAdres(dto.get("emailPrefix") + "@" + dto.get("emailDomain"));
-        member.setMbtlnum((String) dto.get("phonenum"));
+        TblUser member = new TblUser(); // TblUser 엔티티로 변경
+        member.setKornFlnm((String) dto.get("kornFlnm")); // 성명
+        member.setUserId((String) dto.get("userId")); // 사용자 ID
+        // 비밀번호 해시 처리
+        String hashedPswd = EgovFileScrty.encryptPassword((String) dto.get("userPw"), (String) dto.get("userId"));
+        member.setUserPw(hashedPswd); // 비밀번호
+        member.setAddr((String) dto.get("addr")); // 주소
+        member.setDaddr((String) dto.get("daddr")); // 상세 주소
+        member.setZip((String) dto.get("zip")); // 우편번호
+        member.setEmail(dto.get("emailPrefix") + "@" + dto.get("emailDomain")); // 이메일
+        member.setMblTelno((String) dto.get("mblTelno")); // 휴대폰 번호
+        member.setEmlRcptnAgreYn((String) dto.get("emlRcptnAgreYn")); // 이메일 수신 동의 여부
+        member.setSmsRcptnAgreYn((String) dto.get("smsRcptnAgreYn")); // SMS 수신 동의 여부
+        member.setInfoRlsYn((String) dto.get("infoRlsYn")); // 정보 공개 여부
+        member.setActvtnYn("W"); // 활성 여부 기본값 설정
 
-        lettnemplyrinfoRepository.save(member);
+        // 추가적인 필드 설정이 필요할 경우 여기에 추가
+
+        // 회원 정보 저장
+        TblUserRepository.save(member);
 
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         resultVO.setResultMessage("회원 등록이 성공적으로 완료되었습니다.");

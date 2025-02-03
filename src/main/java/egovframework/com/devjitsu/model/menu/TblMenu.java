@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "TBL_MENU")
+@Table(name = "TBL_MENU", catalog = "SCHM_BIO_CMS")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -47,9 +47,9 @@ public class TblMenu {
     @Comment("메뉴경로")
     private String menuPathNm;
 
-    @Column(name = "LTR", length = 20)
+    @Column(name = "APLCN_NTN_LTR", length = 20)
     @Comment("언어")
-    private String ltr;
+    private String aplcnNtnLtr;
 
     @Column(name = "LWR_MENU_EN", columnDefinition = "CHAR(1) DEFAULT 'N'")
     @Comment("하위메뉴여부")

@@ -14,7 +14,7 @@ public interface TblMenuRepository extends JpaRepository<TblMenu, String> {
 
     @Query(value =
             "UPDATE " +
-                "KBIO.TBL_MENU M, " +
+                "SCHM_BIO_CMS.TBL_MENU M, " +
                 "(" +
                     "WITH RECURSIVE CTE AS (" +
                         "SELECT " +
@@ -24,7 +24,7 @@ public interface TblMenuRepository extends JpaRepository<TblMenu, String> {
                             "CAST(CONCAT(MENU_SN, '|') AS CHAR(100) CHARACTER SET UTF8) AS MENU_SN_PATH," +
                             "CAST(CONCAT(RIGHT(CONCAT('000', MENU_SORT_SEQ), 4), '|') AS CHAR(100) CHARACTER SET UTF8) AS MENU_WHOL_PATH " +
                         "FROM " +
-                            "KBIO.TBL_MENU " +
+                            "SCHM_BIO_CMS.TBL_MENU " +
                         "WHERE " +
                             "UPPER_MENU_SN = 0 " +
                         "UNION ALL " +
@@ -35,7 +35,7 @@ public interface TblMenuRepository extends JpaRepository<TblMenu, String> {
                             "CONCAT(C.MENU_SN_PATH, CONCAT(P.MENU_SN, '|')) AS MENU_SN_PATH," +
                             "CONCAT(C.MENU_WHOL_PATH, RIGHT(CONCAT('000', P.MENU_SORT_SEQ), 4), '|') AS MENU_WHOL_PATH " +
                         "FROM " +
-                            "KBIO.TBL_MENU P " +
+                            "SCHM_BIO_CMS.TBL_MENU P " +
                         "INNER JOIN " +
                             "CTE C " +
                         "ON C.MENU_SN = P.UPPER_MENU_SN" +
