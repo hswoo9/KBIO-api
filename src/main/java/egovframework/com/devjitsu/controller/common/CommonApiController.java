@@ -31,7 +31,7 @@ public class CommonApiController {
     private CommonApiService commonApiService;
 
     /**
-     * 사용자 메뉴 조회
+     * 사용자 전체 메뉴 조회
      * @return
      */
     @PostMapping("/commonApi/getMenu.do")
@@ -39,6 +39,14 @@ public class CommonApiController {
         return commonApiService.getMenu(request);
     }
 
+    /**
+     * 사용자 left 메뉴 조회
+     * @return
+     */
+    @PostMapping("/commonApi/getLeftMenu.do")
+    public ResultVO getLeftMenu(HttpServletRequest request) {
+        return commonApiService.getLeftMenu(request);
+    }
 
     /**
      * 관리자 아이피 체크

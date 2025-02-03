@@ -6,6 +6,8 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.cmm.util.AccessIP;
+import egovframework.com.devjitsu.model.bbs.PstDto;
+import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
@@ -89,6 +91,8 @@ public class CommonApiService {
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
     private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
+    @Autowired
+    private TblMenuRepository tblMenuRepository;
 
     public ResultVO getMenu(HttpServletRequest request) {
         ResultVO resultVO = new ResultVO();
@@ -100,12 +104,10 @@ public class CommonApiService {
             QTblMenu qTblMenu = QTblMenu.tblMenu;
             QTblAuthrtGroupMenu qTblAuthrtGroupMenu = QTblAuthrtGroupMenu.tblAuthrtGroupMenu;
 
-            List<Long> menuAuthrtGroups = new ArrayList<>();
+            String menuAuthrtGroups = "1";
 
             if(!StringUtils.isEmpty(request.getSession().getAttribute("userSn"))){
                 menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups((Long) request.getSession().getAttribute("userSn"));
-            }else{
-                menuAuthrtGroups.add(Long.valueOf(1));
             }
 
             BooleanBuilder builder = new BooleanBuilder();
@@ -113,11 +115,11 @@ public class CommonApiService {
             builder.and(Expressions.booleanTemplate("FIND_IN_SET({0}, {1}) > 0", qTblAuthrtGroupMenu.authrtGroupSn, menuAuthrtGroups));
 
             if(!StringUtils.isEmpty(dto.get("menuSeq"))){
-                builder.and(qTblMenu.menuSeq.eq((Long) dto.get("menuSeq")));
+                builder.and(qTblMenu.menuSeq.eq(Long.valueOf(dto.get("menuSeq").toString())));
             }
 
             if(!StringUtils.isEmpty(dto.get("upperMenuSn"))){
-                builder.and(qTblMenu.upperMenuSn.eq((Long) dto.get("upperMenuSn")));
+                builder.and(qTblMenu.upperMenuSn.eq(Long.valueOf(dto.get("upperMenuSn").toString())));
             }
 
             List<TblMenu> menuList = 
@@ -125,8 +127,7 @@ public class CommonApiService {
                         .join(qTblAuthrtGroupMenu).on(qTblMenu.menuSn.eq(qTblAuthrtGroupMenu.menuSn))
                         .where(builder).groupBy(qTblMenu.menuSn).orderBy(qTblMenu.upperMenuSn.asc(), qTblMenu.menuSortSeq.asc()).fetch();
 
-            System.out.println("menuList = " + menuList);
-            
+            resultVO.putResult("menuList", menuList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,6 +135,57 @@ public class CommonApiService {
         }
 
         return resultVO;
+    }
+
+
+    public ResultVO getLeftMenu(HttpServletRequest request) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+            String menuAuthrtGroups = "1";
+            if(!StringUtils.isEmpty(request.getSession().getAttribute("userSn"))){
+                menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups((Long) request.getSession().getAttribute("userSn"));
+            }
+            resultVO.putResult("leftMenuList", getLeftMenuList(Long.parseLong(dto.get("menuSn").toString()), menuAuthrtGroups));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    private List<MenuDto> getLeftMenuList(long menuSn, String menuAuthrtGroups){
+        List<String[]> results = tblMenuRepository.getLeftMenu(menuSn, menuAuthrtGroups);
+        List<MenuDto> leftMenuList = new ArrayList<>();
+        for (String[] result : results) {
+
+            Long bbsSn = null;
+            if (result[8] != null) { // null 체크 먼저 수행
+                bbsSn = Long.parseLong(result[8].toString());
+            }
+
+            MenuDto menuDto = new MenuDto(
+                    Long.valueOf(result[0]),
+                    Long.valueOf(result[1]),
+                    Long.valueOf(result[2]),
+                    result[3],
+                    result[4],
+                    result[5],
+                    result[6],
+                    result[7],
+                    bbsSn,
+                    result[9],
+                    result[10]
+            );
+
+            leftMenuList.add(menuDto);
+        }
+
+        return leftMenuList;
     }
 
     public ResultVO getMngrAcsIpChk(HttpServletRequest request) {

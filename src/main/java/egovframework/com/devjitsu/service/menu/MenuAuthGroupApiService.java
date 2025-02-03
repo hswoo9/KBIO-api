@@ -285,14 +285,17 @@ public class MenuAuthGroupApiService {
         return resultVO;
     }
 
-    public List<Long> getMenuAuthrtGroups(long userSn) {
+    public String getMenuAuthrtGroups(long userSn) {
         JPAQueryFactory q = new JPAQueryFactory(em);
         QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
 
-        List<TblMenuAuthrtGroupUser> menuAuthrtGroupUsers = q.selectFrom(qTblMenuAuthrtGroupUser).where(qTblMenuAuthrtGroupUser.userSn.eq(userSn)).fetch();
+        List<Long> menuAuthrtGroups = q.select(qTblMenuAuthrtGroupUser.authrtGroupSn)
+                .from(qTblMenuAuthrtGroupUser)
+                .where(qTblMenuAuthrtGroupUser.userSn.eq(userSn))
+                .fetch();
 
-        return menuAuthrtGroupUsers.stream()
-                .map(TblMenuAuthrtGroupUser::getAuthrtGroupSn)
-                .collect(Collectors.toList());
+        return menuAuthrtGroups.stream()
+                .map(String::valueOf) // Long -> String 변환
+                .collect(Collectors.joining(",")); // 쉼표(,)로 연결
     }
 }
