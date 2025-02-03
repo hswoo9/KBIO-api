@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "TBL_MENU")
+@Table(name = "TBL_MENU", catalog = "SCHM_BIO_CMS")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
