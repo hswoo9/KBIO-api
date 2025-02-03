@@ -3,7 +3,7 @@ package egovframework.com.devjitsu.controller.member;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.bbs.BbsAdminApiService;
 import egovframework.com.devjitsu.service.member.MemberAdminApiService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,8 +44,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/getNormalMember")
-    public ResultVO getNormalMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
-        return memberAdminApiService.getNormalMember(lettnemplyrinfoVO);
+    public ResultVO getNormalMember(@RequestBody TblUser tblUser) {
+        return memberAdminApiService.getNormalMember(tblUser);
     }
 
     /**
@@ -53,8 +53,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/setNormalMember")
-    public ResultVO setBbs(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
-        return memberAdminApiService.setNormalMember(lettnemplyrinfoVO);
+    public ResultVO setNormalMember(@RequestBody TblUser tblUser){
+        return memberAdminApiService.setNormalMember(tblUser);
     }
 
     /**
@@ -62,8 +62,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/setNormalMemberDel")
-    public ResultVO setNormalMemberDel(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
-        return memberAdminApiService.setNormalMemberDel(lettnemplyrinfoVO);
+    public ResultVO setNormalMemberDel(@RequestBody TblUser tblUser){
+        return memberAdminApiService.setNormalMemberDel(tblUser);
     }
 
 
@@ -72,8 +72,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping(value = "/memberApi/resetMemberPassword")
-    public ResultVO resetMemberPassword(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
-        return memberAdminApiService.resetMemberPassword(lettnemplyrinfoVO);
+    public ResultVO resetMemberPassword(@RequestBody TblUser tblUser) {
+        return memberAdminApiService.resetMemberPassword(tblUser);
     }
 
 
@@ -92,8 +92,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/setApprovalMemberDel")
-    public ResultVO setApprovalMemberDel(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
-        return memberAdminApiService.setApprovalMemberDel(lettnemplyrinfoVO);
+    public ResultVO setApprovalMemberDel(@RequestBody TblUser tblUser){
+        return memberAdminApiService.setApprovalMemberDel(tblUser);
     }
 
     /**
@@ -101,8 +101,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/getApprovalMember")
-    public ResultVO getApprovalMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
-        return memberAdminApiService.getApprovalMember(lettnemplyrinfoVO);
+    public ResultVO getApprovalMember(@RequestBody TblUser tblUser) {
+        return memberAdminApiService.getApprovalMember(tblUser);
     }
 
     /**
@@ -120,8 +120,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/setWaitMemberApproval")
-    public ResultVO setWaitMemberApproval(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
-        return memberAdminApiService.setWaitMemberApproval(lettnemplyrinfoVO);
+    public ResultVO setWaitMemberApproval(@RequestBody TblUser tblUser){
+        return memberAdminApiService.setWaitMemberApproval(tblUser);
     }
 
     /**
@@ -129,8 +129,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/setWaitMemberReject")
-    public ResultVO setWaitMemberReject(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
-        return memberAdminApiService.setWaitMemberReject(lettnemplyrinfoVO);
+    public ResultVO setWaitMemberReject(@RequestBody TblUser tblUser){
+        return memberAdminApiService.setWaitMemberReject(tblUser);
     }
 
     /**
@@ -138,8 +138,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/getWaitMember")
-    public ResultVO getWaitMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
-        return memberAdminApiService.getWaitMember(lettnemplyrinfoVO);
+    public ResultVO getWaitMember(@RequestBody TblUser tblUser) {
+        return memberAdminApiService.getWaitMember(tblUser);
     }
 
     /**
@@ -157,8 +157,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/setRejectMemberApproval")
-    public ResultVO setRejectMemberApproval(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
-        return memberAdminApiService.setRejectMemberApproval(lettnemplyrinfoVO);
+    public ResultVO setRejectMemberApproval(@RequestBody TblUser tblUser){
+        return memberAdminApiService.setRejectMemberApproval(tblUser);
     }
 
     /**
@@ -166,8 +166,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/getRejectMember")
-    public ResultVO getRejectMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
-        return memberAdminApiService.getRejectMember(lettnemplyrinfoVO);
+    public ResultVO getRejectMember(@RequestBody TblUser tblUser) {
+        return memberAdminApiService.getRejectMember(tblUser);
     }
 
     /**
@@ -185,8 +185,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/setStopMemberApproval")
-    public ResultVO setStopMemberApproval(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO){
-        return memberAdminApiService.setStopMemberApproval(lettnemplyrinfoVO);
+    public ResultVO setStopMemberApproval(@RequestBody TblUser tblUser){
+        return memberAdminApiService.setStopMemberApproval(tblUser);
     }
 
     /**
@@ -194,8 +194,8 @@ public class MemberAdminApiController {
      * @return
      */
     @PostMapping("/memberApi/getStopMember")
-    public ResultVO getStopMember(@RequestBody LettnemplyrinfoVO lettnemplyrinfoVO) {
-        return memberAdminApiService.getStopMember(lettnemplyrinfoVO);
+    public ResultVO getStopMember(@RequestBody TblUser tblUser) {
+        return memberAdminApiService.getStopMember(tblUser);
     }
 
     /**

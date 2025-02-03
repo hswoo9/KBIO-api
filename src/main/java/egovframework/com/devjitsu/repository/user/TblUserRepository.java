@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TblUserRepository extends JpaRepository<TblUser, String> {
 
+    TblUser findByUserSn(long userSn);
 }
