@@ -153,46 +153,54 @@ public class MemberApiService {
     public ResultVO findPassword(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
-        QLettnemplyrinfoVO qLettnemplyrinfoVO = QLettnemplyrinfoVO.lettnemplyrinfoVO;
-        LettnemplyrinfoVO lettnemplyrinfoVO = new JPAQueryFactory(em)
-                .selectFrom(qLettnemplyrinfoVO)
-                .where(
-                        qLettnemplyrinfoVO.emplyrId.eq((String) dto.get("id"))
-                                .and(qLettnemplyrinfoVO.userNm.eq((String) dto.get("name")))
-                                .and(qLettnemplyrinfoVO.emailAdres.eq((String) dto.get("email")))
-                )
-                .fetchOne();
+        try {
+            QTblUser qTblUser = QTblUser.tblUser;
 
-        // 회원 정보가 없을 경우
-        if (lettnemplyrinfoVO == null) {
-            resultVO.setResultCode(400);
-            resultVO.putResult("message", "회원 정보를 찾을 수 없습니다.");
-            return resultVO;
+            TblUser tblUser = new JPAQueryFactory(em)
+                    .selectFrom(qTblUser)
+                    .where(
+                            qTblUser.userId.eq((String) dto.get("id"))
+                                    .and(qTblUser.kornFlnm.eq((String) dto.get("name")))
+                                    .and(qTblUser.email.eq((String) dto.get("email")))
+                    )
+                    .fetchOne();
+
+            // 회원 정보가 없을 경우
+            if (tblUser == null) {
+                resultVO.setResultCode(400);
+                resultVO.putResult("message", "회원 정보를 찾을 수 없습니다.");
+                return resultVO;
+            }
+
+            String tempPassword = generateRandomPassword();
+
+            // 비밀번호를 해시 처리하여 VO에 설정 및 저장
+            String hashedTempPassword = EgovFileScrty.encryptPassword(tempPassword, tblUser.getUserId());
+            tblUser.setUserPw(hashedTempPassword);
+            TblUserRepository.save(tblUser);
+
+            // 이메일 전송
+            boolean emailSent = sendEmail(
+                    tblUser.getEmail(),
+                    "안녕하세요. 회원님의 임시 비밀번호는 다음과 같습니다: " + tempPassword + "\n로그인 후 비밀번호를 변경해 주세요."
+            );
+
+            // 이메일 전송 실패 처리
+            if (!emailSent) {
+                resultVO.setResultCode(400);
+                resultVO.putResult("message", "임시 비밀번호 이메일 전송에 실패했습니다.");
+                return resultVO;
+            }
+
+            // 성공 응답 처리
+            resultVO.setResultCode(200);
+            resultVO.putResult("message", "임시 비밀번호가 이메일로 발송되었습니다.");
+        } catch (Exception e) {
+            resultVO.setResultCode(500);
+            resultVO.setResultMessage("비밀번호 찾기 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        // 임시 비밀번호 생성
-        String tempPassword = generateRandomPassword();
-
-        // 비밀번호를 VO에 설정 및 저장
-        lettnemplyrinfoVO.setPassword(tempPassword);
-        lettnemplyrinfoRepository.save(lettnemplyrinfoVO);
-
-        // 이메일 전송
-        boolean emailSent = sendEmail(
-                lettnemplyrinfoVO.getEmailAdres(),
-                "안녕하세요. 회원님의 임시 비밀번호는 다음과 같습니다: " + tempPassword + "\n로그인 후 비밀번호를 변경해 주세요."
-        );
-
-        // 이메일 전송 실패 처리
-        if (!emailSent) {
-            resultVO.setResultCode(400);
-            resultVO.putResult("message", "임시 비밀번호 이메일 전송에 실패했습니다.");
-            return resultVO;
-        }
-
-        // 성공 응답 처리
-        resultVO.setResultCode(200);
-        resultVO.putResult("message", "임시 비밀번호가 이메일로 발송되었습니다.");
         return resultVO;
     }
 
