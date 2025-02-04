@@ -41,7 +41,7 @@ public class TblComFile {
     @Comment("첨부파일확장자")
     private String atchFileExtnNm;
 
-    @Column(name = "PSN_TBL_PK", length = 40, nullable = false)
+    @Column(name = "PSN_TBL_SN", length = 40, nullable = false)
     @Comment("소유테이블데이터기본키")
     private String psnTblPk;
 
