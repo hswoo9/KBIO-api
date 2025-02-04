@@ -27,6 +27,10 @@ public class TblMenu {
     @Comment("상위메뉴일련번호")
     private long upperMenuSn = 0;
 
+    @Column(name = "BBS_SN", length = 22)
+    @Comment("게시판일련번호")
+    private Long bbsSn;
+
     @Column(name = "MENU_NM", length = 200, nullable = false)
     @Comment("메뉴명")
     private String menuNm;
