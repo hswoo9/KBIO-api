@@ -27,7 +27,7 @@ public interface TblPstRepository extends JpaRepository<TblPst, String> {
                     "CASE WHEN PST.PST_SN < :pstSn THEN 'PREV'" +
                          "WHEN PST.PST_SN > :pstSn THEN 'NEXT'" +
                     "END AS POSITION " +
-                "FROM KBIO.TBL_PST PST " +
+                "FROM SCHM_BIO_CMS.TBL_PST PST " +
                 "WHERE " +
                     "PST.BBS_SN = :bbsSn " +
                 "ORDER BY " +
@@ -37,12 +37,12 @@ public interface TblPstRepository extends JpaRepository<TblPst, String> {
                     "ELSE 1 " +
                     "END ASC," +
                     "PST.PST_GROUP DESC," +
-                    "PST.CMNT_LEVEL ASC," +
+                    "PST.ANS_STP ASC," +
                     "PST.FRST_CRT_DT DESC" +
             ") subquery " +
             "WHERE " +
-                "(POSITION = 'PREV' AND PST_SN = (SELECT MAX(PST_SN) FROM KBIO.TBL_PST WHERE PST_SN < :pstSn AND BBS_SN = :bbsSn)) OR " +
-                "(POSITION = 'NEXT' AND PST_SN = (SELECT MIN(PST_SN) FROM KBIO.TBL_PST WHERE PST_SN > :pstSn AND BBS_SN = :bbsSn));"
+                "(POSITION = 'PREV' AND PST_SN = (SELECT MAX(PST_SN) FROM SCHM_BIO_CMS.TBL_PST WHERE PST_SN < :pstSn AND BBS_SN = :bbsSn)) OR " +
+                "(POSITION = 'NEXT' AND PST_SN = (SELECT MIN(PST_SN) FROM SCHM_BIO_CMS.TBL_PST WHERE PST_SN > :pstSn AND BBS_SN = :bbsSn));"
             , nativeQuery = true)
-    List<Object[]> getPrevNextPSt(@Param("bbsSn") long bbsSn, @Param("pstSn") long pstSn);
+    List<Object[]> getPrevNextPst(@Param("bbsSn") long bbsSn, @Param("pstSn") long pstSn);
 }

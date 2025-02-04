@@ -79,6 +79,19 @@ public class CommonApiController {
     }
 
     /**
+     * 첨부파일 단일 조회 (공통) - 미사용
+     * {
+     *     atchFileSn : 첨부파일 키
+     *     psnTblPk : 소유테이블데이터기본키
+     * }
+     * @return
+     */
+    @PostMapping("/commonApi/getFile")
+    public ResultVO getFile(@RequestBody TblComFile tblComFile) {
+        return commonApiService.getFile(tblComFile);
+    }
+
+    /**
      * 첨부파일 다운로드 (공통)
      * {
      *     atchFileSn : 첨부파일 키

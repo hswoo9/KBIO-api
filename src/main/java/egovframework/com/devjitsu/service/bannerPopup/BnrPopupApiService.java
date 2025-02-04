@@ -88,7 +88,7 @@ public class BnrPopupApiService {
             QTblBnrPopup qTblBnrPopup = QTblBnrPopup.tblBnrPopup;
             JPAQueryFactory q = new JPAQueryFactory(em);
             TblBnrPopup tblBnrPopupData = tblBnrPopupRepository.findByBnrPopupSn(tblBnrPopup.getBnrPopupSn());
-            tblBnrPopupData.setTblComFiles(tblComFileRepository.findByPsnTblPk("bnrPopup_" + tblBnrPopupData.getBnrPopupSn()));
+            tblBnrPopupData.setTblComFile(tblComFileRepository.findByPsnTblPk("bnrPopup_" + tblBnrPopupData.getBnrPopupSn()));
             resultVO.putResult("tblBnrPopup", tblBnrPopupData);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {

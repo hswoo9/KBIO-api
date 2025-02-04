@@ -108,5 +108,5 @@ public class TblBnrPopup {
     private LocalDateTime mdfcnDt;
 
     @Transient
-    private List<TblComFile> tblComFiles;
+    private TblComFile tblComFile;
 }

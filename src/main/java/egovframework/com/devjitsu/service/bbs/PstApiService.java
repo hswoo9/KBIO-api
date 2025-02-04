@@ -195,7 +195,7 @@ public class PstApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             tblPst = tblPstRepository.findByPstSn(tblPst.getPstSn());
-            tblPst.setPstFiles(tblComFileRepository.findByPsnTblPk("pst_" + tblPst.getPstSn()));
+            tblPst.setPstFiles(tblComFileRepository.findAllByPsnTblPk("pst_" + tblPst.getPstSn()));
             tblPst.setPstCmnt(getPstCmnt(tblPst));
 
             q.update(qTblPst).set(qTblPst.pstInqCnt, qTblPst.pstInqCnt.add(1)).where(qTblPst.pstSn.eq(tblPst.getPstSn()));
@@ -412,7 +412,7 @@ public class PstApiService {
     }
 
     private List<PstDto> getPstPrevNext(TblPst tblPst){
-        List<Object[]> results = tblPstRepository.getPrevNextPSt(tblPst.getBbsSn(), tblPst.getPstSn());
+        List<Object[]> results = tblPstRepository.getPrevNextPst(tblPst.getBbsSn(), tblPst.getPstSn());
         List<PstDto> pstDtos = new ArrayList<>();
         for (Object[] result : results) {
             PstDto pstDto = new PstDto(

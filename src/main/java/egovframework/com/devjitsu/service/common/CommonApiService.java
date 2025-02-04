@@ -91,8 +91,7 @@ public class CommonApiService {
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
     private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
-    @Autowired
-    private TblMenuRepository tblMenuRepository;
+    private final TblMenuRepository tblMenuRepository;
 
     public ResultVO getMenu(HttpServletRequest request) {
         ResultVO resultVO = new ResultVO();
@@ -231,6 +230,26 @@ public class CommonApiService {
         resultVO.putResult("rs", redisApiService.getRedis(0, String.valueOf(dto.get("userSn"))));
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
+        return resultVO;
+    }
+
+    public ResultVO getFile(TblComFile tblComFile) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            if(!StringUtils.isEmpty(tblComFile.getAtchFileSn())){
+                tblComFile = tblComFileRepository.findByAtchFileSn(tblComFile.getAtchFileSn());
+            }else{
+                tblComFile = tblComFileRepository.findByPsnTblPk(tblComFile.getPsnTblPk());
+            }
+
+            resultVO.putResult("file", tblComFile);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
         return resultVO;
     }
 
