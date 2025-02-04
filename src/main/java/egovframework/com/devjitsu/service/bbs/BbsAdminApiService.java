@@ -1,12 +1,24 @@
 package egovframework.com.devjitsu.service.bbs;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.*;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.*;
 import egovframework.com.devjitsu.model.common.*;
+import egovframework.com.devjitsu.model.bbs.QTblBbs;
+import egovframework.com.devjitsu.model.bbs.QTblPst;
+import egovframework.com.devjitsu.model.common.QTblComFile;
+import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.menu.QTblMenu;
+import egovframework.com.devjitsu.model.menu.TblMenu;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -95,6 +107,28 @@ public class BbsAdminApiService {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
+        return resultVO;
+    }
+
+    public ResultVO getBbsAllList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        try {
+            QTblBbs qTblBbs = QTblBbs.tblBbs;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+            if (!StringUtils.isEmpty(dto.get("bbsNm"))) {
+                builder.and(qTblBbs.bbsNm.contains((String) dto.get("bbsNm")));
+            }
+            if (!StringUtils.isEmpty(dto.get("bbsType"))) {
+                builder.and(qTblBbs.bbsTypeNm.eq((String) dto.get("bbsTypeNm")));
+            }
+            List<TblBbs> bbsList = q.selectFrom(qTblBbs).where(builder).orderBy(qTblBbs.frstCrtDt.desc()).fetch();
+            resultVO.putResult("bbsList", bbsList);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
         return resultVO;
     }
 

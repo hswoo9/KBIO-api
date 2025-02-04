@@ -42,6 +42,22 @@ public class BbsAdminApiController {
     }
 
     /**
+     * 게시판 전체 리스트 조회
+     * params
+     * {
+     *    bbsNm       : 게시판 명
+     *    bbsType       : 게시판 유형
+     *    actvtnYn      : 사용 여부
+     * }
+     * @return
+     */
+    @PostMapping("/bbsApi/getBbsAllList.do")
+    public ResultVO getBbsAllList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return bbsAdminApiService.getBbsAllList(dto);
+    }
+
+    /**
      * 게시판 조회
      * params
      * {
