@@ -49,11 +49,22 @@ public class MemberAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
+
+            // 기존 검색 조건
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
             if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
                 builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
+            }
+            if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
+                builder.and(qTblUser.actvtnYn.eq((String) dto.get("actvtnYn")));
+            }
+            if (!StringUtils.isEmpty(dto.get("mbrType"))) {
+                builder.and(qTblUser.mbrType.eq(Long.valueOf((String) dto.get("mbrType"))));
+            }
+            if (!StringUtils.isEmpty(dto.get("userId"))) {
+                builder.and(qTblUser.userId.eq((String) dto.get("userId")));
             }
 
             List<TblUser> getNormalMemberList = q.selectFrom(qTblUser)
