@@ -27,7 +27,7 @@ public class TblUserMsg {
   @Comment("발신사용자일련번호")
   private long dsptchUserSn;
 
-  @Column(name = "RCPTN_USER_SN", length = 22, nullable = false, updatable = false)
+  @Column(name = "RCPTN_USER_SN", length = 22, updatable = false)
   @Comment("수신사용자일련번호")
   private Long rcptnUserSn;
 
