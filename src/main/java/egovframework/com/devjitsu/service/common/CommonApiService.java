@@ -12,6 +12,8 @@ import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.menu.*;
+import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
+import egovframework.com.devjitsu.model.menu.QTblMenu;
 import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
@@ -107,6 +109,10 @@ public class CommonApiService {
 
             if(!StringUtils.isEmpty(request.getSession().getAttribute("userSn"))){
                 menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups((Long) request.getSession().getAttribute("userSn"));
+            }else{
+                if(!StringUtils.isEmpty(dto.get("userSn"))){
+                    menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups(Long.parseLong(String.valueOf(dto.get("userSn"))));
+                }
             }
 
             BooleanBuilder builder = new BooleanBuilder();
