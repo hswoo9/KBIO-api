@@ -263,6 +263,18 @@ public class MenuAuthGroupApiService {
         return resultVO;
     }
 
+    public ResultVO setMenuAuthGroupUserByOne(TblMenuAuthrtGroupUser tblMenuAuthrtGroupUser){
+        ResultVO resultVO = new ResultVO();
+        try{
+            tblMenuAuthrtGroupUserRepository.save(tblMenuAuthrtGroupUser);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+        return resultVO;
+    }
+
     public ResultVO setMenuAuthGroupUserDel(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
