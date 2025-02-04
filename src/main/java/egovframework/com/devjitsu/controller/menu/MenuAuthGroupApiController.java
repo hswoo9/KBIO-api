@@ -131,8 +131,6 @@ public class MenuAuthGroupApiController {
      *          authrtGroupUserSn   : 권한 부여 키(수정시 필수)
      *          authrtGroupSn       : 권한 그룹 키 (필수)
      *          userSn              : 사용자 키(필수)
-     *          userNm              : 사용자 이름(필수)
-     *          userId              : 사용자 아이디(필수)
      *          authrtGrntDt        : 권한 부여일 (null 일시 현재날짜)[형식 : yyyy-mm-dd]
      *          creatrSn            : 작성자 키(등록시 필수)
      *          mdfrSn              : 수정자 키(수정시 필수)
@@ -144,6 +142,21 @@ public class MenuAuthGroupApiController {
     public ResultVO setMenuAuthGroupUser(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return menuAuthGroupApiService.setMenuAuthGroupUser(dto);
+    }
+
+    /**
+     * 권한 그룹 사용자 단일 저장
+     *          authrtGroupUserSn   : 권한 부여 키(수정시 필수)
+     *          authrtGroupSn       : 권한 그룹 키 (필수)
+     *          userSn              : 사용자 키(필수)
+     *          authrtGrntDt        : 권한 부여일 (null 일시 현재날짜)[형식 : yyyy-mm-ddTHH:mm:ss]
+     *          creatrSn            : 작성자 키(등록시 필수)
+     *          mdfrSn              : 수정자 키(수정시 필수)
+     * @return
+     */
+    @PostMapping("/menuApi/setMenuAuthGroupUserByOne")
+    public ResultVO setMenuAuthGroupUserByOne(@RequestBody TblMenuAuthrtGroupUser tblMenuAuthrtGroupUser) {
+        return menuAuthGroupApiService.setMenuAuthGroupUserByOne(tblMenuAuthrtGroupUser);
     }
 
     /**
