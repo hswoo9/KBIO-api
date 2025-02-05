@@ -20,6 +20,8 @@ public class PstDto {
     private String actvtnYn;
     private Long upPstSn;
     private Long creatrSn;
+    private String kornFlnm;
+    private String prvtPswd;
     private LocalDateTime frstCrtDt;
     private Long fileCnt;
     private String position;

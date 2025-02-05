@@ -18,6 +18,7 @@ import egovframework.com.devjitsu.model.bbs.*;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstCmntRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstEvlRepository;
@@ -80,6 +81,7 @@ public class PstApiService {
             paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
+            QTblUser qTblUser = QTblUser.tblUser;
             QTblPst qTblPst = QTblPst.tblPst;
             QTblComFile qTblComFile = QTblComFile.tblComFile;
 
@@ -93,12 +95,12 @@ public class PstApiService {
                     builder.and(qTblPst.pstTtl.contains((String) dto.get("searchVal")));
                 }else if(dto.get("searchType").equals("pstCn")){
                     builder.and(qTblPst.pstCn.contains((String) dto.get("searchVal")));
-                }else{
-                    builder.and(
-                        qTblPst.pstTtl.contains((String) dto.get("searchVal"))
-                        .or(qTblPst.pstCn.contains((String) dto.get("searchVal")))
-                    );
                 }
+            }else{
+                builder.and(
+                        qTblPst.pstTtl.like((String) dto.get("searchVal"))
+                            .or(qTblPst.pstCn.contains((String) dto.get("searchVal")))
+                );
             }
 
             JPQLQuery<Long> fileCnt = JPAExpressions.select(qTblComFile.count())
@@ -138,12 +140,16 @@ public class PstApiService {
                             qTblPst.actvtnYn,
                             qTblPst.upPstSn,
                             qTblPst.creatrSn,
+                            qTblUser.kornFlnm,
+                            qTblPst.prvtPswd,
                             qTblPst.frstCrtDt,
                             fileCnt,
                             Expressions.constant("")
                         )
                     )
                     .from(qTblPst)
+                    .join(qTblUser)
+                    .on(qTblPst.creatrSn.eq(qTblUser.userSn))
                     .where(builder)
                     .orderBy(
                         new CaseBuilder()
@@ -177,6 +183,7 @@ public class PstApiService {
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
+            resultVO.putResult("bbs", tblBbsRepository.findByBbsSn(Long.parseLong(dto.get("bbsSn").toString())));
             resultVO.putResult("pstList", pstList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -198,7 +205,7 @@ public class PstApiService {
             tblPst.setPstFiles(tblComFileRepository.findAllByPsnTblPk("pst_" + tblPst.getPstSn()));
             tblPst.setPstCmnt(getPstCmnt(tblPst));
 
-            q.update(qTblPst).set(qTblPst.pstInqCnt, qTblPst.pstInqCnt.add(1)).where(qTblPst.pstSn.eq(tblPst.getPstSn()));
+            q.update(qTblPst).set(qTblPst.pstInqCnt, qTblPst.pstInqCnt.add(1)).where(qTblPst.pstSn.eq(tblPst.getPstSn())).execute();
 
             resultVO.putResult("pst", tblPst);
             resultVO.putResult("pstPrevNext", getPstPrevNext(tblPst));

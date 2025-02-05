@@ -108,12 +108,8 @@ public class CommonApiService {
 
             String menuAuthrtGroups = "1";
 
-            if(!StringUtils.isEmpty(request.getSession().getAttribute("userSn"))){
-                menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups((Long) request.getSession().getAttribute("userSn"));
-            }else{
-                if(!StringUtils.isEmpty(dto.get("userSn"))){
-                    menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups(Long.parseLong(String.valueOf(dto.get("userSn"))));
-                }
+            if(!StringUtils.isEmpty(dto.get("userSn"))){
+                menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups(Long.parseLong(String.valueOf(dto.get("userSn"))));
             }
 
             BooleanBuilder builder = new BooleanBuilder();
@@ -151,8 +147,8 @@ public class CommonApiService {
             SearchDto dto = (SearchDto) request.getAttribute("searchDto");
 
             String menuAuthrtGroups = "1";
-            if(!StringUtils.isEmpty(request.getSession().getAttribute("userSn"))){
-                menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups((Long) request.getSession().getAttribute("userSn"));
+            if(!StringUtils.isEmpty(dto.get("userSn"))){
+                menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups(Long.parseLong(String.valueOf(dto.get("userSn"))));
             }
             resultVO.putResult("leftMenuList", getLeftMenuList(Long.parseLong(dto.get("menuSn").toString()), menuAuthrtGroups));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
