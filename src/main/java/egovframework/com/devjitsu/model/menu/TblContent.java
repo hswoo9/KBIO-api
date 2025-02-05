@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public class TblContent {
     @Comment("메뉴콘텐츠일련번호")
     private Long contsSn;
 
-    @Column(name = "MENU_SN", length = 22)
+    @Column(name = "MENU_SN", length = 22, updatable = false)
     @Comment("메뉴일련번호")
     private long menuSn;
 
@@ -29,27 +30,16 @@ public class TblContent {
     @Comment("내용")
     private String contsCn;
 
-    @Column(name = "PSTG_BGNG_DT")
-    @Comment("시작일")
-    private LocalDateTime pstgBgngDt;
-
-    @Column(name = "PSTG_END_DT")
-    @Comment("종료일")
-    private LocalDateTime pstgEndDt;
-
-    @Column(name = "CONTS_TTL", length = 256)
-    @Comment("제목")
-    private String contsTtl;
-
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
-    private String actvtnYn;
+    private String actvtnYn = "Y";
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
     private long creatrSn;
 
-    @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", updatable=false, nullable = false)
     @Comment("최초생성일시")
     private LocalDateTime frstCrtDt = LocalDateTime.now();
 

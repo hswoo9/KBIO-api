@@ -10,8 +10,10 @@ import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
+import egovframework.com.devjitsu.model.menu.TblContent;
 import egovframework.com.devjitsu.model.menu.TblMenu;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
+import egovframework.com.devjitsu.repository.menu.TblContentRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class MenuApiService {
 
     private final EntityManager em;
     private final TblMenuRepository tblMenuRepository;
+    private final TblContentRepository tblContentRepository;
     /**
      * jpa 부등호
      * gt : >
@@ -96,7 +99,9 @@ public class MenuApiService {
     public ResultVO getMenu(TblMenu tblMenu) {
         ResultVO resultVO = new ResultVO();
         try {
-            resultVO.putResult("menu", tblMenuRepository.findByMenuSn(tblMenu.getMenuSn()));
+            tblMenu = tblMenuRepository.findByMenuSn(tblMenu.getMenuSn());
+            tblMenu.setContent(tblContentRepository.findByMenuSn(tblMenu.getMenuSn()));
+            resultVO.putResult("menu", tblMenu);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
@@ -194,5 +199,18 @@ public class MenuApiService {
             deleteMenuRecursively(subMenu);
         }
         tblMenuRepository.delete(tblMenu);
+    }
+
+    public ResultVO setMenuContent(TblContent tblContent) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            tblContentRepository.save(tblContent);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
     }
 }

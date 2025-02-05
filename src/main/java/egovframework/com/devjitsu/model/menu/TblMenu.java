@@ -93,4 +93,7 @@ public class TblMenu {
 
     @Transient
     private List<TblMenu> childTblMenu = new ArrayList<>();
+
+    @Transient
+    private TblContent content = new TblContent();
 }

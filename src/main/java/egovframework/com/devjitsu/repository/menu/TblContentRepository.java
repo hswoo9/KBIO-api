@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TblContentRepository extends JpaRepository<TblContent, String> {
 
+    TblContent findByMenuSn(long menuSn);
 }
