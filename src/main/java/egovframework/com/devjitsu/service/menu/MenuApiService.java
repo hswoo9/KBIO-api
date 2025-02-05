@@ -213,4 +213,17 @@ public class MenuApiService {
 
         return resultVO;
     }
+
+    public ResultVO setMenuContentDel(TblContent tblContent) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            tblContentRepository.delete(tblContent);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
 }

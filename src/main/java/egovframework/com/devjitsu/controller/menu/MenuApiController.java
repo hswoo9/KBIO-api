@@ -102,4 +102,16 @@ public class MenuApiController {
         return menuApiService.setMenuContent(tblContent);
     }
 
+    /**
+     * 메뉴컨텐츠 삭제
+     * @param
+     * {
+     *     contsSn(필수)      : 메뉴컨텐츠키
+     * }
+     * @return
+     */
+    @PostMapping("/menuApi/setMenuContentDel")
+    public ResultVO setMenuContentDel(@RequestBody TblContent tblContent) {
+        return menuApiService.setMenuContentDel(tblContent);
+    }
 }
