@@ -1,6 +1,7 @@
 package egovframework.com.devjitsu.controller.common;
 
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.service.common.CommonApiService;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -89,6 +92,17 @@ public class CommonApiController {
     @PostMapping("/commonApi/getFile")
     public ResultVO getFile(@RequestBody TblComFile tblComFile) {
         return commonApiService.getFile(tblComFile);
+    }
+
+    /**
+     * CK에디터 첨부파일 업로드 (공통)
+     * @param files
+     * @return
+     */
+    @PostMapping("/commonApi/setCkEditorFiles")
+    public ResultVO setCkEditorFiles(
+            @RequestParam(value = "files", required = false) List<MultipartFile> files){
+        return commonApiService.setCkEditorFiles(files);
     }
 
     /**

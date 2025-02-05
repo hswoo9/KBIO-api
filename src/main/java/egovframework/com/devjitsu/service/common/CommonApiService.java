@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.net.ssl.*;
@@ -256,6 +257,27 @@ public class CommonApiService {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
+        return resultVO;
+    }
+
+    public ResultVO setCkEditorFiles(List<MultipartFile> files){
+        ResultVO resultVO = new ResultVO();
+        List<TblComFile> filesList = new ArrayList<>();
+        try{
+            if(files != null){
+                filesList = fileUtil.devFileInf(
+                        files,
+                        "/ckeditor/",
+                        "ckeditor",
+                        0
+                );
+            }
+            resultVO.putResult("files", filesList);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
         return resultVO;
     }
 
