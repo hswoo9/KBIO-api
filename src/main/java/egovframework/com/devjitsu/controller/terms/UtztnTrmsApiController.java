@@ -4,6 +4,7 @@ import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.terms.UtztnTrmsApiService;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,31 @@ public class UtztnTrmsApiController {
     @PostMapping(value = "/utztnApi/setPrivacyPolicy")
     public ResultVO setPrivacyPolicy(@ModelAttribute TblUtztnTrms tblUtztnTrms){
         return UtztnTrmsApiService.setPrivacyPilicy(tblUtztnTrms);
+    }
+
+    /*
+     *  개인정보처리방침 조회
+     */
+    @PostMapping("/utztnApi/getPrivacyPolicyList.do")
+    public ResultVO getPrivacyPolicyList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return UtztnTrmsApiService.getPrivacyPolicyList(dto);
+    }
+
+    /*
+     *  개인정보처리방침 삭제
+     */
+    @PostMapping("/utztnApi/setPrivacyPolicyDel")
+    public ResultVO setPrivacyPolicyDel(@RequestBody TblUtztnTrms tblUtztnTrms){
+        return UtztnTrmsApiService.setPrivacyPolicyDel(tblUtztnTrms);
+    }
+
+    /*
+     *  개인정보처리방침 조회
+     */
+    @PostMapping("/utztnApi/getPrivacyPolicy")
+    public ResultVO getPrivacyPolicy(@RequestBody TblUtztnTrms tblUtztnTrms) {
+        return UtztnTrmsApiService.getPrivacyPolicy(tblUtztnTrms);
     }
 
 }
