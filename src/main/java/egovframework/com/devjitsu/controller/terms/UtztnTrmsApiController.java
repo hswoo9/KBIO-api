@@ -63,4 +63,37 @@ public class UtztnTrmsApiController {
         return UtztnTrmsApiService.getPrivacyPolicy(tblUtztnTrms);
     }
 
+
+    /*
+     *  이용약관 입력
+     */
+    @PostMapping(value = "/utztnApi/setTermsAgreement")
+    public ResultVO setTermsAgreement(@ModelAttribute TblUtztnTrms tblUtztnTrms){
+        return UtztnTrmsApiService.setTermsAgreement(tblUtztnTrms);
+    }
+
+    /*
+     *  이용약관 조회
+     */
+    @PostMapping("/utztnApi/getTermsAgreementList.do")
+    public ResultVO getTermsAgreementList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return UtztnTrmsApiService.getTermsAgreementList(dto);
+    }
+
+    /*
+     *  이용약관 삭제
+     */
+    @PostMapping("/utztnApi/setTermsAgreementDel")
+    public ResultVO setTermsAgreementDel(@RequestBody TblUtztnTrms tblUtztnTrms){
+        return UtztnTrmsApiService.setTermsAgreementDel(tblUtztnTrms);
+    }
+
+    /*
+     *  개인정보처리방침 조회
+     */
+    @PostMapping("/utztnApi/getTermsAgreemet")
+    public ResultVO getTermsAgreemet(@RequestBody TblUtztnTrms tblUtztnTrms) {
+        return UtztnTrmsApiService.getTermsAgreemet(tblUtztnTrms);
+    }
 }

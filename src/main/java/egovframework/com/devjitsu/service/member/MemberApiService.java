@@ -111,6 +111,8 @@ public class MemberApiService {
         member.setZip((String) dto.get("zip")); // 우편번호
         member.setEmail(dto.get("emailPrefix") + "@" + dto.get("emailDomain")); // 이메일
         member.setMblTelno((String) dto.get("mblTelno")); // 휴대폰 번호
+        /*String encryptedMblTelno = EgovFileScrty.encode((String) dto.get("mblTelno")); // 휴대폰 번호 암호화
+        member.setMblTelno(encryptedMblTelno);*/
         member.setEmlRcptnAgreYn((String) dto.get("emlRcptnAgreYn")); // 이메일 수신 동의 여부
         member.setSmsRcptnAgreYn((String) dto.get("smsRcptnAgreYn")); // SMS 수신 동의 여부
         member.setInfoRlsYn((String) dto.get("infoRlsYn")); // 정보 공개 여부
