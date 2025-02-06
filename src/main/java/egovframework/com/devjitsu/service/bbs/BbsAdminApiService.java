@@ -192,7 +192,7 @@ public class BbsAdminApiService {
             deletePstRecursively(replyPst);
         }
 
-        List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblPk.eq("pst_" + tblPst.getPstSn())).fetch();
+        List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("pst_" + tblPst.getPstSn())).fetch();
         for (TblComFile pstFile : pstFiles) {
             boolean isDelete = fileUtil.deleteFile(new String[]{pstFile.getStrgFileNm()}, pstFile.getAtchFilePathNm());
             if(isDelete){

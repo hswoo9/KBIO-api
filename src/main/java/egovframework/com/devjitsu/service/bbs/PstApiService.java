@@ -117,7 +117,7 @@ public class PstApiService {
             JPQLQuery<Long> fileCnt = JPAExpressions.select(qTblComFile.count())
                     .from(qTblComFile)
                     .where(
-                        qTblComFile.psnTblPk.eq(
+                        qTblComFile.psnTblSn.eq(
                             Expressions.stringTemplate(
                                 "CONCAT('pst_', {0})", qTblPst.pstSn
                             )
@@ -220,7 +220,7 @@ public class PstApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             TblPst tblPst = tblPstRepository.findByPstSn(Long.parseLong(dto.get("pstSn").toString()));
-            tblPst.setPstFiles(tblComFileRepository.findAllByPsnTblPk("pst_" + tblPst.getPstSn()));
+            tblPst.setPstFiles(tblComFileRepository.findAllByPsnTblSn("pst_" + tblPst.getPstSn()));
             tblPst.setPstCmnt(getPstCmnt(tblPst));
 
             q.update(qTblPst).set(qTblPst.pstInqCnt, qTblPst.pstInqCnt.add(1)).where(qTblPst.pstSn.eq(tblPst.getPstSn())).execute();
@@ -285,7 +285,7 @@ public class PstApiService {
 
             tblPstRepository.save(tblPst);
             if(files != null){
-                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblPk.eq("pst_" + tblPst.getPstSn())).fetchCount();
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("pst_" + tblPst.getPstSn())).fetchCount();
                 tblComFileRepository.saveAll(
                     fileUtil.devFileInf(
                         files,
@@ -469,7 +469,7 @@ public class PstApiService {
             deletePstRecursively(replyPst);
         }
 
-        List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblPk.eq("pst_" + tblPst.getPstSn())).fetch();
+        List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("pst_" + tblPst.getPstSn())).fetch();
         for (TblComFile pstFile : pstFiles) {
             boolean isDelete = fileUtil.deleteFile(new String[]{pstFile.getStrgFileNm()}, pstFile.getAtchFilePathNm());
             if(isDelete){

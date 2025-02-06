@@ -88,7 +88,7 @@ public class BnrPopupApiService {
             QTblBnrPopup qTblBnrPopup = QTblBnrPopup.tblBnrPopup;
             JPAQueryFactory q = new JPAQueryFactory(em);
             TblBnrPopup tblBnrPopupData = tblBnrPopupRepository.findByBnrPopupSn(tblBnrPopup.getBnrPopupSn());
-            tblBnrPopupData.setTblComFile(tblComFileRepository.findByPsnTblPk("bnrPopup_" + tblBnrPopupData.getBnrPopupSn()));
+            tblBnrPopupData.setTblComFile(tblComFileRepository.findByPsnTblSn("bnrPopup_" + tblBnrPopupData.getBnrPopupSn()));
             resultVO.putResult("tblBnrPopup", tblBnrPopupData);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
@@ -110,7 +110,7 @@ public class BnrPopupApiService {
 
             tblBnrPopupRepository.save(tblBnrPopup);
             if(files != null){
-                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblPk.eq("bnrPopup_" + tblBnrPopup.getBnrPopupSn())).fetchCount();
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("bnrPopup_" + tblBnrPopup.getBnrPopupSn())).fetchCount();
                 tblComFileRepository.saveAll(
                         fileUtil.devFileInf(
                                 files,
@@ -136,7 +136,7 @@ public class BnrPopupApiService {
         try {
             QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
-            List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblPk.eq("bnrPopup_" + tblBnrPopup.getBnrPopupSn())).fetch();
+            List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("bnrPopup_" + tblBnrPopup.getBnrPopupSn())).fetch();
             for (TblComFile pstFile : pstFiles) {
                 boolean isDelete = fileUtil.deleteFile(new String[]{pstFile.getStrgFileNm()}, pstFile.getAtchFilePathNm());
                 if(isDelete){

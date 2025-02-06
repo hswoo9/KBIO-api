@@ -85,7 +85,7 @@ public class CommonApiController {
      * 첨부파일 단일 조회 (공통) - 미사용
      * {
      *     atchFileSn : 첨부파일 키
-     *     psnTblPk : 소유테이블데이터기본키
+     *     psnTblSn : 소유테이블데이터기본키
      * }
      * @return
      */
@@ -113,8 +113,21 @@ public class CommonApiController {
      * @return
      */
     @PostMapping("/commonApi/getFileDownLoad")
-    public ResponseEntity<Resource> getFileDownLoad(@RequestBody TblComFile tblComFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return commonApiService.getFileDownLoad(tblComFile, request, response);
+    public ResponseEntity<Resource> getFileDownLoad(@RequestBody TblComFile tblComFile) throws IOException {
+        return commonApiService.getFileDownLoad(tblComFile);
+    }
+
+    /**
+     * 첨부파일 다운로드 (공통)
+     * {
+     *     atchFileSn : 첨부파일 키
+     * }
+     * @return
+     */
+    @PostMapping("/commonApi/getFileZipDownLoad.do")
+    public ResponseEntity<Resource> getFileZipDownLoad(HttpServletRequest request) throws IOException {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return commonApiService.getFileZipDownLoad(dto);
     }
 
     /**

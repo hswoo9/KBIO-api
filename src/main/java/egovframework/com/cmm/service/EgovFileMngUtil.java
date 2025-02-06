@@ -156,7 +156,7 @@ public class EgovFileMngUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<TblComFile> devFileInf(List<MultipartFile> files, String subPath, String psnTblPk, long fileCnt) throws Exception {
+	public List<TblComFile> devFileInf(List<MultipartFile> files, String subPath, String psnTblSn, long fileCnt) throws Exception {
 		long fileKey = fileCnt;
 		String storePathString = propertyService.getString("Globals.fileStorePath") + subPath;
 		/**
@@ -187,7 +187,7 @@ public class EgovFileMngUtil {
 			comFile.setAtchFilePathNm(storePathString);
 			comFile.setAtchFileSz(_size);
 			comFile.setAtchFileExtnNm(fileExt);
-			comFile.setPsnTblPk(psnTblPk);
+			comFile.setPsnTblSn(psnTblSn);
 
 			fileKey++;
 

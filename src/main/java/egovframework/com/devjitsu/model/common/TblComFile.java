@@ -43,7 +43,7 @@ public class TblComFile {
 
     @Column(name = "PSN_TBL_SN", length = 40, nullable = false)
     @Comment("소유테이블데이터기본키")
-    private String psnTblPk;
+    private String psnTblSn;
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
