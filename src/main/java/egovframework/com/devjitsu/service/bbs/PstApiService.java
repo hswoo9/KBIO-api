@@ -15,6 +15,9 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.*;
+import egovframework.com.devjitsu.model.bbs.QTblPst;
+import egovframework.com.devjitsu.model.bbs.QTblPstCmnt;
+import egovframework.com.devjitsu.model.bbs.QTblPstEvl;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
@@ -416,6 +419,43 @@ public class PstApiService {
 
         try {
             deletePstCmntRecursively(tblPstCmnt);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getPstEvlList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        try {
+
+            QTblPstEvl qTblPstEvl = QTblPstEvl.tblPstEvl;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getPstEvl(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        try {
+            QTblPstEvl qTblPstEvl = QTblPstEvl.tblPstEvl;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+            if(!StringUtils.isEmpty(dto.get("userSn"))){
+                builder.and(qTblPstEvl.evlUserSn.eq(Long.valueOf(Integer.parseInt(dto.get("userSn").toString()))));
+            }
+            if(!StringUtils.isEmpty(dto.get("pstSn"))){
+                builder.and(qTblPstEvl.pstSn.eq(Long.valueOf(Integer.parseInt(dto.get("pstSn").toString()))));
+            }
+            resultVO.putResult("pstEvl", q.selectFrom(qTblPstEvl).where(builder).fetchFirst());
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
             e.printStackTrace();
