@@ -431,9 +431,13 @@ public class PstApiService {
     public ResultVO getPstEvlList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
         try {
-
             QTblPstEvl qTblPstEvl = QTblPstEvl.tblPstEvl;
             JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+            if(!StringUtils.isEmpty(dto.get("pstSn"))){
+                builder.and(qTblPstEvl.pstSn.eq(Long.valueOf(Integer.parseInt(dto.get("pstSn").toString()))));
+            }
+            resultVO.putResult("pstEvlList", q.selectFrom(qTblPstEvl).where(builder).orderBy(qTblPstEvl.pstSn.desc()).fetch());
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
             e.printStackTrace();

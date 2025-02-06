@@ -6,11 +6,9 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
-import egovframework.com.devjitsu.model.user.QTblMvnEnt;
-import egovframework.com.devjitsu.model.user.QTblUser;
-import egovframework.com.devjitsu.model.user.TblMvnEnt;
-import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
+import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.Optional;
 import java.util.Random;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -37,9 +36,13 @@ public class MemberApiService {
     @Autowired
     private RedisApiService redisApiService;
 
+
+
+
     private final EntityManager em;
     private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
     private final TblUserRepository TblUserRepository;
+    private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
 
     /**
      * jpa 부등호
@@ -110,14 +113,34 @@ public class MemberApiService {
         member.setDaddr((String) dto.get("daddr")); // 상세 주소
         member.setZip((String) dto.get("zip")); // 우편번호
         member.setEmail(dto.get("emailPrefix") + "@" + dto.get("emailDomain")); // 이메일
-        member.setMblTelno((String) dto.get("mblTelno")); // 휴대폰 번호
+        /*member.setMblTelno((String) dto.get("mblTelno")); // 휴대폰 번호*/
+        String encryptedMblTelno = EgovFileScrty.encode((String) dto.get("mblTelno")); // 휴대폰 번호 암호화
+        member.setMblTelno(encryptedMblTelno);
         member.setEmlRcptnAgreYn((String) dto.get("emlRcptnAgreYn")); // 이메일 수신 동의 여부
         member.setSmsRcptnAgreYn((String) dto.get("smsRcptnAgreYn")); // SMS 수신 동의 여부
         member.setInfoRlsYn((String) dto.get("infoRlsYn")); // 정보 공개 여부
         member.setActvtnYn("W"); // 활성 여부 기본값 설정
         member.setMbrType((Integer) dto.get("mbrType")); // 회원 타입
 
-        TblUserRepository.save(member);
+        TblUser savedMember = TblUserRepository.save(member);
+        Long userSn = savedMember.getUserSn();
+        Object mbrTypeObj = dto.get("mbrType");
+        Integer mbrType = (mbrTypeObj instanceof Integer) ? (Integer) mbrTypeObj : null;
+
+        if (Integer.valueOf(1).equals(mbrType)) {
+            TblMvnEntMbr mvnEntMbr = new TblMvnEntMbr();
+
+            Object mvnEntSnObj = dto.get("mvnEntSn");
+            Long mvnEntSn = (mvnEntSnObj instanceof Number) ? ((Number) mvnEntSnObj).longValue() : null;
+            System.out.println("**mvnEntSn : **" + mvnEntSn);
+
+            mvnEntMbr.setUserSn(userSn);
+            mvnEntMbr.setMvnEntSn(mvnEntSn);
+
+
+            tblMvnEntMbrRepository.save(mvnEntMbr);
+        }
+
 
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         resultVO.setResultMessage("회원 등록이 성공적으로 완료되었습니다.");
