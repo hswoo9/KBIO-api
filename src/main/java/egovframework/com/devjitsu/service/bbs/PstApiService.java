@@ -24,9 +24,11 @@ import egovframework.com.devjitsu.repository.bbs.TblPstCmntRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstEvlRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
+import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -51,6 +53,9 @@ public class PstApiService {
     private EgovFileMngUtil fileUtil;
 
     private final EntityManager em;
+
+    @Autowired
+    private BbsAdminApiService bbsAdminApiService;
 
     /**
      * jpa 부등호
@@ -101,6 +106,12 @@ public class PstApiService {
                         qTblPst.pstTtl.like((String) dto.get("searchVal"))
                             .or(qTblPst.pstCn.contains((String) dto.get("searchVal")))
                 );
+            }
+
+            if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
+                builder.and(qTblPst.actvtnYn.eq((String) dto.get("actvtnYn")));
+            }else{
+                builder.and(qTblPst.actvtnYn.eq("Y"));
             }
 
             JPQLQuery<Long> fileCnt = JPAExpressions.select(qTblComFile.count())
@@ -183,8 +194,15 @@ public class PstApiService {
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            resultVO.putResult("bbs", tblBbsRepository.findByBbsSn(Long.parseLong(dto.get("bbsSn").toString())));
+            TblBbs tblBbs = tblBbsRepository.findByBbsSn(Long.parseLong(dto.get("bbsSn").toString()));
+            resultVO.putResult("bbs", tblBbs);
             resultVO.putResult("pstList", pstList);
+
+            if (!StringUtils.isEmpty(dto.get("userSn"))) {
+                /** 사용자 권한 불러오기 */
+                resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, Long.parseLong(dto.get("userSn").toString())));
+            }
+
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
@@ -195,13 +213,13 @@ public class PstApiService {
         return resultVO;
     }
 
-    public ResultVO getPst(TblPst tblPst) {
+    public ResultVO getPst(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
         try {
             QTblPst qTblPst = QTblPst.tblPst;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
-            tblPst = tblPstRepository.findByPstSn(tblPst.getPstSn());
+            TblPst tblPst = tblPstRepository.findByPstSn(Long.parseLong(dto.get("pstSn").toString()));
             tblPst.setPstFiles(tblComFileRepository.findAllByPsnTblPk("pst_" + tblPst.getPstSn()));
             tblPst.setPstCmnt(getPstCmnt(tblPst));
 
@@ -210,6 +228,13 @@ public class PstApiService {
             resultVO.putResult("pst", tblPst);
             resultVO.putResult("pstPrevNext", getPstPrevNext(tblPst));
             resultVO.putResult("bbs", getBbs(tblPst.getBbsSn()));
+
+            if (!StringUtils.isEmpty(dto.get("userSn"))) {
+                /** 사용자 권한 불러오기 */
+                TblBbs tblBbs = tblBbsRepository.findByBbsSn(tblPst.getBbsSn());
+                resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, Long.parseLong(dto.get("userSn").toString())));
+            }
+
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();

@@ -47,9 +47,10 @@ public class PstApiController {
      * }
      * @return
      */
-    @PostMapping("/pstApi/getPst")
-    public ResultVO getPst(@RequestBody TblPst tblPst) {
-        return pstApiService.getPst(tblPst);
+    @PostMapping("/pstApi/getPst.do")
+    public ResultVO getPst(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return pstApiService.getPst(dto);
     }
 
     /**
