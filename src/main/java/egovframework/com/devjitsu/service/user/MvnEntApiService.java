@@ -7,11 +7,12 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.user.TblMvnEnt;
-import egovframework.com.devjitsu.model.user.QTblMvnEnt;
+import egovframework.com.devjitsu.model.user.*;
 
+import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
 
+import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
@@ -22,6 +23,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,8 @@ public class MvnEntApiService {
 
     private final EntityManager em;
     private final TblMvnEntRepository tblMvnEntRepository;
+    private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
+    private final TblUserRepository tblUserRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -67,6 +71,7 @@ public class MvnEntApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             BooleanBuilder builder = new BooleanBuilder();
+
             if(!StringUtils.isEmpty(dto.get("mvnEntNm"))){
                 builder.and(qTblMvnEnt.mvnEntNm.contains((String) dto.get("mvnEntNm")));
             }
@@ -111,6 +116,37 @@ public class MvnEntApiService {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
+
+        return resultVO;
+    }
+
+    public ResultVO getResidentMemberList(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
+        List<TblMvnEntMbr> entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
+        System.out.println("****entMbrList :*****"+entMbrList);
+
+        List<TblUser> userList = new ArrayList<>();
+        for (TblMvnEntMbr entMbr : entMbrList) {
+            TblUser user = tblUserRepository.findByUserSn(entMbr.getUserSn());
+            if (user != null) {
+                userList.add(user);
+            }
+        }
+        System.out.println("****userSnList :*****"+userList);
+
+        try {
+            //페이징 관련 작업할 것!!
+
+            resultVO.putResult("getResidentMemberList",userList);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+        e.printStackTrace();
+        resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
 
         return resultVO;
     }

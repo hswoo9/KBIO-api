@@ -4,8 +4,10 @@ import egovframework.com.devjitsu.model.user.TblMvnEntMbr;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface TblMvnEntMbrRepository extends JpaRepository<TblMvnEntMbr, String> {
 
-    TblMvnEntMbr findByUserSn(long userSn);
+    List<TblMvnEntMbr> findUserSnByMvnEntSn(long mvnEntSn);
 }
