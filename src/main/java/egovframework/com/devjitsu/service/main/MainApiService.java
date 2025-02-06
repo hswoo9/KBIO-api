@@ -52,7 +52,7 @@ public class MainApiService {
                     .selectFrom(qTblBnrPopup)
                     .join(qTblComFile)
                     .on(
-                        qTblComFile.psnTblPk.eq(
+                        qTblComFile.psnTblSn.eq(
                             Expressions.stringTemplate("CONCAT('bnrPopup_', {0})", qTblBnrPopup.bnrPopupSn)
                         )
                     )
@@ -72,7 +72,7 @@ public class MainApiService {
 //                )
 //                .from(qTblBnrPopup)
 //                .join(qTblComFile)
-//                .on(qTblComFile.psnTblPk.eq(Expressions.stringTemplate("CONCAT('bnrPopup_', {0})", qTblBnrPopup.bnrPopupSn)))
+//                .on(qTblComFile.psnTblSn.eq(Expressions.stringTemplate("CONCAT('bnrPopup_', {0})", qTblBnrPopup.bnrPopupSn)))
 //                .fetch();
 
             resultVO.putResult("popupList", popupList);

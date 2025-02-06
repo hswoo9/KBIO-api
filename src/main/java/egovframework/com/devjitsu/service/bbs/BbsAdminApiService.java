@@ -1,24 +1,20 @@
 package egovframework.com.devjitsu.service.bbs;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.*;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.*;
-import egovframework.com.devjitsu.model.common.*;
 import egovframework.com.devjitsu.model.bbs.QTblBbs;
 import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
-import egovframework.com.devjitsu.model.menu.QTblMenu;
-import egovframework.com.devjitsu.model.menu.TblMenu;
+import egovframework.com.devjitsu.model.menu.*;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -196,7 +192,7 @@ public class BbsAdminApiService {
             deletePstRecursively(replyPst);
         }
 
-        List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblPk.eq("pst_" + tblPst.getPstSn())).fetch();
+        List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("pst_" + tblPst.getPstSn())).fetch();
         for (TblComFile pstFile : pstFiles) {
             boolean isDelete = fileUtil.deleteFile(new String[]{pstFile.getStrgFileNm()}, pstFile.getAtchFilePathNm());
             if(isDelete){
@@ -207,5 +203,45 @@ public class BbsAdminApiService {
         }
 
         tblPstRepository.delete(tblPst);
+    }
+
+    public AuthrtDto getUserBbsAuthrt(TblBbs tblBbs, long userSn) {
+        AuthrtDto authrtDto = new AuthrtDto("N", "N", "N", "N");
+
+        try {
+            QTblMenu qTblMenu = QTblMenu.tblMenu;
+            QTblMenuAuthrtGroup qTblMenuAuthrtGroup = QTblMenuAuthrtGroup.tblMenuAuthrtGroup;
+            QTblAuthrtGroupMenu qTblAuthrtGroupMenu = QTblAuthrtGroupMenu.tblAuthrtGroupMenu;
+            QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            authrtDto = q
+                .select(
+                    Projections.constructor(
+                        AuthrtDto.class,
+                        Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.inqAuthrt),
+                        Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.wrtAuthrt),
+                        Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.mdfcnAuthrt),
+                        Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.delAuthrt)
+                    )
+                ).from(qTblMenuAuthrtGroup)
+                .join(qTblAuthrtGroupMenu).on(qTblMenuAuthrtGroup.authrtGroupSn.eq(qTblAuthrtGroupMenu.authrtGroupSn))
+                .join(qTblMenuAuthrtGroupUser).on(qTblMenuAuthrtGroupUser.authrtGroupSn.eq(qTblMenuAuthrtGroup.authrtGroupSn))
+                .join(qTblMenu).on(qTblAuthrtGroupMenu.menuSn.eq(qTblMenu.menuSn))
+                .where(
+                    qTblMenuAuthrtGroupUser.userSn.eq(userSn)
+                        .and(
+                            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMenuAuthrtGroupUser.authrtGrntDt).loe(
+                                Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                            )
+                        ).and(
+                            qTblMenu.bbsSn.eq(tblBbs.getBbsSn())
+                        )
+                ).groupBy(qTblMenu.bbsSn).fetchFirst();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return authrtDto;
     }
 }

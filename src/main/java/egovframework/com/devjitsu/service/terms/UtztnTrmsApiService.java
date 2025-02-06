@@ -130,4 +130,99 @@ public class UtztnTrmsApiService {
         return resultVO;
     }
 
+    public ResultVO setTermsAgreement(TblUtztnTrms tblUtztnTrms) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            tblUtztnTrms.setUtztnTrmsKnd("2");
+
+            tblUtztnTrmsRepository.save(tblUtztnTrms);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            resultVO.setResultMessage("개인정보처리 방침이 성공적으로 완료되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+
+    public ResultVO getTermsAgreementList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            QTblUtztnTrms qTblUtztnTrms = QTblUtztnTrms.tblUtztnTrms;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            BooleanBuilder builder = new BooleanBuilder();
+
+            if (!StringUtils.isEmpty(dto.get("useYn"))) {
+                builder.and(qTblUtztnTrms.useYn.eq((String) dto.get("useYn")));
+            }
+
+            List<TblUtztnTrms> getTermsAgreementList = q.selectFrom(qTblUtztnTrms)
+                    .where(builder)
+                    .where(qTblUtztnTrms.useYn.in("Y", "N"))
+                    .where(qTblUtztnTrms.utztnTrmsKnd.eq("2"))
+                    .orderBy(qTblUtztnTrms.frstCrtDt.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+            Long totCnt = q.select(qTblUtztnTrms.count())
+                    .from(qTblUtztnTrms)
+                    .where(builder)
+                    .fetchOne();
+            if (totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            resultVO.putResult("getTermsAgreementList", getTermsAgreementList);
+            resultVO.putPaginationInfo(paginationInfo);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+
+    public ResultVO setTermsAgreementDel(TblUtztnTrms tblUtztnTrms) {
+        ResultVO resultVO = new ResultVO();
+        try {
+            tblUtztnTrmsRepository.delete(tblUtztnTrms);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getTermsAgreemet(TblUtztnTrms tblUtztnTrms) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblUtztnTrms qTblUtztnTrms = QTblUtztnTrms.tblUtztnTrms;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            TblUtztnTrms tblUtztnTrmsData = tblUtztnTrmsRepository.findByUtztnTrmsSn(tblUtztnTrms.getUtztnTrmsSn());
+            resultVO.putResult("tblUtztnTrms", tblUtztnTrmsData);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+
 }

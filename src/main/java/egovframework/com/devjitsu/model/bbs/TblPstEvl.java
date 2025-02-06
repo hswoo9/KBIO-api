@@ -36,9 +36,9 @@ public class TblPstEvl {
     @Comment("평가일자")
     private String evlYmd;
 
-    @Column(name = "EVL_ARTCL_NO", length = 10, nullable = false)
-    @Comment("평가항목번호")
-    private String evlArtclNo;
+    @Column(name = "COM_CD_SN", length = 22, nullable = false)
+    @Comment("공통코드일련번호")
+    private long comCdSn;
 
     @Column(name = "IMPV_OPNN_CN", length = 4000)
     @Comment("개선의견내용")

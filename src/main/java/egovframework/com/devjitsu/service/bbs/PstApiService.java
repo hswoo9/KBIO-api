@@ -15,6 +15,9 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.*;
+import egovframework.com.devjitsu.model.bbs.QTblPst;
+import egovframework.com.devjitsu.model.bbs.QTblPstCmnt;
+import egovframework.com.devjitsu.model.bbs.QTblPstEvl;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
@@ -24,9 +27,11 @@ import egovframework.com.devjitsu.repository.bbs.TblPstCmntRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstEvlRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
+import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -51,6 +56,9 @@ public class PstApiService {
     private EgovFileMngUtil fileUtil;
 
     private final EntityManager em;
+
+    @Autowired
+    private BbsAdminApiService bbsAdminApiService;
 
     /**
      * jpa 부등호
@@ -103,10 +111,16 @@ public class PstApiService {
                 );
             }
 
+            if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
+                builder.and(qTblPst.actvtnYn.eq((String) dto.get("actvtnYn")));
+            }else{
+                builder.and(qTblPst.actvtnYn.eq("Y"));
+            }
+
             JPQLQuery<Long> fileCnt = JPAExpressions.select(qTblComFile.count())
                     .from(qTblComFile)
                     .where(
-                        qTblComFile.psnTblPk.eq(
+                        qTblComFile.psnTblSn.eq(
                             Expressions.stringTemplate(
                                 "CONCAT('pst_', {0})", qTblPst.pstSn
                             )
@@ -183,8 +197,15 @@ public class PstApiService {
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            resultVO.putResult("bbs", tblBbsRepository.findByBbsSn(Long.parseLong(dto.get("bbsSn").toString())));
+            TblBbs tblBbs = tblBbsRepository.findByBbsSn(Long.parseLong(dto.get("bbsSn").toString()));
+            resultVO.putResult("bbs", tblBbs);
             resultVO.putResult("pstList", pstList);
+
+            if (!StringUtils.isEmpty(dto.get("userSn"))) {
+                /** 사용자 권한 불러오기 */
+                resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, Long.parseLong(dto.get("userSn").toString())));
+            }
+
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
@@ -195,14 +216,14 @@ public class PstApiService {
         return resultVO;
     }
 
-    public ResultVO getPst(TblPst tblPst) {
+    public ResultVO getPst(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
         try {
             QTblPst qTblPst = QTblPst.tblPst;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
-            tblPst = tblPstRepository.findByPstSn(tblPst.getPstSn());
-            tblPst.setPstFiles(tblComFileRepository.findAllByPsnTblPk("pst_" + tblPst.getPstSn()));
+            TblPst tblPst = tblPstRepository.findByPstSn(Long.parseLong(dto.get("pstSn").toString()));
+            tblPst.setPstFiles(tblComFileRepository.findAllByPsnTblSn("pst_" + tblPst.getPstSn()));
             tblPst.setPstCmnt(getPstCmnt(tblPst));
 
             q.update(qTblPst).set(qTblPst.pstInqCnt, qTblPst.pstInqCnt.add(1)).where(qTblPst.pstSn.eq(tblPst.getPstSn())).execute();
@@ -210,6 +231,13 @@ public class PstApiService {
             resultVO.putResult("pst", tblPst);
             resultVO.putResult("pstPrevNext", getPstPrevNext(tblPst));
             resultVO.putResult("bbs", getBbs(tblPst.getBbsSn()));
+
+            if (!StringUtils.isEmpty(dto.get("userSn"))) {
+                /** 사용자 권한 불러오기 */
+                TblBbs tblBbs = tblBbsRepository.findByBbsSn(tblPst.getBbsSn());
+                resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, Long.parseLong(dto.get("userSn").toString())));
+            }
+
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();
@@ -260,7 +288,7 @@ public class PstApiService {
 
             tblPstRepository.save(tblPst);
             if(files != null){
-                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblPk.eq("pst_" + tblPst.getPstSn())).fetchCount();
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("pst_" + tblPst.getPstSn())).fetchCount();
                 tblComFileRepository.saveAll(
                     fileUtil.devFileInf(
                         files,
@@ -400,6 +428,47 @@ public class PstApiService {
         return resultVO;
     }
 
+    public ResultVO getPstEvlList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        try {
+            QTblPstEvl qTblPstEvl = QTblPstEvl.tblPstEvl;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+            if(!StringUtils.isEmpty(dto.get("pstSn"))){
+                builder.and(qTblPstEvl.pstSn.eq(Long.valueOf(Integer.parseInt(dto.get("pstSn").toString()))));
+            }
+            resultVO.putResult("pstEvlList", q.selectFrom(qTblPstEvl).where(builder).orderBy(qTblPstEvl.pstSn.desc()).fetch());
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getPstEvl(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        try {
+            QTblPstEvl qTblPstEvl = QTblPstEvl.tblPstEvl;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+            if(!StringUtils.isEmpty(dto.get("userSn"))){
+                builder.and(qTblPstEvl.evlUserSn.eq(Long.valueOf(Integer.parseInt(dto.get("userSn").toString()))));
+            }
+            if(!StringUtils.isEmpty(dto.get("pstSn"))){
+                builder.and(qTblPstEvl.pstSn.eq(Long.valueOf(Integer.parseInt(dto.get("pstSn").toString()))));
+            }
+            resultVO.putResult("pstEvl", q.selectFrom(qTblPstEvl).where(builder).fetchFirst());
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
     public ResultVO setPstEvl(TblPstEvl tblPstEvl) {
         ResultVO resultVO = new ResultVO();
 
@@ -444,7 +513,7 @@ public class PstApiService {
             deletePstRecursively(replyPst);
         }
 
-        List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblPk.eq("pst_" + tblPst.getPstSn())).fetch();
+        List<TblComFile> pstFiles = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("pst_" + tblPst.getPstSn())).fetch();
         for (TblComFile pstFile : pstFiles) {
             boolean isDelete = fileUtil.deleteFile(new String[]{pstFile.getStrgFileNm()}, pstFile.getAtchFilePathNm());
             if(isDelete){

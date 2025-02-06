@@ -48,7 +48,7 @@ public class FileUtil {
             tblFile.setAtchFileSz((int) files[i].getSize());
             tblFile.setAtchFileExtnNm(filename.split("[.]")[fileNames.length-1]);
             tblFile.setCreatrSn(Integer.parseInt(params.get("regUserSn").toString()));
-            tblFile.setPsnTblPk(params.get("psnCd") + "_" + params.get("key"));
+            tblFile.setPsnTblSn(params.get("psnCd") + "_" + params.get("key"));
             list.add(tblFile);
         }
 

@@ -47,9 +47,10 @@ public class PstApiController {
      * }
      * @return
      */
-    @PostMapping("/pstApi/getPst")
-    public ResultVO getPst(@RequestBody TblPst tblPst) {
-        return pstApiService.getPst(tblPst);
+    @PostMapping("/pstApi/getPst.do")
+    public ResultVO getPst(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return pstApiService.getPst(dto);
     }
 
     /**
@@ -150,5 +151,34 @@ public class PstApiController {
     @PostMapping("/pstApi/setPstEvl")
     public ResultVO setPstEvl(@RequestBody TblPstEvl tblPstEvl) {
         return pstApiService.setPstEvl(tblPstEvl);
+    }
+
+    /**
+     * 게시글 평가 조회
+     * params
+     * {
+     *    pstSn(필수)      : 게시글키
+     *    userSn(필수)     : 사용자일련번호
+     * }
+     * @return
+     */
+    @PostMapping("/pstApi/getPstEvl.do")
+    public ResultVO getPstEvl(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return pstApiService.getPstEvl(dto);
+    }
+
+    /**
+     * 게시글 평가리스트 조회
+     * params
+     * {
+     *    pstSn(필수)      : 게시글키
+     * }
+     * @return
+     */
+    @PostMapping("/pstApi/getPstEvlList.do")
+    public ResultVO getPstEvlList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return pstApiService.getPstEvlList(dto);
     }
 }

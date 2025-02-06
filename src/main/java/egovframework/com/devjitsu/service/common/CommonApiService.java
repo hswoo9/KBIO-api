@@ -25,6 +25,7 @@ import egovframework.com.devjitsu.service.menu.MenuAuthGroupApiService;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -55,6 +56,10 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static egovframework.com.devjitsu.model.common.QTblComFile.tblComFile;
 
 @Service
 @RequiredArgsConstructor
@@ -243,7 +248,7 @@ public class CommonApiService {
             if(!StringUtils.isEmpty(tblComFile.getAtchFileSn())){
                 tblComFile = tblComFileRepository.findByAtchFileSn(tblComFile.getAtchFileSn());
             }else{
-                tblComFile = tblComFileRepository.findByPsnTblPk(tblComFile.getPsnTblPk());
+                tblComFile = tblComFileRepository.findByPsnTblSn(tblComFile.getPsnTblSn());
             }
 
             resultVO.putResult("file", tblComFile);
@@ -277,7 +282,7 @@ public class CommonApiService {
         return resultVO;
     }
 
-    public ResponseEntity<org.springframework.core.io.Resource> getFileDownLoad(TblComFile tblComFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ResponseEntity<org.springframework.core.io.Resource> getFileDownLoad(TblComFile tblComFile) throws IOException {
         tblComFile = tblComFileRepository.findByAtchFileSn(tblComFile.getAtchFileSn());
         String fileNm = tblComFile.getAtchFileNm();
         Path filePath = Paths.get(tblComFile.getAtchFilePathNm() + "/" + tblComFile.getStrgFileNm() + "." + tblComFile.getAtchFileExtnNm());
@@ -295,6 +300,48 @@ public class CommonApiService {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(fileNm, StandardCharsets.UTF_8.toString()) + "\"")
+                .body(resource);
+    }
+
+    public ResponseEntity<org.springframework.core.io.Resource> getFileZipDownLoad(SearchDto dto) throws IOException {
+        List<TblComFile> tblComFiles = tblComFileRepository.findAllByPsnTblSn((String) dto.get("psnTblSn"));
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
+
+        for (TblComFile tblComFile : tblComFiles) {
+            String fileNm = tblComFile.getAtchFileNm();
+            Path filePath = Paths.get(tblComFile.getAtchFilePathNm() + "/" + tblComFile.getStrgFileNm() + "." + tblComFile.getAtchFileExtnNm());
+
+            org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
+            if (!resource.exists() || !resource.isReadable()) {
+                continue;
+            }
+
+            try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile())) {
+                ZipEntry zipEntry = new ZipEntry(fileNm);
+                zipOutputStream.putNextEntry(zipEntry);
+
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = fileInputStream.read(buffer)) > 0) {
+                    zipOutputStream.write(buffer, 0, length);
+                }
+                zipOutputStream.closeEntry();
+            }
+        }
+
+        zipOutputStream.close();
+        byte[] zipBytes = byteArrayOutputStream.toByteArray();
+
+        ByteArrayResource resource = new ByteArrayResource(zipBytes);
+
+        String zipFileName = dto.get("zipFileName") + ".zip";
+        String encodedFileName = URLEncoder.encode(zipFileName, StandardCharsets.UTF_8.toString());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
                 .body(resource);
     }
 
