@@ -125,6 +125,7 @@ public class LoginApiService {
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
                 resultVO.setResultMessage(ResponseCode.NOT_USER.getMessage());
             }else{
+                resultVO.putResult("dto", dto);
                 resultVO.setResultCode(ResponseCode.NOT_JOIN_USER.getCode());
                 resultVO.setResultMessage(ResponseCode.NOT_JOIN_USER.getMessage());
             }
@@ -177,6 +178,7 @@ public class LoginApiService {
                 Gson gson = new Gson();
                 Map<String, Object> googleUserInfo = gson.fromJson(userInfo.toString(), new TypeToken<Map<String, Object>>() {}.getType());
                 dto.setSnsId((String) googleUserInfo.get("sub"));
+                dto.setTotalData(googleUserInfo);
                 dto.setStatusCode(ResponseCode.SUCCESS.getCode());
             }else{
                 dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
@@ -291,6 +293,7 @@ public class LoginApiService {
                     if(naverUserInfo != null){
                         Map<String, Object> resultMap = (Map<String, Object>) naverUserInfo.get("response");
                         dto.setSnsId((String) resultMap.get("id"));
+                        dto.setTotalData(resultMap);
                         dto.setStatusCode(ResponseCode.SUCCESS.getCode());
                     }else{
                         dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
@@ -350,6 +353,7 @@ public class LoginApiService {
                     Map<String, Object> resultInfo = getMapFromJsonObject(jsonObj);
                     if(resultInfo != null){
                         dto.setSnsId(resultInfo.get("id").toString());
+                        dto.setTotalData(resultInfo);
                         dto.setStatusCode(ResponseCode.SUCCESS.getCode());
                     }else{
                         dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());

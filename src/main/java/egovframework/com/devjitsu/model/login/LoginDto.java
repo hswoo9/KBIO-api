@@ -24,4 +24,6 @@ public class LoginDto {
     private String state;
 
     private int statusCode;
+
+    private Object totalData;
 }
