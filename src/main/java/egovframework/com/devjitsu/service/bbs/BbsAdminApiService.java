@@ -86,6 +86,7 @@ public class BbsAdminApiService {
                     .orderBy(qTblBbs.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
+                    .orderBy(qTblBbs.frstCrtDt.desc())
                     .fetch();
 
             Long totCnt = q.select(qTblBbs.count())
