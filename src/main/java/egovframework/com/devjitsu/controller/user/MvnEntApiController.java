@@ -37,4 +37,12 @@ public class MvnEntApiController {
     public ResultVO getMvnEntOne(@RequestBody TblMvnEnt tblMvnEnt){
         return mvnEntApiService.getRc(tblMvnEnt);
     }
+
+    @PostMapping("/mvnEntApi/getresidentMemberList.do")
+    public ResultVO getResidentMemberList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+        return mvnEntApiService.getResidentMemberList(dto);
+    }
+
 }
