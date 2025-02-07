@@ -10,6 +10,7 @@ import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
+import egovframework.com.devjitsu.repository.user.TblUserSnsCertInfoRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
 import egovframework.let.utl.sim.service.EgovFileScrty;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.util.Optional;
@@ -43,6 +45,7 @@ public class MemberApiService {
     private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
     private final TblUserRepository TblUserRepository;
     private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
+    private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
 
     /**
      * jpa 부등호
@@ -124,6 +127,16 @@ public class MemberApiService {
 
         TblUser savedMember = TblUserRepository.save(member);
         Long userSn = savedMember.getUserSn();
+        if(!StringUtils.isEmpty(dto.get("snsType"))){
+            if(dto.get("snsType").toString().equals("naver")){
+                TblUserSnsCertInfo tblUserSnsCertInfo = new TblUserSnsCertInfo();
+                tblUserSnsCertInfo.setUserSn(userSn);
+                tblUserSnsCertInfo.setSnsClsf(dto.get("snsType").toString());
+                tblUserSnsCertInfo.setSnsUnqNo(dto.get("snsId").toString());
+                tblUserSnsCertInfo.setCreatrSn(userSn);
+                tblUserSnsCertInfoRepository.save(tblUserSnsCertInfo);
+            }
+        }
         Object mbrTypeObj = dto.get("mbrType");
         Integer mbrType = (mbrTypeObj instanceof Integer) ? (Integer) mbrTypeObj : null;
 

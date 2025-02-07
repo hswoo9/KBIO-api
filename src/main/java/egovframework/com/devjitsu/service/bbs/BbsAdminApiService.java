@@ -205,7 +205,7 @@ public class BbsAdminApiService {
         tblPstRepository.delete(tblPst);
     }
 
-    public AuthrtDto getUserBbsAuthrt(TblBbs tblBbs, long userSn) {
+    public AuthrtDto getUserBbsAuthrt(TblBbs tblBbs, Long userSn) {
         AuthrtDto authrtDto = new AuthrtDto("N", "N", "N", "N");
 
         try {
@@ -215,29 +215,46 @@ public class BbsAdminApiService {
             QTblMenuAuthrtGroupUser qTblMenuAuthrtGroupUser = QTblMenuAuthrtGroupUser.tblMenuAuthrtGroupUser;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
-            authrtDto = q
-                .select(
-                    Projections.constructor(
-                        AuthrtDto.class,
-                        Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.inqAuthrt),
-                        Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.wrtAuthrt),
-                        Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.mdfcnAuthrt),
-                        Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.delAuthrt)
-                    )
-                ).from(qTblMenuAuthrtGroup)
-                .join(qTblAuthrtGroupMenu).on(qTblMenuAuthrtGroup.authrtGroupSn.eq(qTblAuthrtGroupMenu.authrtGroupSn))
-                .join(qTblMenuAuthrtGroupUser).on(qTblMenuAuthrtGroupUser.authrtGroupSn.eq(qTblMenuAuthrtGroup.authrtGroupSn))
-                .join(qTblMenu).on(qTblAuthrtGroupMenu.menuSn.eq(qTblMenu.menuSn))
-                .where(
-                    qTblMenuAuthrtGroupUser.userSn.eq(userSn)
-                        .and(
-                            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMenuAuthrtGroupUser.authrtGrntDt).loe(
-                                Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
-                            )
-                        ).and(
-                            qTblMenu.bbsSn.eq(tblBbs.getBbsSn())
+            if(userSn != null){
+                authrtDto = q
+                    .select(
+                        Projections.constructor(
+                            AuthrtDto.class,
+                            Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.inqAuthrt),
+                            Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.wrtAuthrt),
+                            Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.mdfcnAuthrt),
+                            Expressions.stringTemplate("MAX({0})", qTblMenuAuthrtGroup.delAuthrt)
                         )
-                ).groupBy(qTblMenu.bbsSn).fetchFirst();
+                    ).from(qTblMenuAuthrtGroup)
+                    .join(qTblAuthrtGroupMenu).on(qTblMenuAuthrtGroup.authrtGroupSn.eq(qTblAuthrtGroupMenu.authrtGroupSn))
+                    .join(qTblMenuAuthrtGroupUser).on(qTblMenuAuthrtGroupUser.authrtGroupSn.eq(qTblMenuAuthrtGroup.authrtGroupSn))
+                    .join(qTblMenu).on(qTblAuthrtGroupMenu.menuSn.eq(qTblMenu.menuSn))
+                    .where(
+                        qTblMenuAuthrtGroupUser.userSn.eq(userSn)
+                            .and(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMenuAuthrtGroupUser.authrtGrntDt).loe(
+                                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                                )
+                            ).and(
+                                    qTblMenu.bbsSn.eq(tblBbs.getBbsSn())
+                            )
+                    ).groupBy(qTblMenu.bbsSn).fetchFirst();
+            }else{
+                authrtDto = q
+                    .select(
+                        Projections.constructor(
+                            AuthrtDto.class,
+                            qTblMenuAuthrtGroup.inqAuthrt,
+                            qTblMenuAuthrtGroup.wrtAuthrt,
+                            qTblMenuAuthrtGroup.mdfcnAuthrt,
+                            qTblMenuAuthrtGroup.delAuthrt
+                        )
+                    ).from(qTblMenuAuthrtGroup)
+                    .join(qTblAuthrtGroupMenu).on(qTblMenuAuthrtGroup.authrtGroupSn.eq(qTblAuthrtGroupMenu.authrtGroupSn))
+                    .join(qTblMenu).on(qTblAuthrtGroupMenu.menuSn.eq(qTblMenu.menuSn))
+                    .where(qTblMenuAuthrtGroup.authrtGroupSn.eq(1L).and(qTblMenu.bbsSn.eq(tblBbs.getBbsSn())))
+                    .groupBy(qTblMenu.bbsSn).fetchFirst();
+            }
         }catch (Exception e) {
             e.printStackTrace();
         }
