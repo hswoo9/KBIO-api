@@ -22,6 +22,10 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -124,24 +128,48 @@ public class MvnEntApiService {
         ResultVO resultVO = new ResultVO();
         PaginationInfo paginationInfo = new PaginationInfo();
 
+        try {
+
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
         List<TblMvnEntMbr> entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
         System.out.println("****entMbrList :*****"+entMbrList);
 
-        List<TblUser> userList = new ArrayList<>();
-        for (TblMvnEntMbr entMbr : entMbrList) {
-            TblUser user = tblUserRepository.findByUserSn(entMbr.getUserSn());
-            if (user != null) {
-                userList.add(user);
-            }
+        List<Long> userSnList = entMbrList.stream()
+                .map(TblMvnEntMbr::getUserSn)
+                .collect(Collectors.toList());
+
+
+        Map<String, Object> conditions = new HashMap<>();
+        if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
+            conditions.put("actvtnYn", dto.get("actvtnYn"));
         }
-        System.out.println("****userSnList :*****"+userList);
+        if (!StringUtils.isEmpty(dto.get("kornFlnm"))){
+            conditions.put("kornFlnm", dto.get("kornFlnm"));
+        }
+        if (!StringUtils.isEmpty(dto.get("userId"))){
+            conditions.put("userId", dto.get("userId"));
+        }
 
-        try {
+        List<TblUser> userList = getFilteredUsers(userSnList, conditions);
+        Long totCnt = Long.valueOf(userList.size());
+
+
             //페이징 관련 작업할 것!!
+        if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+        }
+        paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+        paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
-            resultVO.putResult("getResidentMemberList",userList);
-            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        if(totCnt == null) totCnt = 0L;
+        paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+
+        resultVO.putResult("getResidentMemberList",userList);
+        resultVO.putPaginationInfo(paginationInfo);
+
+        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+
         }catch (Exception e){
         e.printStackTrace();
         resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
@@ -150,6 +178,53 @@ public class MvnEntApiService {
 
         return resultVO;
     }
+
+    public ResultVO getResidentMemberOne(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+        long userSn = ((Number)dto.get("userSn")).longValue();
+        long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
+
+        try {
+            resultVO.putResult("member", tblUserRepository.findByUserSn(userSn));
+            resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(mvnEntSn));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+
+        }
+
+        return resultVO;
+    }
+
+
+    public List<TblUser> getFilteredUsers(List<Long> userSnList, Map<String, Object> conditions) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<TblUser> query = cb.createQuery(TblUser.class);
+        Root<TblUser> root = query.from(TblUser.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        // userSn IN 조건
+        predicates.add(root.get("userSn").in(userSnList));
+
+        // DTO에서 넘어온 조건 추가
+        if (conditions.containsKey("actvtnYn")) {
+            predicates.add(cb.equal(root.get("actvtnYn"), conditions.get("actvtnYn")));
+        }
+        if (conditions.containsKey("kornFlnm")) {
+            predicates.add(cb.equal(root.get("kornFlnm"), conditions.get("kornFlnm")));
+        }
+        if (conditions.containsKey("userId")) {
+            predicates.add(cb.equal(root.get("userId"), conditions.get("userId")));
+        }
+
+        query.where(predicates.toArray(new Predicate[0]));
+
+        return em.createQuery(query).getResultList();
+    }
+
+
+
 
 
 }
