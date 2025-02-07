@@ -18,9 +18,11 @@ import egovframework.com.devjitsu.model.bbs.*;
 import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.QTblPstCmnt;
 import egovframework.com.devjitsu.model.bbs.QTblPstEvl;
+import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.menu.AuthrtDto;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstCmntRepository;
@@ -32,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -83,6 +86,8 @@ public class PstApiService {
         PaginationInfo paginationInfo = new PaginationInfo();
 
         try {
+            TblBbs tblBbs = tblBbsRepository.findByBbsSn(Long.parseLong(dto.get("bbsSn").toString()));
+
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
                 paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
             }
@@ -91,6 +96,7 @@ public class PstApiService {
 
             QTblUser qTblUser = QTblUser.tblUser;
             QTblPst qTblPst = QTblPst.tblPst;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
             QTblComFile qTblComFile = QTblComFile.tblComFile;
 
             JPAQueryFactory q = new JPAQueryFactory(em);
@@ -127,6 +133,10 @@ public class PstApiService {
                         )
                     );
 
+            JPQLQuery<String> pstClsfNm = JPAExpressions.select(qTblComCd.comCdNm)
+                    .from(qTblComCd)
+                    .where(qTblComCd.comCdSn.eq(qTblPst.pstClsf));
+
             List<PstDto> pstList = q
                     .select(
                         Projections.constructor(
@@ -148,6 +158,7 @@ public class PstApiService {
                                 .then("Y")
                                 .otherwise("N").as("upendNtcYn"),
                             qTblPst.bbsSn,
+                            pstClsfNm,
                             qTblPst.pstTtl,
                             qTblPst.pstInqCnt,
                             qTblPst.rlsYn,
@@ -197,13 +208,14 @@ public class PstApiService {
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            TblBbs tblBbs = tblBbsRepository.findByBbsSn(Long.parseLong(dto.get("bbsSn").toString()));
             resultVO.putResult("bbs", tblBbs);
             resultVO.putResult("pstList", pstList);
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 /** 사용자 권한 불러오기 */
                 resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, Long.parseLong(dto.get("userSn").toString())));
+            }else{
+                resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, null));
             }
 
             resultVO.putPaginationInfo(paginationInfo);
@@ -220,11 +232,20 @@ public class PstApiService {
         ResultVO resultVO = new ResultVO();
         try {
             QTblPst qTblPst = QTblPst.tblPst;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             TblPst tblPst = tblPstRepository.findByPstSn(Long.parseLong(dto.get("pstSn").toString()));
             tblPst.setPstFiles(tblComFileRepository.findAllByPsnTblSn("pst_" + tblPst.getPstSn()));
             tblPst.setPstCmnt(getPstCmnt(tblPst));
+
+            TblBbs tblBbs = getBbs(tblPst.getBbsSn());
+
+            if(!StringUtils.isEmpty(tblPst.getPstClsf())){
+                tblPst.setPstClsfNm(q.select(qTblComCd.comCdNm)
+                        .from(qTblComCd)
+                        .where(qTblComCd.comCdSn.eq(tblPst.getPstClsf())).fetchOne());
+            }
 
             q.update(qTblPst).set(qTblPst.pstInqCnt, qTblPst.pstInqCnt.add(1)).where(qTblPst.pstSn.eq(tblPst.getPstSn())).execute();
 
@@ -234,7 +255,6 @@ public class PstApiService {
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 /** 사용자 권한 불러오기 */
-                TblBbs tblBbs = tblBbsRepository.findByBbsSn(tblPst.getBbsSn());
                 resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, Long.parseLong(dto.get("userSn").toString())));
             }
 

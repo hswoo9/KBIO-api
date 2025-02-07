@@ -45,9 +45,9 @@ public class TblPst {
     @Comment("게시판일련번호")
     private long bbsSn;
 
-    @Column(name = "BBS_CLSF", length = 22)
-    @Comment("게시판분류(공통코드일련번호)")
-    private Long bbsClsf;
+    @Column(name = "PST_CLSF", length = 22)
+    @Comment("게시물분류(공통코드일련번호)")
+    private Long pstClsf;
 
     @Column(name = "PST_TTL", length = 256)
     @Comment("게시글제목")
@@ -123,4 +123,8 @@ public class TblPst {
 
     @Transient
     private List<TblComFile> pstFiles;
+
+    @Transient
+    private String pstClsfNm;
+
 }
