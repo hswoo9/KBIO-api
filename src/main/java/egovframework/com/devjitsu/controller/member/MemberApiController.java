@@ -1,9 +1,13 @@
 package egovframework.com.devjitsu.controller.member;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
+import egovframework.com.devjitsu.model.user.QTblUser;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import egovframework.com.devjitsu.service.member.MemberApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
@@ -113,5 +117,34 @@ public class MemberApiController {
     public ResultVO findPassword(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.findPassword(dto);
+    }
+
+    @Operation(
+            summary = "마이페이지 회원 수정",
+            description = "회원 수정",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 수정 완료"),
+            @ApiResponse(responseCode = "400", description = "회원 수정 실패")
+    })
+    @PostMapping(value = "/memberApi/setMemberMyPageModfiy")
+    public ResultVO setMemberMyPageModfiy(@ModelAttribute TblUser tbluser){
+        return memberApiService.setMemberMyPageModfiy(tbluser);
+    }
+
+    @Operation(
+            summary = "탈퇴회원 조회 ",
+            description = "탈퇴회원 조회",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "탈퇴회원 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "탈퇴회원 조회 실패")
+    })
+    @PostMapping(value = "/memberApi/checkUser.do")
+    public ResultVO checkUser(HttpServletRequest request) throws Exception {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.checkUser(dto);
     }
 }

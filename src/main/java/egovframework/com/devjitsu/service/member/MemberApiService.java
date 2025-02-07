@@ -1,11 +1,13 @@
 package egovframework.com.devjitsu.service.member;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
+import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
@@ -286,4 +288,60 @@ public class MemberApiService {
             return false;
         }
     }
+
+    public ResultVO setMemberMyPageModfiy(TblUser tbluser) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            /*if (tbluser.getUserPw() != null && !tbluser.getUserPw().isEmpty()) {
+                String hashedPswd = EgovFileScrty.encryptPassword(tbluser.getUserPw(), tbluser.getUserId());
+                tbluser.setUserPw(hashedPswd);
+            }*/
+
+            if (tbluser.getMblTelno() != null && !tbluser.getMblTelno().isEmpty()) {
+                String encryptedMblTelno = EgovFileScrty.encode(tbluser.getMblTelno());
+                tbluser.setMblTelno(encryptedMblTelno);
+            }
+
+            TblUserRepository.save(tbluser);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            resultVO.setResultMessage("회원 수정이 완료되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO checkUser(SearchDto dto) throws Exception {
+        ResultVO resultVO = new ResultVO();
+
+        QTblUser qTblUser = QTblUser.tblUser;
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        String encryptedPassword = EgovFileScrty.encryptPassword(dto.get("password").toString());
+
+        System.out.println("Encrypted password: " + encryptedPassword);
+        TblUser tblUser = new JPAQueryFactory(em)
+                .selectFrom(qTblUser)
+                .where(
+                        qTblUser.userId.eq(dto.get("id").toString())  // Check if the user ID matches
+                                .and(qTblUser.userPw.eq(encryptedPassword)) // Compare the encrypted passwords
+                )
+                .fetchOne();
+
+        if (tblUser != null) {
+            System.out.println("User found: " + tblUser.getUserId());
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            resultVO.setResultMessage("회원 인증 성공");
+        } else {
+            System.out.println("No matching user found");
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            resultVO.setResultMessage("회원 인증 실패");
+        }
+
+        return resultVO;
+    }
+
 }

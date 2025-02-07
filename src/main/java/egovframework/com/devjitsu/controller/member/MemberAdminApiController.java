@@ -199,7 +199,7 @@ public class MemberAdminApiController {
     }
 
     /**
-     * 탈토회원 조회
+     * 탈퇴회원 조회
      * @return
      */
     @PostMapping("/memberApi/getCancelMemberList.do")
