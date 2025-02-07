@@ -3,6 +3,7 @@ package egovframework.com.devjitsu.controller.user;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.user.TblMvnEnt;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.user.MvnEntApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,14 @@ public class MvnEntApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
 
         return mvnEntApiService.getResidentMemberOne(dto);
+    }
+
+    @PostMapping("/mvnEntApi/setMemberActvYn")
+    public ResultVO setMemberActvYn(@RequestBody TblUser request){
+        long userSn = request.getUserSn();
+        System.out.println("*** searchDto *** : " + request);
+
+        return mvnEntApiService.setMemberActvYn(request);
     }
 
 }

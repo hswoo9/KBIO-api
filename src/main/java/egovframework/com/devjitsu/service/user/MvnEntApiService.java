@@ -196,6 +196,27 @@ public class MvnEntApiService {
         return resultVO;
     }
 
+    public ResultVO setMemberActvYn(TblUser tblUser){
+        ResultVO resultVO = new ResultVO();
+        long userSn = tblUser.getUserSn();
+        String actvtnYn = tblUser.getActvtnYn();
+
+        try {
+            Optional<TblUser> optionalTblUser = Optional.ofNullable(tblUserRepository.findByUserSn(userSn));
+            if (optionalTblUser.isPresent()) {
+                TblUser user = optionalTblUser.get();
+                user.setActvtnYn(actvtnYn); // 상태 변경
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            }else{
+                resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
+            }
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 
     public List<TblUser> getFilteredUsers(List<Long> userSnList, Map<String, Object> conditions) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -222,6 +243,8 @@ public class MvnEntApiService {
 
         return em.createQuery(query).getResultList();
     }
+
+
 
 
 
