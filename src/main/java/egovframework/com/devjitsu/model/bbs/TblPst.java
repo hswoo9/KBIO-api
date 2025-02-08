@@ -127,4 +127,6 @@ public class TblPst {
     @Transient
     private String pstClsfNm;
 
+    @Transient
+    private TblPst answer;
 }

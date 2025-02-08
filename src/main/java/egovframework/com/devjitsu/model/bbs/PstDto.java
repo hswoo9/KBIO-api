@@ -25,6 +25,7 @@ public class PstDto {
     private String prvtPswd;
     private LocalDateTime frstCrtDt;
     private Long fileCnt;
+    private String answer = "N";
     private String position;
 
     public PstDto(long pstSn, String pstTtl, String position) {

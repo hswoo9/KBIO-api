@@ -30,6 +30,7 @@ public interface TblPstRepository extends JpaRepository<TblPst, String> {
                 "FROM SCHM_BIO_CMS.TBL_PST PST " +
                 "WHERE " +
                     "PST.BBS_SN = :bbsSn " +
+                "AND PST.UP_PST_SN IS NULL " +
                 "ORDER BY " +
                     "CASE WHEN PST.UPEND_NTC_YN = 'Y' " +
                             "AND DATE_FORMAT(PST.NTC_BGNG_DT, '%Y-%m-%d') <= DATE_FORMAT(NOW(), '%Y-%m-%d') " +
@@ -41,8 +42,8 @@ public interface TblPstRepository extends JpaRepository<TblPst, String> {
                     "PST.FRST_CRT_DT DESC" +
             ") subquery " +
             "WHERE " +
-                "(POSITION = 'PREV' AND PST_SN = (SELECT MAX(PST_SN) FROM SCHM_BIO_CMS.TBL_PST WHERE PST_SN < :pstSn AND BBS_SN = :bbsSn)) OR " +
-                "(POSITION = 'NEXT' AND PST_SN = (SELECT MIN(PST_SN) FROM SCHM_BIO_CMS.TBL_PST WHERE PST_SN > :pstSn AND BBS_SN = :bbsSn));"
+                "(POSITION = 'PREV' AND PST_SN = (SELECT MAX(PST_SN) FROM SCHM_BIO_CMS.TBL_PST WHERE PST_SN < :pstSn AND BBS_SN = :bbsSn AND UP_PST_SN IS NULL)) OR " +
+                "(POSITION = 'NEXT' AND PST_SN = (SELECT MIN(PST_SN) FROM SCHM_BIO_CMS.TBL_PST WHERE PST_SN > :pstSn AND BBS_SN = :bbsSn AND UP_PST_SN IS NULL));"
             , nativeQuery = true)
     List<Object[]> getPrevNextPst(@Param("bbsSn") long bbsSn, @Param("pstSn") long pstSn);
 }

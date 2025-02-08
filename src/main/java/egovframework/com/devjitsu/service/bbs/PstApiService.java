@@ -2,6 +2,7 @@ package egovframework.com.devjitsu.service.bbs;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -96,6 +97,8 @@ public class PstApiService {
 
             QTblUser qTblUser = QTblUser.tblUser;
             QTblPst qTblPst = QTblPst.tblPst;
+            QTblPst qTblPst2 = new QTblPst("qTblPst2");
+
             QTblComCd qTblComCd = QTblComCd.tblComCd;
             QTblComFile qTblComFile = QTblComFile.tblComFile;
 
@@ -123,19 +126,36 @@ public class PstApiService {
                 builder.and(qTblPst.actvtnYn.eq("Y"));
             }
 
-            JPQLQuery<Long> fileCnt = JPAExpressions.select(qTblComFile.count())
-                    .from(qTblComFile)
-                    .where(
-                        qTblComFile.psnTblSn.eq(
-                            Expressions.stringTemplate(
-                                "CONCAT('pst_', {0})", qTblPst.pstSn
-                            )
-                        )
-                    );
+            if(tblBbs.getBbsTypeNm().equals("2")){
+                builder.and(qTblPst.upPstSn.isNull());
+            }
 
-            JPQLQuery<String> pstClsfNm = JPAExpressions.select(qTblComCd.comCdNm)
-                    .from(qTblComCd)
-                    .where(qTblComCd.comCdSn.eq(qTblPst.pstClsf));
+            JPQLQuery<Long> fileCnt = JPAExpressions
+                .select(qTblComFile.count())
+                .from(qTblComFile)
+                .where(
+                    qTblComFile.psnTblSn.eq(
+                        Expressions.stringTemplate(
+                            "CONCAT('pst_', {0})", qTblPst.pstSn
+                        )
+                    )
+                );
+
+            JPQLQuery<String> answer = JPAExpressions
+                .select(new CaseBuilder().when(qTblPst2.count().gt(0)).then("Y").otherwise("N"))
+                .from(qTblPst2)
+                .where(
+                    qTblPst2.upPstSn.eq(qTblPst.pstSn)
+                );
+
+            Expression<String> pstClsfNm;
+            if (tblBbs.getPstCtgryYn().equals("Y")) {
+                pstClsfNm = JPAExpressions.select(qTblComCd.comCdNm)
+                        .from(qTblComCd)
+                        .where(qTblComCd.comCdSn.eq(qTblPst.pstClsf));
+            } else {
+                pstClsfNm = Expressions.constant("");
+            }
 
             List<PstDto> pstList = q
                     .select(
@@ -169,6 +189,7 @@ public class PstApiService {
                             qTblPst.prvtPswd,
                             qTblPst.frstCrtDt,
                             fileCnt,
+                            answer,
                             Expressions.constant("")
                         )
                     )
@@ -240,6 +261,10 @@ public class PstApiService {
             tblPst.setPstCmnt(getPstCmnt(tblPst));
 
             TblBbs tblBbs = getBbs(tblPst.getBbsSn());
+
+            if(tblBbs.getBbsTypeNm().equals("2")){
+                tblPst.setAnswer(q.selectFrom(qTblPst).where(qTblPst.upPstSn.eq(tblPst.getPstSn())).fetchFirst());
+            }
 
             if(!StringUtils.isEmpty(tblPst.getPstClsf())){
                 tblPst.setPstClsfNm(q.select(qTblComCd.comCdNm)
