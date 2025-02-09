@@ -27,9 +27,35 @@ public class MainApiController {
     @Autowired
     private MainApiService mainApiService;
 
+    /**
+     * 배너팝업리스트
+     * @param request
+     * @return
+     */
     @PostMapping("/mainApi/getBnrPopupList.do")
     public ResultVO getBnrPopupList(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return mainApiService.getBnrPopupList(dto);
     }
+
+    /**
+     * 입주기관리스트
+     * @return
+     */
+    @PostMapping("/mainApi/getMvnEntList")
+    public ResultVO getMvnEntList() {
+        return mainApiService.getMvnEntList();
+    }
+
+    /**
+     * 게시글 리스트
+     * @param request
+     * @return
+     */
+    @PostMapping("/mainApi/getPstList.do")
+    public ResultVO getPstList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return mainApiService.getPstList(dto);
+    }
+
 }

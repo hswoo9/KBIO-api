@@ -115,7 +115,7 @@ public class PstApiService {
                 }
             }else{
                 builder.and(
-                        qTblPst.pstTtl.like((String) dto.get("searchVal"))
+                        qTblPst.pstTtl.contains((String) dto.get("searchVal"))
                             .or(qTblPst.pstCn.contains((String) dto.get("searchVal")))
                 );
             }
@@ -281,6 +281,8 @@ public class PstApiService {
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 /** 사용자 권한 불러오기 */
                 resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, Long.parseLong(dto.get("userSn").toString())));
+            }else{
+                resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, null));
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
