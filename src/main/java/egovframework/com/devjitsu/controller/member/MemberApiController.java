@@ -147,4 +147,10 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.checkUser(dto);
     }
+
+    @PostMapping("/memberApi/getMyPageNormalMember")
+    public ResultVO getMyPageNormalMember(@RequestBody TblUser tblUser) {
+        return memberApiService.getMyPageNormalMember(tblUser);
+    }
+
 }
