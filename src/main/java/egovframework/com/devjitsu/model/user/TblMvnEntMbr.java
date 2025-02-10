@@ -26,5 +26,9 @@ public class TblMvnEntMbr {
     @Comment("입주기업일련번호")
     private Long mvnEntSn;
 
+    @Column(name = "SYS_MNGR_YN" , columnDefinition = "CHAR(1)")
+    @Comment("시스템관리자여부")
+    private Long sysMngrYn;
+
 
 }

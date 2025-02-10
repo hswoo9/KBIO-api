@@ -55,9 +55,6 @@ public class MvnEntApiController {
 
     @PostMapping("/mvnEntApi/setMemberActvYn")
     public ResultVO setMemberActvYn(@RequestBody TblUser request){
-        long userSn = request.getUserSn();
-        System.out.println("*** searchDto *** : " + request);
-
         return mvnEntApiService.setMemberActvYn(request);
     }
 

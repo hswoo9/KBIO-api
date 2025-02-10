@@ -127,11 +127,21 @@ public class MvnEntApiService {
     public ResultVO getResidentMemberList(SearchDto dto){
         ResultVO resultVO = new ResultVO();
         PaginationInfo paginationInfo = new PaginationInfo();
+        Map<String, Object> conditions = new HashMap<>();
 
         try {
+        List<TblMvnEntMbr> entMbrList;
 
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
-        List<TblMvnEntMbr> entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
+
+        if (!StringUtils.isEmpty(dto.get("sysMngrYn"))){
+            //관리자설정에서 실행됨
+            entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
+        } else {
+            //직원목록일 경우 실행됨
+            entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
+        }
+
         System.out.println("****entMbrList :*****"+entMbrList);
 
         List<Long> userSnList = entMbrList.stream()
@@ -139,7 +149,7 @@ public class MvnEntApiService {
                 .collect(Collectors.toList());
 
 
-        Map<String, Object> conditions = new HashMap<>();
+
         if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
             conditions.put("actvtnYn", dto.get("actvtnYn"));
         }
@@ -154,7 +164,7 @@ public class MvnEntApiService {
         Long totCnt = Long.valueOf(userList.size());
 
 
-            //페이징 관련 작업할 것!!
+
         if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
                 paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
         }
