@@ -319,14 +319,16 @@ public class MemberApiService {
 
         QTblUser qTblUser = QTblUser.tblUser;
         JPAQueryFactory q = new JPAQueryFactory(em);
-        String encryptedPassword = EgovFileScrty.encryptPassword(dto.get("password").toString());
 
+        // 사용자 ID와 비밀번호를 사용하여 암호화
+        String encryptedPassword = EgovFileScrty.encryptPassword(dto.get("password").toString(), dto.get("id").toString());
         System.out.println("Encrypted password: " + encryptedPassword);
-        TblUser tblUser = new JPAQueryFactory(em)
-                .selectFrom(qTblUser)
+
+        // 데이터베이스에서 사용자 조회
+        TblUser tblUser = q.selectFrom(qTblUser)
                 .where(
-                        qTblUser.userId.eq(dto.get("id").toString())  // Check if the user ID matches
-                                .and(qTblUser.userPw.eq(encryptedPassword)) // Compare the encrypted passwords
+                        qTblUser.userId.eq(dto.get("id").toString())  // 사용자 ID 확인
+                                .and(qTblUser.userPw.eq(encryptedPassword)) // 암호화된 비밀번호 비교
                 )
                 .fetchOne();
 
@@ -359,4 +361,32 @@ public class MemberApiService {
         return resultVO;
     }
 
+    public ResultVO myPageCancelMember(TblUser tblUser) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblUser qTblUser = QTblUser.tblUser;
+
+            long updatedCount = new JPAQueryFactory(em)
+                    .update(qTblUser)
+                    .set(qTblUser.actvtnYn, "C")
+                    .where(qTblUser.userSn.eq(tblUser.getUserSn()))
+                    .execute();
+
+            if (updatedCount > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("회원탈퇴가 완료되었습니다.");
+            } else {
+                resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+                resultVO.setResultMessage("회원탈퇴가 실패하였습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
+        }
+
+        return resultVO;
+    }
 }

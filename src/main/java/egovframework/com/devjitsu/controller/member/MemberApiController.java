@@ -153,4 +153,9 @@ public class MemberApiController {
         return memberApiService.getMyPageNormalMember(tblUser);
     }
 
+    @PostMapping("/memberApi/myPageCancelMember")
+    public ResultVO myPageCancelMember(@RequestBody TblUser tblUser){
+        return memberApiService.myPageCancelMember(tblUser);
+    }
+
 }
