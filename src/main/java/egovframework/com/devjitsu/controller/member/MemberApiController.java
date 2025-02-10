@@ -147,12 +147,29 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.checkUser(dto);
     }
-
+    @Operation(
+            summary = "마이페이지 회원조회 ",
+            description = "마이페이지 조회",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "마이페이지 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "마이페이지 조회 실패")
+    })
     @PostMapping("/memberApi/getMyPageNormalMember")
     public ResultVO getMyPageNormalMember(@RequestBody TblUser tblUser) {
         return memberApiService.getMyPageNormalMember(tblUser);
     }
 
+    @Operation(
+            summary = "회원탈퇴",
+            description = "회원탈퇴",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원탈퇴 성공"),
+            @ApiResponse(responseCode = "400", description = "회원탈퇴 실패")
+    })
     @PostMapping("/memberApi/myPageCancelMember")
     public ResultVO myPageCancelMember(@RequestBody TblUser tblUser){
         return memberApiService.myPageCancelMember(tblUser);
