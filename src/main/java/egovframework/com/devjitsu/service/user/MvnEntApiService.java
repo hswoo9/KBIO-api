@@ -131,12 +131,21 @@ public class MvnEntApiService {
 
         try {
         List<TblMvnEntMbr> entMbrList;
+        QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+        BooleanBuilder builder = new BooleanBuilder();
+        JPAQueryFactory q = new JPAQueryFactory(em);
 
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
 
         if (!StringUtils.isEmpty(dto.get("sysMngrYn"))){
             //관리자설정에서 실행됨
-            entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
+            builder.and(qTblMvnEntMbr.sysMngrYn.contains((String) dto.get("sysMngrYn")));
+            builder.and(qTblMvnEntMbr.mvnEntSn.eq(mvnEntSn));
+
+            entMbrList = q.selectFrom(qTblMvnEntMbr)
+                    .where(builder)
+                    .orderBy(qTblMvnEntMbr.userSn.desc()).fetch();
+
         } else {
             //직원목록일 경우 실행됨
             entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
