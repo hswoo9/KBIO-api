@@ -1,4 +1,4 @@
-package egovframework.com.devjitsu.model.consult;
+package egovframework.com.devjitsu.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

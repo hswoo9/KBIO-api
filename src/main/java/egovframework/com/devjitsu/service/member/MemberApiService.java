@@ -1,14 +1,10 @@
 package egovframework.com.devjitsu.service.member;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.consult.TblCnslttMbr;
-import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
-import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
-import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
+import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
@@ -25,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
-import java.util.Optional;
 import java.util.Random;
 import javax.mail.*;
 import javax.mail.internet.*;

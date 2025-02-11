@@ -3,7 +3,7 @@ package egovframework.com.devjitsu.service.consult;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.consult.TblCnslttMbr;
+import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import lombok.RequiredArgsConstructor;
