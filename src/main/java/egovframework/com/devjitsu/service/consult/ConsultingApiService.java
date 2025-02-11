@@ -122,6 +122,7 @@ public class ConsultingApiService {
 
             QTblUser qTblUser = QTblUser.tblUser;
             QTblCnslttMbr qTblCnslttMbr = QTblCnslttMbr.tblCnslttMbr;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             /** query DSL 조건 추가하는 방법 */
@@ -133,9 +134,25 @@ public class ConsultingApiService {
                 builder.and(qTblCnslttMbr.ogdpNm.eq((String) dto.get("ogdpNm")));
             }
 
-           List<TblUser> consultantList = q.selectFrom(qTblUser)
-                    .join(qTblCnslttMbr).on(qTblUser.userSn.eq(qTblCnslttMbr.userSn)) //컨설턴트
-//                    .join().on() 컨설턴트 사진
+            List<ConsultDto> consultantList = q
+                    .select(
+                            Projections.constructor(
+                                ConsultDto.class,
+                                qTblCnslttMbr,
+                                qTblUser
+//                                ,qTblComFile
+                            )
+                    ).from(qTblUser)
+                    .join(qTblCnslttMbr)
+                    .on(
+                            qTblUser.userSn.eq(qTblCnslttMbr.userSn)
+                    )
+/*                    .join(qTblComFile)
+                    .on(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate("CONCAT()")
+                            )
+                    )*/
                     .where(builder)
                     .orderBy(qTblUser.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
