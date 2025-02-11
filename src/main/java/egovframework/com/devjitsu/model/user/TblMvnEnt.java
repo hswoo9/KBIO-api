@@ -161,6 +161,10 @@ public class TblMvnEnt {
     @Comment("대표자상세주소")
     private String rprsvDaaddr;
 
+    @Column(name = "BZENTY_EXPLN", columnDefinition = "LONGTEXT")
+    @Comment("업체설명")
+    private String bzentyExpln;
+
     @Column(name = "RMRK_CN", length = 4000)
     @Comment("비고내용")
     private String rmrkCn;
