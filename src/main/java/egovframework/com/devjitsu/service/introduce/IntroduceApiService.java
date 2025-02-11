@@ -80,4 +80,18 @@ public class IntroduceApiService {
 
         return resultVO;
     }
+
+    public ResultVO getOperationalDetail(TblMvnEnt tblMvnEnt) {
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            resultVO.putResult("operational",tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn()));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
 }
