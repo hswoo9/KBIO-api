@@ -2,15 +2,21 @@ package egovframework.com.devjitsu.service.consult;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.QTblBbs;
+import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
+import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.QTblComCdGroup;
+import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.menu.MenuDto;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
@@ -131,6 +137,66 @@ public class ConsultingApiService {
         }catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+        return resultVO;
+    }
+
+    public ResultVO setConsulting(TblCnsltAply tblCnsltAply, List<MultipartFile> files) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+
+            QTblPst qTblPst = QTblPst.tblPst;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+//            if(!StringUtils.isEmpty(tblPst.getUpPstSn())) {
+//                TblPst orgnlPst = q.selectFrom(qTblPst).where(qTblPst.pstSn.eq(tblPst.getUpPstSn())).fetchOne();
+//                if(orgnlPst.getRlsYn().equals("Y")) {
+//                    tblPst.setRlsYn(orgnlPst.getRlsYn());
+//                    tblPst.setPrvtPswd(orgnlPst.getPrvtPswd());
+//                }
+//
+//                if(StringUtils.isEmpty(tblPst.getAnsStp())){
+//                    NumberPath<Integer> maxAnsStp = qTblPst.ansStp;
+//                    JPAQuery<Integer> query = q
+//                            .select(Expressions.numberTemplate(Integer.class, "COALESCE(MAX({0}), 0) + 1", maxAnsStp))
+//                            .from(qTblPst)
+//                            .where(qTblPst.bbsSn.eq(tblPst.getBbsSn())
+//                                    .and(qTblPst.pstGroup.eq(tblPst.getPstGroup())));
+//                    Integer nextAnsStp = query.fetchOne();
+//                    tblPst.setAnsStp(nextAnsStp);
+//                }
+//            }
+//
+//            if(StringUtils.isEmpty(tblPst.getPstGroup())){
+//                /** 등록 */
+//                NumberPath<Long> maxArticleGroup = qTblPst.pstGroup;
+//                JPAQuery<Integer> group  = q
+//                        .select(Expressions.numberTemplate(Integer.class, "COALESCE(MAX({0}), 0) + 1", maxArticleGroup))
+//                        .from(qTblPst)
+//                        .where(qTblPst.bbsSn.eq(tblPst.getBbsSn()));
+//                tblPst.setPstGroup(Long.valueOf(group.fetchOne()));
+//            }
+//
+//            tblPstRepository.save(tblPst);
+//            if(files != null){
+//                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("pst_" + tblPst.getPstSn())).fetchCount();
+//                tblComFileRepository.saveAll(
+//                        fileUtil.devFileInf(
+//                                files,
+//                                "/bbs/" + tblPst.getBbsSn() + "/pst/" + tblPst.getPstSn(),
+//                                "pst_" + tblPst.getPstSn(),
+//                                fileCnt
+//                        )
+//                );
+//            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
         return resultVO;
