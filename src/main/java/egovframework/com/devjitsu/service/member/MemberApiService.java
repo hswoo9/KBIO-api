@@ -135,6 +135,13 @@ public class MemberApiService {
                 tblUserSnsCertInfo.setSnsUnqNo(dto.get("snsId").toString());
                 tblUserSnsCertInfo.setCreatrSn(userSn);
                 tblUserSnsCertInfoRepository.save(tblUserSnsCertInfo);
+            } else if (dto.get("snsType").toString().equals("kakao")) {
+                TblUserSnsCertInfo tblUserSnsCertInfo = new TblUserSnsCertInfo();
+                tblUserSnsCertInfo.setUserSn(userSn);
+                tblUserSnsCertInfo.setSnsClsf(dto.get("snsType").toString());
+                tblUserSnsCertInfo.setSnsUnqNo(dto.get("snsId").toString());
+                tblUserSnsCertInfo.setCreatrSn(userSn);
+                tblUserSnsCertInfoRepository.save(tblUserSnsCertInfo);
             }
         }
         Object mbrTypeObj = dto.get("mbrType");
