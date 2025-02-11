@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.util.List;
 import java.util.*;
 
 @Service
@@ -55,12 +56,6 @@ public class IntroduceApiService {
             if(!StringUtils.isEmpty(dto.get("mvnEntNm"))){
                 builder.and(qTblMvnEnt.mvnEntNm.contains((String) dto.get("mvnEntNm")));
             }
-            if(!StringUtils.isEmpty(dto.get("brno"))){
-                builder.and(qTblMvnEnt.brno.contains((String) dto.get("brno")));
-            }
-            if(!StringUtils.isEmpty(dto.get("rpsvNm"))){
-                builder.and(qTblMvnEnt.rpsvNm.contains((String) dto.get("rpsvNm")));
-            }
 
             List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
                     .where(builder)
@@ -73,7 +68,7 @@ public class IntroduceApiService {
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            resultVO.putResult("operationalList",tblMvnEntList);
+            resultVO.putResult("getOperationalList",tblMvnEntList);
             resultVO.putPaginationInfo(paginationInfo);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
