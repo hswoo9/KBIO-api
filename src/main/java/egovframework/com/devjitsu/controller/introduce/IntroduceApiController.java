@@ -29,4 +29,9 @@ public class IntroduceApiController {
 
         return introduceApiService.getOperationalList(dto);
     }
+
+    @PostMapping("/introduceApi/getOperationalDetail")
+    public ResultVO getOperationalDetail(@RequestBody TblMvnEnt tblMvnEnt) {
+        return introduceApiService.getOperationalDetail(tblMvnEnt);
+    }
 }

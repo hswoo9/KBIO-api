@@ -21,6 +21,7 @@ import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.ConsultDto;
 import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
+import egovframework.com.devjitsu.model.consult.TblDfclMttr;
 import egovframework.com.devjitsu.model.menu.MenuDto;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
@@ -34,6 +35,7 @@ import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnsltDtlRepository;
+import egovframework.com.devjitsu.repository.consult.TblDfclMttrRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
 import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
@@ -88,6 +90,7 @@ public class ConsultingApiService {
 
 
     private final TblCnsltAplyRepository tblCnsltAplyRepository;
+    private final TblDfclMttrRepository tblDfclMttrRepository;
     private final TblComFileRepository tblComFileRepository;
     private final TblCnsltDtlRepository tblCnsltDtlRepository;
 
@@ -191,6 +194,35 @@ public class ConsultingApiService {
                 tblCnsltDtl.setCnslttDsgnDt(LocalDateTime.now());
             }
             tblCnsltDtlRepository.save(tblCnsltDtl);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setDfclMttr(TblDfclMttr tblDfclMttr, List<MultipartFile> files) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            tblDfclMttrRepository.save(tblDfclMttr);
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("dfclMttr_" + tblDfclMttr.getDfclMttrSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                    fileUtil.devFileInf(
+                        files,
+                        "/dfclMttr/" + tblDfclMttr.getDfclMttrSn(),
+                        "dfclMttr_" + tblDfclMttr.getDfclMttrSn(),
+                        fileCnt
+                    )
+                );
+            }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
