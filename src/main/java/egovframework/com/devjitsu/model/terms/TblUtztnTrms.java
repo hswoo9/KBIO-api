@@ -21,7 +21,7 @@ public class TblUtztnTrms {
     @Comment("이용약관일련번호")
     private Long utztnTrmsSn;
 
-    @Column(name = "UTZTN_TRMS_CN", length = 4000)
+    @Column(name = "UTZTN_TRMS_CN", columnDefinition = "LONGTEXT")
     @Comment("이용약관내용")
     private String utztnTrmsCn;
 

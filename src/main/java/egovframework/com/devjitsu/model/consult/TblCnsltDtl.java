@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TBL_CNSLT_DTL")
+@Table(name = "TBL_CNSLT_DTL", catalog = "SCHM_BIO_CNSLT")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,10 +26,6 @@ public class TblCnsltDtl {
     @Comment("컨설팅신청일련번호")
     private long cnsltAplySn;
 
-    @Column(name = "DRCT_APLY_YN", nullable = false, columnDefinition = "CHAR(1) DEFAULT 'N'")
-    @Comment("직접신청여부")
-    private String drctAplyYn;
-
     @Column(name = "CNSLTT_USER_SN", length = 22)
     @Comment("컨설턴트사용자일련번호")
     private Integer cnslttUserSn;
@@ -40,7 +36,7 @@ public class TblCnsltDtl {
 
     @Column(name = "CNSLT_STTS_CD", length = 4, nullable = false, columnDefinition = "VARCHAR(4) DEFAULT '0'")
     @Comment("컨설팅상태")
-    private String cnsltSttsCd;
+    private String cnsltSttsCd = "101";
 
     @Column(name = "CNSLT_ACPT_DT")
     @Comment("컨설팅수락일")
@@ -56,7 +52,7 @@ public class TblCnsltDtl {
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
-    private String actvtnYn;
+    private String actvtnYn = "Y";
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")

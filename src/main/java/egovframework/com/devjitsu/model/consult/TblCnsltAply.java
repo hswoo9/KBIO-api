@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TBL_CNSLT_APLY")
+@Table(name = "TBL_CNSLT_APLY", catalog = "SCHM_BIO_CNSLT")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,6 +26,10 @@ public class TblCnsltAply {
     @Comment("컨설팅분야")
     private String cnsltFld;
 
+    @Column(name = "CNSLT_SE", length = 8, nullable = false, columnDefinition = "CHAR(8)")
+    @Comment("컨설팅구분")
+    private String cnsltSe;
+
     @Column(name = "USER_SN", length = 22, nullable = false, updatable = false)
     @Comment("사용자 일련번호")
     private long userSn;
@@ -40,7 +44,7 @@ public class TblCnsltAply {
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
-    private String actvtnYn;
+    private String actvtnYn = "Y";
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
