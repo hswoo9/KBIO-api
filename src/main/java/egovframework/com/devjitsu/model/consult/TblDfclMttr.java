@@ -28,7 +28,7 @@ public class TblDfclMttr {
 
     @Column(name = "DFCL_MTTR_FLD", length = 8, nullable = false, columnDefinition = "CHAR(8)")
     @Comment("애로사항분야")
-    private String dfclMttrFld;
+    private long dfclMttrFld;
 
     @Column(name = "TTL", length = 100, nullable = false)
     @Comment("제목")

@@ -1,19 +1,20 @@
-package egovframework.com.devjitsu.service.consult;
+package egovframework.com.devjitsu.service.operational;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
-import egovframework.com.devjitsu.model.common.QTblComFile;
+import egovframework.com.devjitsu.model.bbs.PstDto;
+import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.consult.TblCnsltAply;
-import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
+import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.user.QTblCnslttMbr;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.TblUser;
-import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnsltDtlRepository;
@@ -23,17 +24,15 @@ import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ConsultingAdminApiService {
+public class DiffAdminApiService {
 
     private final EntityManager em;
 
@@ -43,9 +42,7 @@ public class ConsultingAdminApiService {
     @Resource(name = "EgovFileMngUtil")
     private EgovFileMngUtil fileUtil;
 
-    private final TblCnsltAplyRepository tblCnsltAplyRepository;
     private final TblComFileRepository tblComFileRepository;
-    private final TblCnsltDtlRepository tblCnsltDtlRepository;
 
     /**
      * jpa 부등호
@@ -59,7 +56,8 @@ public class ConsultingAdminApiService {
      * BooleanBuilder builder = new BooleanBuilder();
      * builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
      */
-    public ResultVO getConsultingList(SearchDto dto) {
+
+    public ResultVO getDfclMttrList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
         PaginationInfo paginationInfo = new PaginationInfo();
 
@@ -72,73 +70,91 @@ public class ConsultingAdminApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             QTblUser qTblUser = QTblUser.tblUser;
-            QTblCnslttMbr qTblCnslttMbr = QTblCnslttMbr.tblCnslttMbr;
-            QTblCnsltAply qTblCnsltAply = QTblCnsltAply.tblCnsltAply;
-            QTblCnsltDtl qtblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+            QTblDfclMttr qTblDfclMttr = QTblDfclMttr.tblDfclMttr;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblCnsltAply.cnsltSe.eq((String) dto.get("cnsltSe")));
             if (!StringUtils.isEmpty(dto.get("startDt"))) {
                 builder.and(
-                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).goe(
-                            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("startDt"))
-                    )
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblDfclMttr.frstCrtDt).goe(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("startDt"))
+                        )
                 );
             }
             if (!StringUtils.isEmpty(dto.get("endDt"))) {
                 builder.and(
-                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).loe(
-                            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("endDt"))
-                    )
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblDfclMttr.frstCrtDt).loe(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("endDt"))
+                        )
                 );
             }
 
-            if (!StringUtils.isEmpty(dto.get("cnsltFld"))) {
-                builder.and(qTblCnsltAply.cnsltFld.eq((String) dto.get("cnsltFld")));
+            if (!StringUtils.isEmpty(dto.get("answerYn"))) {
+                if(dto.get("answerYn").equals("Y")){
+                    builder.and(qTblDfclMttr.ansCn.isNotNull());
+                }else if(dto.get("answerYn").equals("N")){
+                    builder.and(qTblDfclMttr.ansCn.isNull());
+                }
             }
 
-            if (!StringUtils.isEmpty(dto.get("cnsltSttsCd"))) {
-                builder.and(qtblCnsltDtl.cnsltSttsCd.eq((String) dto.get("cnsltSttsCd")));
+            if (!StringUtils.isEmpty(dto.get("dfclMttrFld"))) {
+                builder.and(qTblDfclMttr.dfclMttrFld.eq(Long.parseLong(dto.get("dfclMttrFld").toString())));
             }
 
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
-                if(dto.get("searchType").equals("kornFlnm")){
+                if(dto.get("searchType").equals("ttl")){
+                    builder.and(qTblDfclMttr.ttl.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("kornFlnm")){
                     builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
-                }else if(dto.get("searchType").equals("ogdpNm")){
-                    builder.and(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")));
-                }else if(dto.get("searchType").equals("jbpsNm")){
-                    builder.and(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("dfclMttrCn")){
+                    builder.and(qTblDfclMttr.dfclMttrCn.contains((String) dto.get("searchVal")));
                 }
             }else{
                 builder.and(
-                    qTblUser.kornFlnm.contains((String) dto.get("searchVal"))
-                    .or(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")))
-                    .or(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")))
+                    qTblDfclMttr.ttl.contains((String) dto.get("searchVal"))
+                    .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
+                    .or(qTblDfclMttr.dfclMttrCn.contains((String) dto.get("searchVal")))
                 );
             }
 
-            List<TblUser> consultantList = q.selectFrom(qTblUser)
+            List<DfclMttrDto> diffList = q
+                    .select(
+                        Projections.constructor(
+                        DfclMttrDto.class,
+                        qTblDfclMttr.dfclMttrSn,
+                        qTblDfclMttr.userSn,
+                        qTblDfclMttr.dfclMttrFld,
+                        qTblComCd.comCdNm,
+                        qTblDfclMttr.ttl,
+                        qTblUser.kornFlnm,
+                        qTblDfclMttr.frstCrtDt,
+                        new CaseBuilder()
+                                .when(qTblDfclMttr.ansCn.isNotNull().and(qTblDfclMttr.ansCn.ne("")))
+                                .then("Y")
+                                .otherwise("N")
+                        )
+                    ).from(qTblDfclMttr)
+                    .join(qTblUser).on(qTblDfclMttr.userSn.eq(qTblUser.userSn))
+                    .join(qTblComCd).on(qTblDfclMttr.dfclMttrFld.eq(qTblComCd.comCdSn))
                     .where(builder)
-//                    .join().on() 컨설턴트
-//                    .join().on() 컨설턴트 사진
                     .orderBy(qTblUser.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q.select(qTblUser.count())
-//                    .join().on() 컨설턴트
-//                    .join().on() 컨설턴트 사진
-                    .from(qTblUser)
+            Long totCnt = q.select(qTblDfclMttr.count())
+                    .from(qTblDfclMttr)
+                    .join(qTblUser).on(qTblDfclMttr.userSn.eq(qTblUser.userSn))
+                    .join(qTblComCd).on(qTblDfclMttr.dfclMttrFld.eq(qTblComCd.comCdSn))
                     .where(builder)
                     .fetchOne();
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            resultVO.putResult("consultantList", consultantList);
+            resultVO.putResult("diffList", diffList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
@@ -147,4 +163,5 @@ public class ConsultingAdminApiService {
         }
         return resultVO;
     }
+
 }
