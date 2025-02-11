@@ -1,6 +1,8 @@
 package egovframework.com.devjitsu.service.consult;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -16,13 +18,16 @@ import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.consult.ConsultDto;
 import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
 import egovframework.com.devjitsu.model.menu.MenuDto;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
 import egovframework.com.devjitsu.model.menu.TblMenu;
+import egovframework.com.devjitsu.model.user.QTblCnslttMbr;
 import egovframework.com.devjitsu.model.user.QTblUser;
+import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
@@ -62,6 +67,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -79,6 +85,7 @@ public class ConsultingApiService {
 
     @Resource(name = "EgovFileMngUtil")
     private EgovFileMngUtil fileUtil;
+
 
     private final TblCnsltAplyRepository tblCnsltAplyRepository;
     private final TblComFileRepository tblComFileRepository;
@@ -100,6 +107,7 @@ public class ConsultingApiService {
     public ResultVO getConsultantList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
         PaginationInfo paginationInfo = new PaginationInfo();
+        Map<String, Object> conditions = new HashMap<>();
 
         try {
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
@@ -110,6 +118,7 @@ public class ConsultingApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblCnslttMbr qTblCnslttMbr = QTblCnslttMbr.tblCnslttMbr;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             /** query DSL 조건 추가하는 방법 */
@@ -117,25 +126,33 @@ public class ConsultingApiService {
             if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
                 builder.and(qTblUser.kornFlnm.contains((String) dto.get("kornFlnm")));
             }
-//            if (!StringUtils.isEmpty(dto.get("ogdpNm"))) { //소속 검색조건
-//                builder.and(qTblUser.ogdpNm.eq((String) dto.get("ogdpNm")));
-//            }
+            if (!StringUtils.isEmpty(dto.get("ogdpNm"))) { //소속 검색조건
+                builder.and(qTblCnslttMbr.ogdpNm.eq((String) dto.get("ogdpNm")));
+            }
 
-            List<TblUser> consultantList = q.selectFrom(qTblUser)
-                    .where(builder)
-//                    .join().on() 컨설턴트
+           List<TblUser> consultantList = q.selectFrom(qTblUser)
+                    .join(qTblCnslttMbr).on(qTblUser.userSn.eq(qTblCnslttMbr.userSn)) //컨설턴트
 //                    .join().on() 컨설턴트 사진
+                    .where(builder)
                     .orderBy(qTblUser.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q.select(qTblUser.count())
-//                    .join().on() 컨설턴트
+
+            /*Long totCnt = q.select(qTblUser.count())
+                    .join(qTblCnslttMbr).on(qTblUser.userSn.eq(qTblCnslttMbr.userSn)) //컨설턴트
 //                    .join().on() 컨설턴트 사진
                     .from(qTblUser)
                     .where(builder)
+                    .fetchOne();*/
+
+            Long totCnt = q.select(qTblUser.count())
+                    .from(qTblUser)
+                    .join(qTblCnslttMbr).on(qTblUser.userSn.eq(qTblCnslttMbr.userSn))
+                    .where(builder)
                     .fetchOne();
+
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
