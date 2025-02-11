@@ -46,7 +46,7 @@ public class TblCnslttMbr {
     @Comment("컨설팅항목")
     private String cnsltArtcl;
 
-    @Column(name = "PST_CN", columnDefinition = "LONGTEXT")
+    @Column(name = "CNSLT_SLFINT", columnDefinition = "LONGTEXT")
     @Comment("컨설턴트소개")
     private String cnsltSlfint;
 }

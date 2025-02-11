@@ -5,10 +5,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.consult.TblCnslttMbr;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.*;
+import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
@@ -46,6 +48,7 @@ public class MemberApiService {
     private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
     private final TblUserRepository TblUserRepository;
     private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
+    private final TblCnslttMbrRepository tblCnslttMbrRepository;
     private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
 
     /**
@@ -141,6 +144,7 @@ public class MemberApiService {
         Object mbrTypeObj = dto.get("mbrType");
         Integer mbrType = (mbrTypeObj instanceof Integer) ? (Integer) mbrTypeObj : null;
 
+        //입주기업회원
         if (Integer.valueOf(1).equals(mbrType)) {
             TblMvnEntMbr mvnEntMbr = new TblMvnEntMbr();
 
@@ -153,6 +157,21 @@ public class MemberApiService {
 
 
             tblMvnEntMbrRepository.save(mvnEntMbr);
+
+        //컨설턴트회원
+        } else if(Integer.valueOf(2).equals(mbrType)) {
+            TblCnslttMbr tblCnslttMbr = new TblCnslttMbr();
+
+            tblCnslttMbr.setUserSn(userSn);
+            tblCnslttMbr.setCnsltActv((String) dto.get("cnsltActv"));
+            tblCnslttMbr.setOgdpNm((String) dto.get("ogdpNm"));
+            tblCnslttMbr.setJbpsNm((String) dto.get("jbpsNm"));
+            tblCnslttMbr.setCrrPrd(Integer.parseInt(dto.get("crrPrd").toString()) );
+            tblCnslttMbr.setCnsltFld((String) dto.get("cnsltFld"));
+            tblCnslttMbr.setCnsltArtcl((String) dto.get("cnsltArtcl"));
+            tblCnslttMbr.setCnsltSlfint((String) dto.get("cnsltSlfint"));
+
+            tblCnslttMbrRepository.save(tblCnslttMbr);
         }
 
 
