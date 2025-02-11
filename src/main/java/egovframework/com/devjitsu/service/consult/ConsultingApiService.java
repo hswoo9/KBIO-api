@@ -17,6 +17,7 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.TblCnsltAply;
+import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
 import egovframework.com.devjitsu.model.menu.MenuDto;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
@@ -26,6 +27,8 @@ import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
+import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
+import egovframework.com.devjitsu.repository.consult.TblCnsltDtlRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
 import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
@@ -57,6 +60,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +79,10 @@ public class ConsultingApiService {
 
     @Resource(name = "EgovFileMngUtil")
     private EgovFileMngUtil fileUtil;
+
+    private final TblCnsltAplyRepository tblCnsltAplyRepository;
+    private final TblComFileRepository tblComFileRepository;
+    private final TblCnsltDtlRepository tblCnsltDtlRepository;
 
     /**
      * jpa 부등호
@@ -141,57 +149,31 @@ public class ConsultingApiService {
         return resultVO;
     }
 
-    public ResultVO setConsulting(TblCnsltAply tblCnsltAply, List<MultipartFile> files) {
+    public ResultVO setConsulting(TblCnsltAply tblCnsltAply, TblCnsltDtl tblCnsltDtl, List<MultipartFile> files) {
         ResultVO resultVO = new ResultVO();
 
         try {
-
-            QTblPst qTblPst = QTblPst.tblPst;
             QTblComFile qTblComFile = QTblComFile.tblComFile;
-
             JPAQueryFactory q = new JPAQueryFactory(em);
 
-//            if(!StringUtils.isEmpty(tblPst.getUpPstSn())) {
-//                TblPst orgnlPst = q.selectFrom(qTblPst).where(qTblPst.pstSn.eq(tblPst.getUpPstSn())).fetchOne();
-//                if(orgnlPst.getRlsYn().equals("Y")) {
-//                    tblPst.setRlsYn(orgnlPst.getRlsYn());
-//                    tblPst.setPrvtPswd(orgnlPst.getPrvtPswd());
-//                }
-//
-//                if(StringUtils.isEmpty(tblPst.getAnsStp())){
-//                    NumberPath<Integer> maxAnsStp = qTblPst.ansStp;
-//                    JPAQuery<Integer> query = q
-//                            .select(Expressions.numberTemplate(Integer.class, "COALESCE(MAX({0}), 0) + 1", maxAnsStp))
-//                            .from(qTblPst)
-//                            .where(qTblPst.bbsSn.eq(tblPst.getBbsSn())
-//                                    .and(qTblPst.pstGroup.eq(tblPst.getPstGroup())));
-//                    Integer nextAnsStp = query.fetchOne();
-//                    tblPst.setAnsStp(nextAnsStp);
-//                }
-//            }
-//
-//            if(StringUtils.isEmpty(tblPst.getPstGroup())){
-//                /** 등록 */
-//                NumberPath<Long> maxArticleGroup = qTblPst.pstGroup;
-//                JPAQuery<Integer> group  = q
-//                        .select(Expressions.numberTemplate(Integer.class, "COALESCE(MAX({0}), 0) + 1", maxArticleGroup))
-//                        .from(qTblPst)
-//                        .where(qTblPst.bbsSn.eq(tblPst.getBbsSn()));
-//                tblPst.setPstGroup(Long.valueOf(group.fetchOne()));
-//            }
-//
-//            tblPstRepository.save(tblPst);
-//            if(files != null){
-//                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("pst_" + tblPst.getPstSn())).fetchCount();
-//                tblComFileRepository.saveAll(
-//                        fileUtil.devFileInf(
-//                                files,
-//                                "/bbs/" + tblPst.getBbsSn() + "/pst/" + tblPst.getPstSn(),
-//                                "pst_" + tblPst.getPstSn(),
-//                                fileCnt
-//                        )
-//                );
-//            }
+            tblCnsltAplyRepository.save(tblCnsltAply);
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("consulting_" + tblCnsltAply.getCnsltAplySn())).fetchCount();
+                tblComFileRepository.saveAll(
+                    fileUtil.devFileInf(
+                            files,
+                            "/consulting/" + tblCnsltAply.getCnsltAplySn(),
+                            "consulting_" + tblCnsltAply.getCnsltAplySn(),
+                            fileCnt
+                    )
+                );
+            }
+
+            tblCnsltDtl.setCnsltAplySn(tblCnsltAply.getCnsltAplySn());
+            if(!StringUtils.isEmpty(tblCnsltDtl.getCnslttUserSn())){
+                tblCnsltDtl.setCnslttDsgnDt(LocalDateTime.now());
+            }
+            tblCnsltDtlRepository.save(tblCnsltDtl);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {

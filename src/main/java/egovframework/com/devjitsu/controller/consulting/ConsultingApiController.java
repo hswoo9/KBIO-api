@@ -5,6 +5,7 @@ import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.consult.TblCnsltAply;
+import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
 import egovframework.com.devjitsu.service.bbs.BbsAdminApiService;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import egovframework.com.devjitsu.service.consult.ConsultingApiService;
@@ -35,11 +36,18 @@ public class ConsultingApiController {
         return consultingApiService.getConsultantList(dto);
     }
 
-    @PostMapping("/consultingApi/setConsulting.do")
+    /**
+     * 컨설팅 신청 공통
+     * @param tblCnsltAply
+     * @param files
+     * @return
+     */
+    @PostMapping("/consultingApi/setConsulting")
     public ResultVO setConsulting(
             @ModelAttribute TblCnsltAply tblCnsltAply,
+            @ModelAttribute TblCnsltDtl tblCnsltDtl,
             @RequestParam(value = "files", required = false) List<MultipartFile> files) {
-        return consultingApiService.setConsulting(tblCnsltAply, files);
+        return consultingApiService.setConsulting(tblCnsltAply, tblCnsltDtl, files);
     }
 
 }
