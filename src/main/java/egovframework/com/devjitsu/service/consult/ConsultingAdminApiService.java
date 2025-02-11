@@ -80,7 +80,7 @@ public class ConsultingAdminApiService {
 
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblCnsltAply.cnsltSe.eq((String) dto.get("cnsltSttsCd")));
+            builder.and(qTblCnsltAply.cnsltSe.eq((String) dto.get("cnsltSe")));
             if (!StringUtils.isEmpty(dto.get("startDt"))) {
                 builder.and(
                     Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).loe(
