@@ -37,6 +37,12 @@ public class ConsultingApiController {
         return consultingApiService.getConsultantList(dto);
     }
 
+    @PostMapping("/consultingApi/getConsultantDetail.do")
+    public ResultVO getConsultantDetail(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return consultingApiService.getConsultantDetail(dto);
+    }
+
     /**
      * 컨설팅 신청
      * @param tblCnsltAply

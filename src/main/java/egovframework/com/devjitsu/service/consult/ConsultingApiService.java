@@ -35,9 +35,11 @@ import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnsltDtlRepository;
+import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
 import egovframework.com.devjitsu.repository.consult.TblDfclMttrRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
+import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.devjitsu.service.menu.MenuAuthGroupApiService;
@@ -92,6 +94,8 @@ public class ConsultingApiService {
     private final TblCnsltAplyRepository tblCnsltAplyRepository;
     private final TblDfclMttrRepository tblDfclMttrRepository;
     private final TblComFileRepository tblComFileRepository;
+    private final TblUserRepository tblUserRepository;
+    private final TblCnslttMbrRepository tblCnslttMbrRepository;
     private final TblCnsltDtlRepository tblCnsltDtlRepository;
 
     /**
@@ -150,7 +154,7 @@ public class ConsultingApiService {
 /*                    .join(qTblComFile)
                     .on(
                             qTblComFile.psnTblSn.eq(
-                                    Expressions.stringTemplate("CONCAT()")
+                                    Expressions.stringTemplate("CONCAT()") //사진
                             )
                     )*/
                     .where(builder)
@@ -183,6 +187,26 @@ public class ConsultingApiService {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
+        return resultVO;
+    }
+
+    public ResultVO getConsultantDetail(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            TblUser tblUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
+            TblCnslttMbr tblCnslttMbr = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
+
+
+
+            resultVO.putResult("memberDetail",tblUser);
+            resultVO.putResult("consultant",tblCnslttMbr);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
         return resultVO;
     }
 
