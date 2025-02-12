@@ -10,7 +10,9 @@ import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.PstDto;
 import egovframework.com.devjitsu.model.common.QTblComCd;
+import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.user.QTblCnslttMbr;
 import egovframework.com.devjitsu.model.user.QTblUser;
@@ -18,12 +20,14 @@ import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnsltDtlRepository;
+import egovframework.com.devjitsu.repository.consult.TblDfclMttrRepository;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -43,6 +47,7 @@ public class DiffAdminApiService {
     private EgovFileMngUtil fileUtil;
 
     private final TblComFileRepository tblComFileRepository;
+    private final TblDfclMttrRepository tblDfclMttrRepository;
 
     /**
      * jpa 부등호
@@ -164,4 +169,58 @@ public class DiffAdminApiService {
         return resultVO;
     }
 
+    public ResultVO getDfclMttr(TblDfclMttr tblDfclMttr) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            tblDfclMttr = tblDfclMttrRepository.findByDfclMttrSn(tblDfclMttr.getDfclMttrSn());
+            tblDfclMttr.setKornFlnm(q.select(qTblUser.kornFlnm).from(qTblUser).where(qTblUser.userSn.eq(tblDfclMttr.getUserSn())).fetchOne());
+            tblDfclMttr.setDfclMttrFldNm(q.select(qTblComCd.comCdNm).from(qTblComCd).where(qTblComCd.comCdSn.eq(tblDfclMttr.getDfclMttrFld())).fetchOne());
+            tblDfclMttr.setDiffFiles(q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("dfclMttr_" + tblDfclMttr.getDfclMttrSn())).fetch());
+            tblDfclMttr.setAnswerFiles(q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("dfclMttrAnswer_" + tblDfclMttr.getDfclMttrSn())).fetch());
+
+            resultVO.putResult("dfclMttr", tblDfclMttr);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setDfclMttrAnswer(TblDfclMttr tblDfclMttr, List<MultipartFile> files) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            tblDfclMttrRepository.save(tblDfclMttr);
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("dfclMttrAnswer_" + tblDfclMttr.getDfclMttrSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                    fileUtil.devFileInf(
+                        files,
+                        "/dfclMttr/" + tblDfclMttr.getDfclMttrSn() + "/answer",
+                        "dfclMttrAnswer_" + tblDfclMttr.getDfclMttrSn(),
+                        fileCnt
+                    )
+                );
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
 }
