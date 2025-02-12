@@ -11,7 +11,10 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import com.google.analytics.data.v1beta.*;
+import egovframework.com.devjitsu.model.bbs.QTblBbs;
+import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.statistics.StatisticsPstAccessDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserAccessDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserDto;
 import egovframework.com.devjitsu.model.user.QTblUser;
@@ -344,6 +347,49 @@ public class StatisticsAdminApiService {
                     .fetch();
 
             resultVO.putResult("statisticsUserAccess", statisticsUserAccess);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getStatisticsPstAccess(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QTblPst qTblPst = QTblPst.tblPst;
+
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qTblPst.bbsSn.eq(Long.valueOf(dto.get("bbsSn").toString()))).and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y')", qTblPst.frstCrtDt).eq(
+                    Expressions.stringTemplate("{0}", dto.get("searchYear"))
+                )
+            ).and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%m')", qTblPst.frstCrtDt).eq(
+                    Expressions.stringTemplate("{0}", dto.get("searchMonth"))
+                )
+            );
+
+            StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.frstCrtDt);
+            List<StatisticsPstAccessDto> statisticsPstAccess = q
+                    .select(
+                        Projections.constructor(
+                            StatisticsPstAccessDto.class,
+                            dayFormat,
+                            qTblPst.pstInqCnt.sum().nullif(0L)
+                        )
+                    )
+                    .from(qTblPst)
+                    .where(builder)
+                    .groupBy(dayFormat)
+                    .orderBy(dayFormat.asc())
+                    .fetch();
+
+            resultVO.putResult("statisticsPstAccess", statisticsPstAccess);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
             e.printStackTrace();
