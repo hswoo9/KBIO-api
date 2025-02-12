@@ -33,9 +33,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 import javax.mail.*;
@@ -567,6 +569,39 @@ public class MemberApiService {
         }catch (Exception e){
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setDifficultiesData(TblDfclMttr tblDfclMttr, List<MultipartFile> files) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            if(tblDfclMttr.getAnsRegDt() == null) {
+                tblDfclMttr.setAnsRegDt(LocalDateTime.now());
+            }
+            tblDfclMttrRepository.save(tblDfclMttr);
+
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("dfclMttrAnswer_" + tblDfclMttr.getDfclMttrSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                files,
+                                "/dfclMttr/" + tblDfclMttr.getDfclMttrSn(),
+                                "dfclMttr_" + tblDfclMttr.getDfclMttrSn(),
+                                fileCnt
+                        )
+                );
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
         return resultVO;

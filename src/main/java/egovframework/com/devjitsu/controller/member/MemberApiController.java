@@ -22,11 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -204,6 +206,13 @@ public class MemberApiController {
     @PostMapping("/memberApi/getDifficultiesDetail")
     public ResultVO getDifficultiesDetail(@RequestBody TblDfclMttr tblDfclMttr) {
         return memberApiService.getDifficultiesDetail(tblDfclMttr);
+    }
+
+    @PostMapping("/memberApi/setDifficultiesData")
+    public ResultVO setDifficultiesData(
+            @ModelAttribute TblDfclMttr tblDfclMttr,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+        return memberApiService.setDifficultiesData(tblDfclMttr, files);
     }
 
 }
