@@ -12,13 +12,12 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
-import egovframework.com.devjitsu.model.user.QTblCnslttMbr;
-import egovframework.com.devjitsu.model.user.QTblUser;
-import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
-import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
-import egovframework.com.devjitsu.repository.consult.TblCnsltDtlRepository;
+import egovframework.com.devjitsu.repository.consult.*;
+import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
+import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
@@ -48,6 +47,11 @@ public class ConsultingAdminApiService {
     private final TblCnsltAplyRepository tblCnsltAplyRepository;
     private final TblComFileRepository tblComFileRepository;
     private final TblCnsltDtlRepository tblCnsltDtlRepository;
+    private final TblUserRepository tblUserRepository;
+    private final TblCnslttMbrRepository tblCnslttMbrRepository;
+    private final TblDfclMttrRepository tblDfclMttrRepository;
+    private final TblCnsltDsctnRepository tblCnsltDsctnRepository;
+    private final TblMvnEntRepository tblMvnEntRepository;
 
     /**
      * jpa 부등호
@@ -218,4 +222,83 @@ public class ConsultingAdminApiService {
         }
         return resultVO;
     }
+
+    /**
+     SearchDto
+         userSn : 신청자sn
+         cnsltAplySn : 컨설팅신청sn
+         cnslttUserSn : 컨설턴트회원sn
+     **/
+    public ResultVO getConsultingDetail(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblCnsltAply qTblCnsltAply = QTblCnsltAply.tblCnsltAply;
+            QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn;
+            QTblCnsltDgstfn qTblCnsltDgstfn = QTblCnsltDgstfn.tblCnsltDgstfn;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            //컨설턴트 정보
+            TblUser consulttUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
+            TblCnslttMbr consulttDtl = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
+
+            resultVO.putResult("consulttUser", consulttUser);
+            resultVO.putResult("consulttDtl", consulttDtl);
+
+            //신청자 정보
+            TblUser tblUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
+            Long mvnEntSn = q
+                    .select(qTblMvnEntMbr.mvnEntSn)
+                    .from(qTblMvnEntMbr)
+                    .join(qTblUser).on(qTblMvnEntMbr.userSn.eq(qTblUser.userSn))
+                    .where(qTblUser.userSn.eq(Long.parseLong(dto.get("userSn").toString())))
+                    .fetchOne();
+
+                if (mvnEntSn != null) {
+                    TblMvnEnt tblMvnEnt = tblMvnEntRepository.findByMvnEntSn(mvnEntSn);
+                    resultVO.putResult("userCompDetail",tblMvnEnt);
+                }
+
+            resultVO.putResult("userDetail",tblUser);
+
+
+            //상담신청 정보
+            TblCnsltAply tblCnsltAply = q
+                    .selectFrom(qTblCnsltAply)
+                            .where(qTblCnsltAply.cnsltAplySn.eq(Long.parseLong(dto.get("cnsltAplySn").toString())))
+                                    .fetchOne();
+
+            resultVO.putResult("cnslt", tblCnsltAply);
+            //상담내역 정보
+            List<TblCnsltDsctn> tblCnsltDsctnList = q
+                    .selectFrom(qTblCnsltDsctn)
+                            .where(qTblCnsltDsctn.cnsltAplySn.eq(Long.parseLong(dto.get("cnsltAplySn").toString())))
+                                    .orderBy(qTblCnsltDsctn.frstCrtDt.desc()).fetch();
+
+
+                resultVO.putResult("cnsltDsctnList", tblCnsltDsctnList);
+
+
+
+            //만족도 정보
+            List<TblCnsltDgstfn> tblCnsltDgstfn = q
+                    .selectFrom(qTblCnsltDgstfn)
+                    .where(qTblCnsltDgstfn.cnsltAplySn.eq(Long.parseLong(dto.get("cnsltAplySn").toString())))
+                    .orderBy(qTblCnsltDgstfn.frstCrtDt.desc()).fetch();
+
+            if(!tblCnsltDgstfn.isEmpty()) {
+                resultVO.putResult("cnsltDgstfnList", tblCnsltDgstfn);
+            }
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+
+        } catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+
 }

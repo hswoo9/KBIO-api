@@ -32,4 +32,10 @@ public class ConsultingAdminApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return consultingAdminApiService.getConsultingList(dto);
     }
+
+    @PostMapping("/consultingApi/getConsultingDetail.do")
+    public ResultVO getConsultingDetail(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return consultingAdminApiService.getConsultingDetail(dto);
+    }
 }
