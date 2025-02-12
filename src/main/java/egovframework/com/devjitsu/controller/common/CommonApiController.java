@@ -1,5 +1,6 @@
 package egovframework.com.devjitsu.controller.common;
 
+import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.SearchDto;
@@ -143,4 +144,18 @@ public class CommonApiController {
     }
 
 
+    @PostMapping("/commonApi/getDuplicateLogin")
+    public ResultVO getDuplicateLogin(HttpServletRequest request) {
+        String duplicateLogin = request.getSession().getAttribute("duplicateLogin") == null ? "N" : (String) request.getSession().getAttribute("duplicateLogin");
+        ResultVO resultVO = new ResultVO();
+        if(duplicateLogin.equals("Y")){
+            request.getSession().invalidate();
+            resultVO.setResultCode(ResponseCode.DUPLICATE_LOGOUT.getCode());
+            resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGOUT.getMessage());
+        }
+
+        resultVO.putResult("duplicateLogin", duplicateLogin);
+
+        return resultVO;
+    }
 }
