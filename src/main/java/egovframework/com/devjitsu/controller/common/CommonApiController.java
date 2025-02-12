@@ -144,10 +144,15 @@ public class CommonApiController {
     }
 
 
-    @PostMapping("/commonApi/getDuplicateLogin")
+    @PostMapping("/commonApi/getDuplicateLogin.do")
     public ResultVO getDuplicateLogin(HttpServletRequest request) {
-        String duplicateLogin = request.getSession().getAttribute("duplicateLogin") == null ? "N" : (String) request.getSession().getAttribute("duplicateLogin");
-        ResultVO resultVO = new ResultVO();
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        String duplicateLogin = "N";
+        ResultVO resultVO = commonApiService.getRedisUserInfo(dto);
+        /*if(resultVO.getResult("rs") != null){
+            //TODO : JWT 토큰까지 같은지 확인 유무
+            duplicateLogin = "Y";
+        }*/
         if(duplicateLogin.equals("Y")){
             request.getSession().invalidate();
             resultVO.setResultCode(ResponseCode.DUPLICATE_LOGOUT.getCode());

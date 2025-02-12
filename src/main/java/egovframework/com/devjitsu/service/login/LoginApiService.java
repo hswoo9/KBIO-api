@@ -145,7 +145,7 @@ public class LoginApiService {
             }
 
 
-            UserSessionBinding exists = LoginUsers.getUser(tblUser.getUserId());
+            /*UserSessionBinding exists = LoginUsers.getUser(tblUser.getUserId());
             if(exists != null && !request.getSession().getId().equals(exists.getSessionId())){
                 if(dto.getConfirmPass().equals("N")){
                     resultVO.setResultCode(ResponseCode.DUPLICATE_LOGIN.getCode());
@@ -157,23 +157,23 @@ public class LoginApiService {
                 }
             }
 
-            UserSessionBinding user = new UserSessionBinding(tblUser.getUserId());
-
+            UserSessionBinding user = new UserSessionBinding(tblUser.getUserId());*/
+            String jwtToken = jwtTokenUtil.generateTokenJpa(tblUser);
             resultVO.putResult("userSn", tblUser.getUserSn());
             resultVO.putResult("userId", tblUser.getUserId());
             resultVO.putResult("userName", tblUser.getKornFlnm());
             resultVO.putResult("userSe", tblUser.getUserSn() == 1 ? "ADM" : "UDR");
-            resultVO.putResult("jToken", jwtTokenUtil.generateTokenJpa(tblUser));
+            resultVO.putResult("jToken", jwtToken);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
             request.getSession().setAttribute("userSn", tblUser.getUserSn());
-            request.getSession().setAttribute("user", user);
+            /*request.getSession().setAttribute("user", user);*/
 
             TblUserLgnHstry tblUserLgnHstry = new TblUserLgnHstry();
             tblUserLgnHstry.setUserSn(tblUser.getUserSn());
             tblUserLgnHstryRepository.save(tblUserLgnHstry);
 
-            redisApiService.setRedis(0, String.valueOf(tblUser.getUserSn()), resultVO, null);
+            redisApiService.setRedis(0, String.valueOf(tblUser.getUserSn()), jwtToken, null);
         }
 
         return resultVO;
