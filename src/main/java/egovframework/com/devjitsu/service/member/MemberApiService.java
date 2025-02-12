@@ -9,13 +9,16 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComCd;
+import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.consult.DfclMttrDto;
 import egovframework.com.devjitsu.model.consult.QTblDfclMttr;
+import egovframework.com.devjitsu.model.consult.TblDfclMttr;
 import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
+import egovframework.com.devjitsu.repository.consult.TblDfclMttrRepository;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
@@ -59,6 +62,7 @@ public class MemberApiService {
     private final TblCnslttMbrRepository tblCnslttMbrRepository;
     private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
     private final TblComFileRepository tblComFileRepository;
+    private final TblDfclMttrRepository tblDfclMttrRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -541,6 +545,30 @@ public class MemberApiService {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
+        return resultVO;
+    }
+
+    public ResultVO getDifficultiesDetail(TblDfclMttr tblDfclMttr) {
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            tblDfclMttr = tblDfclMttrRepository.findByDfclMttrSn(tblDfclMttr.getDfclMttrSn());
+            tblDfclMttr.setDfclMttrFldNm(q.select(qTblComCd.comCdNm).from(qTblComCd).where(qTblComCd.comCdSn.eq(tblDfclMttr.getDfclMttrFld())).fetchOne());
+            tblDfclMttr.setDiffFiles(q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("dfclMttr_" + tblDfclMttr.getDfclMttrSn())).fetch());
+            tblDfclMttr.setAnswerFiles(q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("dfclMttrAnswer_" + tblDfclMttr.getDfclMttrSn())).fetch());
+
+            resultVO.putResult("difficulties", tblDfclMttr);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
         return resultVO;
     }
 }

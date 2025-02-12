@@ -4,8 +4,10 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.consult.TblDfclMttr;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.QTblUser;
+import egovframework.com.devjitsu.model.user.TblMvnEnt;
 import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import egovframework.com.devjitsu.service.member.MemberApiService;
@@ -189,4 +191,19 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.getMypageDfclMttrList(dto);
     }
+
+    @Operation(
+            summary = "마이페이지 애로사항 상세보기 조회",
+            description = "마이페이지 애로사항 상세보기 조회",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "애로사항 상세보기 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "애로사항 상세보기 조회 실패")
+    })
+    @PostMapping("/memberApi/getDifficultiesDetail")
+    public ResultVO getDifficultiesDetail(@RequestBody TblDfclMttr tblDfclMttr) {
+        return memberApiService.getDifficultiesDetail(tblDfclMttr);
+    }
+
 }
