@@ -2,7 +2,6 @@ package egovframework.com.devjitsu.controller.member;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
-import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
@@ -175,4 +174,19 @@ public class MemberApiController {
         return memberApiService.myPageCancelMember(tblUser);
     }
 
+
+    @Operation(
+            summary = "마이페이지 애로사항 조회",
+            description = "마이페이지 애로사항 조회",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "애로사항 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "애로사항 조회 실패")
+    })
+    @PostMapping("/memeberApi/getMypageDfclMttrList.do")
+    public ResultVO getMypageDfclMttrList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.getMypageDfclMttrList(dto);
+    }
 }
