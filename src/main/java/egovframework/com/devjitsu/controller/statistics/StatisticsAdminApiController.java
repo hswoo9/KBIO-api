@@ -16,7 +16,7 @@ public class StatisticsAdminApiController {
     @Autowired
     private StatisticsAdminApiService statisticsAdminApiService;
 
-    @PostMapping("/admin/statisticsApi/getStatistics.do")
+    @PostMapping("/statisticsApi/getStatistics.do")
     public ResultVO consultStatistics(HttpServletRequest request) throws Exception {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
 
@@ -30,4 +30,14 @@ public class StatisticsAdminApiController {
 //        }
         return statisticsAdminApiService.getTypeStatistics(dto);
     }
+
+    @PostMapping("/statisticsApi/getStatisticsUser.do")
+    public ResultVO getStatisticsUser(HttpServletRequest request) throws Exception {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return statisticsAdminApiService.getStatisticsUser(dto);
+    }
+
+
+
+
 }
