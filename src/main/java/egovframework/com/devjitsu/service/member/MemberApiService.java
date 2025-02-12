@@ -1,11 +1,20 @@
 package egovframework.com.devjitsu.service.member;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
+import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.consult.DfclMttrDto;
+import egovframework.com.devjitsu.model.consult.QTblDfclMttr;
 import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.*;
+import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
@@ -15,12 +24,16 @@ import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
+import org.egovframe.rte.fdl.property.EgovPropertyService;
+import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.util.List;
 import java.util.Random;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -45,6 +58,13 @@ public class MemberApiService {
     private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
     private final TblCnslttMbrRepository tblCnslttMbrRepository;
     private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
+    private final TblComFileRepository tblComFileRepository;
+
+    @Resource(name = "propertiesService")
+    protected EgovPropertyService propertyService;
+
+    @Resource(name = "EgovFileMngUtil")
+    private EgovFileMngUtil fileUtil;
 
     /**
      * jpa 부등호
@@ -409,6 +429,118 @@ public class MemberApiService {
             resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
         }
 
+        return resultVO;
+    }
+
+    public ResultVO getMypageDfclMttrList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblDfclMttr qTblDfclMttr = QTblDfclMttr.tblDfclMttr;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            /** query DSL 조건 추가하는 방법 */
+            BooleanBuilder builder = new BooleanBuilder();
+
+            if (dto.get("userSn") == null) {
+                throw new IllegalArgumentException("userSn 값이 null입니다."); // 예외 처리
+            }
+
+            Long userSn = Long.parseLong(dto.get("userSn").toString());
+            builder.and(qTblDfclMttr.userSn.eq(userSn));
+
+            if (!StringUtils.isEmpty(dto.get("startDt"))) {
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblDfclMttr.frstCrtDt).goe(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("startDt"))
+                        )
+                );
+            }
+            if (!StringUtils.isEmpty(dto.get("endDt"))) {
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblDfclMttr.frstCrtDt).loe(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("endDt"))
+                        )
+                );
+            }
+
+            if (!StringUtils.isEmpty(dto.get("answerYn"))) {
+                if(dto.get("answerYn").equals("Y")){
+                    builder.and(qTblDfclMttr.ansCn.isNotNull());
+                }else if(dto.get("answerYn").equals("N")){
+                    builder.and(qTblDfclMttr.ansCn.isNull());
+                }
+            }
+            /*
+            if (!StringUtils.isEmpty(dto.get("dfclMttrFld"))) {
+                builder.and(qTblDfclMttr.dfclMttrFld.eq(Long.parseLong(dto.get("dfclMttrFld").toString())));
+            }*/
+
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("ttl")){
+                    builder.and(qTblDfclMttr.ttl.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("dfclMttrCn")){
+                    builder.and(qTblDfclMttr.dfclMttrCn.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblDfclMttr.ttl.contains((String) dto.get("searchVal"))
+                                .or(qTblDfclMttr.dfclMttrCn.contains((String) dto.get("searchVal")))
+                );
+            }
+
+            List<DfclMttrDto> diffList = q
+                    .select(
+                            Projections.constructor(
+                                    DfclMttrDto.class,
+                                    qTblDfclMttr.dfclMttrSn,
+                                    qTblDfclMttr.userSn,
+                                    qTblDfclMttr.dfclMttrFld,
+                                    qTblComCd.comCdNm,
+                                    qTblDfclMttr.ttl,
+                                    qTblUser.kornFlnm,
+                                    qTblDfclMttr.frstCrtDt,
+                                    new CaseBuilder()
+                                            .when(qTblDfclMttr.ansCn.isNotNull().and(qTblDfclMttr.ansCn.ne("")))
+                                            .then("Y")
+                                            .otherwise("N")
+                            )
+                    ).from(qTblDfclMttr)
+                    .join(qTblUser).on(qTblDfclMttr.userSn.eq(qTblUser.userSn))
+                    .join(qTblComCd).on(qTblDfclMttr.dfclMttrFld.eq(qTblComCd.comCdSn))
+                    .where(builder)
+                    .orderBy(qTblUser.frstCrtDt.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+            Long totCnt = q.select(qTblDfclMttr.count())
+                    .from(qTblDfclMttr)
+                    .join(qTblUser).on(qTblDfclMttr.userSn.eq(qTblUser.userSn))
+                    .join(qTblComCd).on(qTblDfclMttr.dfclMttrFld.eq(qTblComCd.comCdSn))
+                    .where(builder)
+                    .fetchOne();
+            if(totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            resultVO.putResult("diffList", diffList);
+            resultVO.putPaginationInfo(paginationInfo);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
         return resultVO;
     }
 }
