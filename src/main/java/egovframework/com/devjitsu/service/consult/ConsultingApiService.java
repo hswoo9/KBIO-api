@@ -216,8 +216,12 @@ public class ConsultingApiService {
         try {
             QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
-
+            TblCnsltAply saveTblCnsltAply =
             tblCnsltAplyRepository.save(tblCnsltAply);
+
+            saveTblCnsltAply.getCnsltAplySn();
+
+
             if(files != null){
                 long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("consulting_" + tblCnsltAply.getCnsltAplySn())).fetchCount();
                 tblComFileRepository.saveAll(
