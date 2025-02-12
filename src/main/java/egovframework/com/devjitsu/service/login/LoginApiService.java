@@ -15,7 +15,9 @@ import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.QTblUserSnsCertInfo;
 import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.TblUserLgnHstry;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
+import egovframework.com.devjitsu.repository.user.TblUserLgnHstryRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
 import egovframework.let.utl.sim.service.EgovFileScrty;
@@ -78,7 +80,7 @@ public class LoginApiService {
     private RedisApiService redisApiService;
 
     private final EntityManager em;
-    private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
+    private final TblUserLgnHstryRepository tblUserLgnHstryRepository;
     /**
      * jpa 부등호
      * gt : >
@@ -147,6 +149,11 @@ public class LoginApiService {
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
             request.getSession().setAttribute("userSn", tblUser.getUserSn());
+
+            TblUserLgnHstry tblUserLgnHstry = new TblUserLgnHstry();
+            tblUserLgnHstry.setUserSn(tblUser.getUserSn());
+            tblUserLgnHstryRepository.save(tblUserLgnHstry);
+
             redisApiService.setRedis(0, String.valueOf(tblUser.getUserSn()), resultVO, null);
         }
 

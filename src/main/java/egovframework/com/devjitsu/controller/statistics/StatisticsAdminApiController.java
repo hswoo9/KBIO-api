@@ -16,7 +16,7 @@ public class StatisticsAdminApiController {
     @Autowired
     private StatisticsAdminApiService statisticsAdminApiService;
 
-    @PostMapping("/admin/statisticsApi/getStatistics.do")
+    @PostMapping("/statisticsApi/getStatistics.do")
     public ResultVO consultStatistics(HttpServletRequest request) throws Exception {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
 
@@ -30,4 +30,29 @@ public class StatisticsAdminApiController {
 //        }
         return statisticsAdminApiService.getTypeStatistics(dto);
     }
+
+    /**
+     * 사용자 통계
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/statisticsApi/getStatisticsUser.do")
+    public ResultVO getStatisticsUser(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return statisticsAdminApiService.getStatisticsUser(dto);
+    }
+
+    /**
+     * 사용자 접속통계
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/statisticsApi/getStatisticsUserAccess.do")
+    public ResultVO getStatisticsUserAccess(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return statisticsAdminApiService.getStatisticsUserAccess(dto);
+    }
+
 }

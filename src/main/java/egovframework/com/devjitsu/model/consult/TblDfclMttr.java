@@ -46,6 +46,11 @@ public class TblDfclMttr {
     @Comment("답변내용")
     private String ansCn;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "ANS_REG_DT")
+    @Comment("답변일시")
+    private LocalDateTime ansRegDt;
+
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
     private String actvtnYn = "Y";
@@ -63,6 +68,7 @@ public class TblDfclMttr {
     @Comment("수정자일련번호")
     private Long mdfrSn;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
     private LocalDateTime mdfcnDt;

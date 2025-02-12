@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -202,7 +203,11 @@ public class DiffAdminApiService {
             QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
+            if(tblDfclMttr.getAnsRegDt() == null) {
+                tblDfclMttr.setAnsRegDt(LocalDateTime.now());
+            }
             tblDfclMttrRepository.save(tblDfclMttr);
+
             if(files != null){
                 long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("dfclMttrAnswer_" + tblDfclMttr.getDfclMttrSn())).fetchCount();
                 tblComFileRepository.saveAll(
