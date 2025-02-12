@@ -28,7 +28,7 @@ public class TblCnsltDtl {
 
     @Column(name = "CNSLTT_USER_SN", length = 22)
     @Comment("컨설턴트사용자일련번호")
-    private Integer cnslttUserSn;
+    private long cnslttUserSn;
 
     @Column(name = "CNSLTT_DSGN_DT")
     @Comment("컨설턴트지정일")

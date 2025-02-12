@@ -40,7 +40,7 @@ public class TblCnslttMbr {
 
     @Column(name = "CNSLT_FLD", length = 20)
     @Comment("자문분야")
-    private String cnsltFld;
+    private long cnsltFld;
 
     @Column(name = "CNSLT_ARTCL", length = 20)
     @Comment("컨설팅항목")
