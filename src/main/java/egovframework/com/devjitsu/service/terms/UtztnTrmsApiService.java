@@ -86,6 +86,8 @@ public class UtztnTrmsApiService {
                     .fetch();
             Long totCnt = q.select(qTblUtztnTrms.count())
                     .from(qTblUtztnTrms)
+                    .where(qTblUtztnTrms.useYn.in("Y", "N"))
+                    .where(qTblUtztnTrms.utztnTrmsKnd.eq("1"))
                     .where(builder)
                     .fetchOne();
             if (totCnt == null) totCnt = 0L;
@@ -180,6 +182,8 @@ public class UtztnTrmsApiService {
             Long totCnt = q.select(qTblUtztnTrms.count())
                     .from(qTblUtztnTrms)
                     .where(builder)
+                    .where(qTblUtztnTrms.useYn.in("Y", "N"))
+                    .where(qTblUtztnTrms.utztnTrmsKnd.eq("2"))
                     .fetchOne();
             if (totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());

@@ -4,8 +4,10 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.consult.TblDfclMttr;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.QTblUser;
+import egovframework.com.devjitsu.model.user.TblMvnEnt;
 import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import egovframework.com.devjitsu.service.member.MemberApiService;
@@ -20,11 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -189,4 +193,26 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.getMypageDfclMttrList(dto);
     }
+
+    @Operation(
+            summary = "마이페이지 애로사항 상세보기 조회",
+            description = "마이페이지 애로사항 상세보기 조회",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "애로사항 상세보기 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "애로사항 상세보기 조회 실패")
+    })
+    @PostMapping("/memberApi/getDifficultiesDetail")
+    public ResultVO getDifficultiesDetail(@RequestBody TblDfclMttr tblDfclMttr) {
+        return memberApiService.getDifficultiesDetail(tblDfclMttr);
+    }
+
+    @PostMapping("/memberApi/setDifficultiesData")
+    public ResultVO setDifficultiesData(
+            @ModelAttribute TblDfclMttr tblDfclMttr,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+        return memberApiService.setDifficultiesData(tblDfclMttr, files);
+    }
+
 }
