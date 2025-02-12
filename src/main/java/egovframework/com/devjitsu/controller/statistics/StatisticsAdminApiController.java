@@ -55,4 +55,17 @@ public class StatisticsAdminApiController {
         return statisticsAdminApiService.getStatisticsUserAccess(dto);
     }
 
+
+    /**
+     * 게시물 접속통계
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/statisticsApi/getStatisticsPstAccess.do")
+    public ResultVO getStatisticsPstAccess(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return statisticsAdminApiService.getStatisticsPstAccess(dto);
+    }
+
 }

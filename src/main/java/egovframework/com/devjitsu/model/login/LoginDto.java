@@ -10,6 +10,7 @@ public class LoginDto {
     private String id;
     private String password;
     private String loginType;
+    private String confirmPass;
     private String snsType;
     private String code;
 
