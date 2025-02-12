@@ -1,7 +1,9 @@
 package egovframework.com.devjitsu.service.consult;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
@@ -71,16 +73,18 @@ public class ConsultingAdminApiService {
             paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
-            QTblUser qTblUser = QTblUser.tblUser;
-            QTblCnslttMbr qTblCnslttMbr = QTblCnslttMbr.tblCnslttMbr;
-            QTblCnsltAply qTblCnsltAply = QTblCnsltAply.tblCnsltAply;
-            QTblCnsltDtl qtblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+            QTblUser qTblUser = QTblUser.tblUser; //회원테이블
+            QTblCnslttMbr qTblCnslttMbr = QTblCnslttMbr.tblCnslttMbr; //컨설턴트회원
+            QTblCnsltAply qTblCnsltAply = QTblCnsltAply.tblCnsltAply; //컨설팅신청
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl; //컨설팅상세
+            QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn; //컨설팅내역
+            QTblCnsltDgstfn qTblCnsltDgstfn = QTblCnsltDgstfn.tblCnsltDgstfn; //만족도
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblCnsltAply.cnsltSe.eq((String) dto.get("cnsltSe")));
+            builder.and(qTblCnsltAply.cnsltSe.eq(Long.valueOf(dto.get("cnsltSe").toString())));
             if (!StringUtils.isEmpty(dto.get("startDt"))) {
                 builder.and(
                     Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).goe(
@@ -97,11 +101,11 @@ public class ConsultingAdminApiService {
             }
 
             if (!StringUtils.isEmpty(dto.get("cnsltFld"))) {
-                builder.and(qTblCnsltAply.cnsltFld.eq((String) dto.get("cnsltFld")));
+                builder.and(qTblCnsltAply.cnsltFld.eq(Long.valueOf((String) dto.get("cnsltFld"))));
             }
 
             if (!StringUtils.isEmpty(dto.get("cnsltSttsCd"))) {
-                builder.and(qtblCnsltDtl.cnsltSttsCd.eq((String) dto.get("cnsltSttsCd")));
+                builder.and(qTblCnsltDtl.cnsltSttsCd.eq((String) dto.get("cnsltSttsCd")));
             }
 
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
@@ -120,21 +124,88 @@ public class ConsultingAdminApiService {
                 );
             }
 
-            List<TblUser> consultantList = q.selectFrom(qTblUser)
+          List<ConsultingDTO> consultantList = q.
+                  select(
+                         Projections.constructor(
+                         ConsultingDTO.class,
+                         qTblCnsltAply.cnsltAplySn,
+                         qTblCnsltAply.userSn,
+                         qTblCnsltDtl.cnslttUserSn,
+                         qTblUser.kornFlnm,
+                         JPAExpressions
+                                 .select(qTblUser.kornFlnm)
+                                 .from(qTblUser)
+                                 .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),
+                          qTblCnsltAply.frstCrtDt,
+                          qTblCnsltAply.cnsltFld,
+                          qTblCnslttMbr.ogdpNm,
+                          qTblCnsltDtl.cnsltSttsCd,
+                          JPAExpressions
+                                .select(qTblCnsltDgstfn.dgstfnArtcl.coalesce("미등록"))
+                                .from(qTblCnsltDgstfn)
+                                .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
+                         qTblCnsltAply.ttl
+                          )
+                  ).from(qTblCnsltAply)
+
+                    //조인
+                  .join(qTblCnsltDtl)
+                  .on(
+                          qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn)
+                  )
+                  .join(qTblUser)
+                  .on(
+                          qTblCnsltAply.userSn.eq(qTblUser.userSn)
+                  )
+                  .join(qTblCnslttMbr)
+                  .on(
+                          qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn)
+                  )
+                  /*.join(qTblCnsltDgstfn)
+                  .on(
+                          qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)
+                  )*/
                     .where(builder)
-//                    .join().on() 컨설턴트
-//                    .join().on() 컨설턴트 사진
-                    .orderBy(qTblUser.frstCrtDt.desc())
+                    .orderBy(qTblCnsltAply.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q.select(qTblUser.count())
+            /**
+             private long cnsltAplySn;
+             private long userSn;
+             private long cnslttUserSn;
+             private String kornFlnm;
+             private String cnslttKornFlnm;
+             private LocalDateTime frstCrtDt;
+             private String cnsltArtcl;
+             private String ogdpNm;
+             private String cnsltSttsCd;
+             private String dgstfnArtcl;
+             **/
+
+
+
+            System.out.println("*****searchDto******" + dto);
+            System.out.println("*****consultantList******" + consultantList);
+
+
+/*            Long totCnt = q.select(qTblUser.count())
 //                    .join().on() 컨설턴트
 //                    .join().on() 컨설턴트 사진
                     .from(qTblUser)
                     .where(builder)
+                    .fetchOne();*/
+            Long totCnt = q
+                    .select(qTblCnsltAply.count())
+                    .from(qTblCnsltAply)
+                    .join(qTblCnsltDtl).on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
+                    .join(qTblUser).on(qTblCnsltAply.userSn.eq(qTblUser.userSn))
+                    .join(qTblCnslttMbr).on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
+                    .where(builder)
                     .fetchOne();
+
+
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 

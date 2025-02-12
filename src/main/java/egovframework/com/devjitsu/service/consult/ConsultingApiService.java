@@ -18,10 +18,7 @@ import egovframework.com.devjitsu.model.common.QTblComCdGroup;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
-import egovframework.com.devjitsu.model.consult.ConsultDto;
-import egovframework.com.devjitsu.model.consult.TblCnsltAply;
-import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
-import egovframework.com.devjitsu.model.consult.TblDfclMttr;
+import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.menu.MenuDto;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
@@ -33,10 +30,7 @@ import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
-import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
-import egovframework.com.devjitsu.repository.consult.TblCnsltDtlRepository;
-import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
-import egovframework.com.devjitsu.repository.consult.TblDfclMttrRepository;
+import egovframework.com.devjitsu.repository.consult.*;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
@@ -97,6 +91,7 @@ public class ConsultingApiService {
     private final TblUserRepository tblUserRepository;
     private final TblCnslttMbrRepository tblCnslttMbrRepository;
     private final TblCnsltDtlRepository tblCnsltDtlRepository;
+    private final TblCnsltDsctnRepository tblCnsltDsctnRepository;
 
     /**
      * jpa 부등호
@@ -239,6 +234,16 @@ public class ConsultingApiService {
                 tblCnsltDtl.setCnslttDsgnDt(LocalDateTime.now());
             }
             tblCnsltDtlRepository.save(tblCnsltDtl);
+
+            TblCnsltDsctn tblCnsltDsctn = new TblCnsltDsctn();
+            tblCnsltDsctn.setCnsltAplySn((tblCnsltAply.getCnsltAplySn()));
+            tblCnsltDsctn.setDsctnSe("0");
+            tblCnsltDsctn.setCn(tblCnsltAply.getCn());
+            tblCnsltDsctn.setCreatrSn(tblCnsltAply.getUserSn());
+            tblCnsltDsctn.setActvtnYn("Y");
+            tblCnsltDsctnRepository.save(tblCnsltDsctn);
+
+
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {

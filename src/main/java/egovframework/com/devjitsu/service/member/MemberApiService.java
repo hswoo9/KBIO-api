@@ -196,7 +196,7 @@ public class MemberApiService {
             tblCnslttMbr.setOgdpNm((String) dto.get("ogdpNm"));
             tblCnslttMbr.setJbpsNm((String) dto.get("jbpsNm"));
             tblCnslttMbr.setCrrPrd(Integer.parseInt(dto.get("crrPrd").toString()) );
-            tblCnslttMbr.setCnsltFld((String) dto.get("cnsltFld"));
+            tblCnslttMbr.setCnsltFld(Long.parseLong((String) dto.get("cnsltFld")));
             tblCnslttMbr.setCnsltArtcl((String) dto.get("cnsltArtcl"));
             tblCnslttMbr.setCnsltSlfint((String) dto.get("cnsltSlfint"));
 
