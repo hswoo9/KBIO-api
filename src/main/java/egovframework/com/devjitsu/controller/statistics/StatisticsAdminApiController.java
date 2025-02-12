@@ -31,13 +31,28 @@ public class StatisticsAdminApiController {
         return statisticsAdminApiService.getTypeStatistics(dto);
     }
 
+    /**
+     * 사용자 통계
+     * @param request
+     * @return
+     * @throws Exception
+     */
     @PostMapping("/statisticsApi/getStatisticsUser.do")
-    public ResultVO getStatisticsUser(HttpServletRequest request) throws Exception {
+    public ResultVO getStatisticsUser(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return statisticsAdminApiService.getStatisticsUser(dto);
     }
 
-
-
+    /**
+     * 사용자 접속통계
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/statisticsApi/getStatisticsUserAccess.do")
+    public ResultVO getStatisticsUserAccess(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return statisticsAdminApiService.getStatisticsUserAccess(dto);
+    }
 
 }

@@ -6,13 +6,16 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import com.google.analytics.data.v1beta.*;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.statistics.StatisticsUserAccessDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserDto;
 import egovframework.com.devjitsu.model.user.QTblUser;
+import egovframework.com.devjitsu.model.user.QTblUserLgnHstry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
@@ -22,7 +25,6 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -248,23 +250,18 @@ public class StatisticsAdminApiService {
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(
                 qTblUser.mbrType.eq(1L).or(qTblUser.mbrType.eq(2L)).or(qTblUser.mbrType.eq(3L)).or(qTblUser.mbrType.eq(4L))
-            ).and(qTblUser.joinYmd.isNotNull());
-
-            if(!StringUtils.isEmpty(dto.get("searchYear"))){
-                builder.and(
-                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y')", qTblUser.joinYmd).goe(
-                            Expressions.stringTemplate("{0}", dto.get("searchYear"))
-                    )
-                );
-            }
-
-            if(!StringUtils.isEmpty(dto.get("searchMonth"))){
-                builder.and(
-                        Expressions.stringTemplate("DATE_FORMAT({0}, '%m')", qTblUser.joinYmd).goe(
-                                Expressions.stringTemplate("{0}", dto.get("searchMonth"))
-                        )
-                );
-            }
+            ).and(
+                qTblUser.joinYmd.isNotNull()
+            )
+            .and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y')", qTblUser.joinYmd).goe(
+                    Expressions.stringTemplate("{0}", dto.get("searchYear"))
+                )
+            ).and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%m')", qTblUser.joinYmd).goe(
+                    Expressions.stringTemplate("{0}", dto.get("searchMonth"))
+                )
+            );
 
             List<StatisticsUserDto> statisticsUser = q
                     .select(
@@ -289,6 +286,64 @@ public class StatisticsAdminApiService {
                     .fetch();
 
             resultVO.putResult("statisticsUser", statisticsUser);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getStatisticsUserAccess(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry = QTblUserLgnHstry.tblUserLgnHstry;
+
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(
+                qTblUser.mbrType.eq(1L).or(qTblUser.mbrType.eq(2L)).or(qTblUser.mbrType.eq(3L)).or(qTblUser.mbrType.eq(4L))
+            ).and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y')", qTblUserLgnHstry.lgnDt).eq(
+                    Expressions.stringTemplate("{0}", dto.get("searchYear"))
+                )
+            ).and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%m')", qTblUserLgnHstry.lgnDt).eq(
+                    Expressions.stringTemplate("{0}", dto.get("searchMonth"))
+                )
+            );
+
+            if(!StringUtils.isEmpty(dto.get("mbrType"))){
+                builder.and(qTblUser.mbrType.eq(Long.valueOf(dto.get("mbrType").toString())));
+            }
+
+            StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblUserLgnHstry.lgnDt);
+            List<StatisticsUserAccessDto> statisticsUserAccess = q
+                    .select(
+                        Projections.constructor(
+                            StatisticsUserAccessDto.class,
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 3 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType3Count"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 4 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType4Count"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 2 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType2Count"),
+                            dayFormat
+                        )
+                    )
+                    .from(qTblUserLgnHstry)
+                    .join(qTblUser).on(qTblUser.userSn.eq(qTblUserLgnHstry.userSn))
+                    .where(builder)
+                    .groupBy(dayFormat)
+                    .orderBy(dayFormat.asc())
+                    .fetch();
+
+            resultVO.putResult("statisticsUserAccess", statisticsUserAccess);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
             e.printStackTrace();
