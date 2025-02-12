@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TblDfclMttrRepository extends JpaRepository<TblDfclMttr, String> {
 
+    TblDfclMttr findByDfclMttrSn(long dfclMttrSn);
 }

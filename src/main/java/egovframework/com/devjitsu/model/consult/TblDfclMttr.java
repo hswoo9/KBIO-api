@@ -1,5 +1,7 @@
 package egovframework.com.devjitsu.model.consult;
 
+import egovframework.com.devjitsu.model.common.TblComCd;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +10,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "TBL_DFCL_MTTR", catalog = "SCHM_BIO_CNSLT")
@@ -62,4 +66,17 @@ public class TblDfclMttr {
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
+
+    @Transient
+    private String kornFlnm;
+
+    @Transient
+    private String dfclMttrFldNm;
+
+    @Transient
+    private List<TblComFile> diffFiles;
+
+    @Transient
+    private List<TblComFile> answerFiles;
+
 }
