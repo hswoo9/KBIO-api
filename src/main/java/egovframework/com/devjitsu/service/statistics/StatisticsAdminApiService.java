@@ -253,7 +253,7 @@ public class StatisticsAdminApiService {
             if(!StringUtils.isEmpty(dto.get("searchYear"))){
                 builder.and(
                     Expressions.stringTemplate("DATE_FORMAT({0}, '%Y')", qTblUser.joinYmd).goe(
-                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y')", dto.get("searchYear"))
+                            Expressions.stringTemplate("{0}", dto.get("searchYear"))
                     )
                 );
             }
@@ -261,7 +261,7 @@ public class StatisticsAdminApiService {
             if(!StringUtils.isEmpty(dto.get("searchMonth"))){
                 builder.and(
                         Expressions.stringTemplate("DATE_FORMAT({0}, '%m')", qTblUser.joinYmd).goe(
-                                Expressions.stringTemplate("DATE_FORMAT({0}, '%m')", dto.get("searchMonth"))
+                                Expressions.stringTemplate("{0}", dto.get("searchMonth"))
                         )
                 );
             }
