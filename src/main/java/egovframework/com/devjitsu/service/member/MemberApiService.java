@@ -16,6 +16,7 @@ import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
+import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
 import egovframework.com.devjitsu.repository.consult.TblDfclMttrRepository;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
@@ -64,6 +65,7 @@ public class MemberApiService {
     private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
     private final TblComFileRepository tblComFileRepository;
     private final TblDfclMttrRepository tblDfclMttrRepository;
+    private final TblCnsltAplyRepository tblCnsltAplyRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -693,7 +695,9 @@ public class MemberApiService {
                                     qTblCnslttMbr.ogdpNm,
                                     qTblCnsltDtl.cnsltSttsCd,
                                     JPAExpressions
-                                            .select(qTblCnsltDgstfn.dgstfnArtcl.coalesce("미등록"))
+                                            .select(
+                                                    qTblCnsltDgstfn.dgstfnArtcl.count().coalesce(0L)
+                                            )
                                             .from(qTblCnsltDgstfn)
                                             .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
                                     qTblCnsltAply.ttl
@@ -719,26 +723,50 @@ public class MemberApiService {
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
-            Long totCnt = q
+              Long totCnt = q
                     .select(qTblCnsltAply.count())
                     .from(qTblCnsltAply)
-                    .join(qTblCnsltDtl).on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
+                      .join(qTblCnsltDtl).on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
                     .join(qTblUser).on(qTblCnsltAply.userSn.eq(qTblUser.userSn))
                     .join(qTblCnslttMbr).on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
                     .where(builder)
                     .fetchOne();
 
 
-            if(totCnt == null) totCnt = 0L;
-            paginationInfo.setTotalRecordCount(totCnt.intValue());
+                if(totCnt == null) totCnt = 0L;
+                paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-            resultVO.putResult("consultantList", consultantList);
-            resultVO.putPaginationInfo(paginationInfo);
-            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.putResult("consultantList", consultantList);
+                resultVO.putPaginationInfo(paginationInfo);
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
+        return resultVO;
+    }
+
+    public ResultVO getSimpleDetail(TblCnsltAply tblCnsltAply) {
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            tblCnsltAply = tblCnsltAplyRepository.findByCnsltAplySn(tblCnsltAply.getCnsltAplySn());
+            System.out.println("조회된 tblCnsltAply: " + tblCnsltAply);
+            tblCnsltAply.setCnsltAplyFldNm(q.select(qTblComCd.comCdNm).from(qTblComCd).where(qTblComCd.comCdSn.eq(tblCnsltAply.getCnsltFld())).fetchOne());
+            tblCnsltAply.setSimpleFile(q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltAply.getCnsltAplySn())).fetch());
+
+            resultVO.putResult("simple", tblCnsltAply);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
         return resultVO;
     }
 }

@@ -4,6 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.consult.TblDfclMttr;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.QTblUser;
@@ -239,4 +240,19 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.getMyPageSimpleList(dto);
     }
+
+    @Operation(
+            summary = "마이페이지 간편상담 상세보기 조회",
+            description = "마이페이지 간편상담 상세보기 조회",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "간편상담 상세보기 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "간편상담 상세보기 조회 실패")
+    })
+    @PostMapping("/memberApi/getSimpleDetail")
+    public ResultVO getSimpleDetail(@RequestBody TblCnsltAply tblCnsltAply) {
+        return memberApiService.getSimpleDetail(tblCnsltAply);
+    }
+
 }
