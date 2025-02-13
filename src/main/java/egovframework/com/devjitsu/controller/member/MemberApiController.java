@@ -4,6 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.consult.TblDfclMttr;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.QTblUser;
@@ -188,10 +189,10 @@ public class MemberApiController {
             @ApiResponse(responseCode = "200", description = "애로사항 조회 성공"),
             @ApiResponse(responseCode = "400", description = "애로사항 조회 실패")
     })
-    @PostMapping("/memeberApi/getMypageDfclMttrList.do")
-    public ResultVO getMypageDfclMttrList(HttpServletRequest request) {
+    @PostMapping("/memeberApi/getMyPageDfclMttrList.do")
+    public ResultVO getMyPageDfclMttrList(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
-        return memberApiService.getMypageDfclMttrList(dto);
+        return memberApiService.getMyPageDfclMttrList(dto);
     }
 
     @Operation(
@@ -207,12 +208,51 @@ public class MemberApiController {
     public ResultVO getDifficultiesDetail(@RequestBody TblDfclMttr tblDfclMttr) {
         return memberApiService.getDifficultiesDetail(tblDfclMttr);
     }
-
+    
+    @Operation(
+            summary = "마이페이지 애로사항 수정",
+            description = "마이페이지 애로사항 수정",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "애로사항 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "애로사항 수정 실패")
+    })
     @PostMapping("/memberApi/setDifficultiesData")
     public ResultVO setDifficultiesData(
             @ModelAttribute TblDfclMttr tblDfclMttr,
             @RequestParam(value = "files", required = false) List<MultipartFile> files) {
         return memberApiService.setDifficultiesData(tblDfclMttr, files);
+    }
+
+
+    @Operation(
+            summary = "마이페이지 간편상담 조회",
+            description = "마이페이지 간편상담 조회",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "간편상담 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "간편상담 조회 실패")
+    })
+    @PostMapping("/memberApi/getMyPageSimpleList.do")
+    public ResultVO getMyPageSimpleList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.getMyPageSimpleList(dto);
+    }
+
+    @Operation(
+            summary = "마이페이지 간편상담 상세보기 조회",
+            description = "마이페이지 간편상담 상세보기 조회",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "간편상담 상세보기 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "간편상담 상세보기 조회 실패")
+    })
+    @PostMapping("/memberApi/getSimpleDetail")
+    public ResultVO getSimpleDetail(@RequestBody TblCnsltAply tblCnsltAply) {
+        return memberApiService.getSimpleDetail(tblCnsltAply);
     }
 
 }

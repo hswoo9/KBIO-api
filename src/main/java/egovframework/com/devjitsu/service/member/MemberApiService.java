@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
@@ -11,12 +12,11 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.consult.DfclMttrDto;
-import egovframework.com.devjitsu.model.consult.QTblDfclMttr;
-import egovframework.com.devjitsu.model.consult.TblDfclMttr;
+import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
+import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
 import egovframework.com.devjitsu.repository.consult.TblDfclMttrRepository;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
@@ -65,6 +65,7 @@ public class MemberApiService {
     private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
     private final TblComFileRepository tblComFileRepository;
     private final TblDfclMttrRepository tblDfclMttrRepository;
+    private final TblCnsltAplyRepository tblCnsltAplyRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -438,7 +439,7 @@ public class MemberApiService {
         return resultVO;
     }
 
-    public ResultVO getMypageDfclMttrList(SearchDto dto) {
+    public ResultVO getMyPageDfclMttrList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
         PaginationInfo paginationInfo = new PaginationInfo();
 
@@ -602,6 +603,177 @@ public class MemberApiService {
         }catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+
+    public ResultVO getMyPageSimpleList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblCnslttMbr qTblCnslttMbr = QTblCnslttMbr.tblCnslttMbr;
+            QTblCnsltAply qTblCnsltAply = QTblCnsltAply.tblCnsltAply;
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+            QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn;
+            QTblCnsltDgstfn qTblCnsltDgstfn = QTblCnsltDgstfn.tblCnsltDgstfn;
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            /** query DSL 조건 추가하는 방법 */
+            BooleanBuilder builder = new BooleanBuilder();
+
+
+            Long userSn = Long.parseLong(dto.get("userSn").toString());
+            builder.and(qTblCnsltAply.userSn.eq(userSn));
+
+            builder.and(qTblCnsltAply.cnsltSe
+                    .eq(Long.valueOf(dto.get("cnsltSe").toString())));
+            if (!StringUtils.isEmpty(dto.get("startDt"))) {
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).goe(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("startDt"))
+                        )
+                );
+            }
+            if (!StringUtils.isEmpty(dto.get("endDt"))) {
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).loe(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("endDt"))
+                        )
+                );
+            }
+
+            if (!StringUtils.isEmpty(dto.get("cnsltFld"))) {
+                builder.and(qTblCnsltAply.cnsltFld.eq(Long.valueOf((String) dto.get("cnsltFld"))));
+            }
+
+            if (!StringUtils.isEmpty(dto.get("cnsltSttsCd"))) {
+                builder.and(qTblCnsltDtl.cnsltSttsCd.eq((String) dto.get("cnsltSttsCd")));
+            }
+
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("kornFlnm")){
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("ogdpNm")){
+                    builder.and(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("jbpsNm")){
+                    builder.and(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblUser.kornFlnm.contains((String) dto.get("searchVal"))
+                                .or(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")))
+                                .or(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")))
+                );
+            }
+
+            List<ConsultingDTO> consultantList = q.
+                    select(
+                            Projections.constructor(
+                                    ConsultingDTO.class,
+                                    qTblCnsltAply.cnsltAplySn,
+                                    qTblCnsltAply.userSn,
+                                    qTblCnsltDtl.cnslttUserSn,
+                                    qTblUser.kornFlnm,
+                                    JPAExpressions
+                                            .select(qTblUser.kornFlnm)
+                                            .from(qTblUser)
+                                            .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),
+                                    qTblCnsltAply.frstCrtDt,
+                                    qTblCnsltAply.cnsltFld,
+                                    qTblCnslttMbr.ogdpNm,
+                                    qTblCnsltDtl.cnsltSttsCd,
+                                    JPAExpressions
+                                            .select(
+                                                    qTblCnsltDgstfn.dgstfnArtcl.count().coalesce(0L)
+                                            )
+                                            .from(qTblCnsltDgstfn)
+                                            .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
+                                    qTblCnsltAply.ttl
+                            )
+                    ).from(qTblCnsltAply)
+
+                    //조인
+                    .join(qTblCnsltDtl)
+                    .on(
+                            qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn)
+                    )
+                    .join(qTblUser)
+                    .on(
+                            qTblCnsltAply.userSn.eq(qTblUser.userSn)
+                    )
+                    .join(qTblCnslttMbr)
+                    .on(
+                            qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn)
+                    )
+                    .where(builder)
+                    .orderBy(qTblCnsltAply.frstCrtDt.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+              Long totCnt = q
+                    .select(qTblCnsltAply.count())
+                    .from(qTblCnsltAply)
+                      .join(qTblCnsltDtl).on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
+                    .join(qTblUser).on(qTblCnsltAply.userSn.eq(qTblUser.userSn))
+                    .join(qTblCnslttMbr).on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
+                    .where(builder)
+                    .fetchOne();
+
+
+                if(totCnt == null) totCnt = 0L;
+                paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+                resultVO.putResult("consultantList", consultantList);
+                resultVO.putPaginationInfo(paginationInfo);
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+        return resultVO;
+    }
+
+    public ResultVO getSimpleDetail(TblCnsltAply tblCnsltAply) {
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+            QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn;
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            tblCnsltAply = tblCnsltAplyRepository.findByCnsltAplySn(tblCnsltAply.getCnsltAplySn());
+            System.out.println("조회된 tblCnsltAply: " + tblCnsltAply);
+            tblCnsltAply.setCnsltAplyFldNm(q.select(qTblComCd.comCdNm).from(qTblComCd).where(qTblComCd.comCdSn.eq(tblCnsltAply.getCnsltFld())).fetchOne());
+            tblCnsltAply.setSimpleFile(q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltAply.getCnsltAplySn())).fetch());
+
+            List<TblCnsltDsctn> tblCnsltDsctnList = q
+                    .selectFrom(qTblCnsltDsctn)
+                    .where(qTblCnsltDsctn.cnsltAplySn.eq(Long.parseLong(tblCnsltAply.getCnsltAplySn().toString())))
+                    .orderBy(qTblCnsltDsctn.frstCrtDt.desc()).fetch();
+
+            System.out.println("조회된 tblCnsltDsctnList: " + tblCnsltDsctnList);
+
+            resultVO.putResult("simple", tblCnsltAply);
+            resultVO.putResult("cnsltDsctnList", tblCnsltDsctnList);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
