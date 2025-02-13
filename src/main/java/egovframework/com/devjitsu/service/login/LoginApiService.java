@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -144,6 +145,16 @@ public class LoginApiService {
                 }
             }
 
+            String duplicateChk = redisApiService.getRedis(0, String.valueOf(tblUser.getUserSn())) == null ? "" : (String) redisApiService.getRedis(0, String.valueOf(tblUser.getUserSn()));
+            if(!StringUtils.isEmpty(duplicateChk)){
+                if(dto.getConfirmPass().equals("N")){
+                    resultVO.setResultCode(ResponseCode.DUPLICATE_LOGIN.getCode());
+                    resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGIN.getMessage());
+                    return resultVO;
+                }else{
+                    redisApiService.delRedis(0, String.valueOf(tblUser.getUserSn()));
+                }
+            }
 
             /*UserSessionBinding exists = LoginUsers.getUser(tblUser.getUserId());
             if(exists != null && !request.getSession().getId().equals(exists.getSessionId())){

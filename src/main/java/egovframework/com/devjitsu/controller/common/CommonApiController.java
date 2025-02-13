@@ -13,6 +13,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -148,15 +149,16 @@ public class CommonApiController {
     public ResultVO getDuplicateLogin(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         String duplicateLogin = "N";
+
+        String authHeader = request.getHeader("Authorization");
         ResultVO resultVO = commonApiService.getRedisUserInfo(dto);
-        /*if(resultVO.getResult("rs") != null){
-            //TODO : JWT 토큰까지 같은지 확인 유무
-            duplicateLogin = "Y";
-        }*/
-        if(duplicateLogin.equals("Y")){
-            request.getSession().invalidate();
-            resultVO.setResultCode(ResponseCode.DUPLICATE_LOGOUT.getCode());
-            resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGOUT.getMessage());
+        if(resultVO.getResult("rs") != null && !StringUtils.isEmpty(authHeader)){
+            if(!resultVO.getResult("rs").equals(authHeader)){
+                duplicateLogin = "Y";
+                request.getSession().invalidate();
+                resultVO.setResultCode(ResponseCode.DUPLICATE_LOGOUT.getCode());
+                resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGOUT.getMessage());
+            }
         }
 
         resultVO.putResult("duplicateLogin", duplicateLogin);
