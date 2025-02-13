@@ -1,5 +1,6 @@
 package egovframework.com.devjitsu.controller.common;
 
+import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.SearchDto;
@@ -143,4 +144,23 @@ public class CommonApiController {
     }
 
 
+    @PostMapping("/commonApi/getDuplicateLogin.do")
+    public ResultVO getDuplicateLogin(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        String duplicateLogin = "N";
+        ResultVO resultVO = commonApiService.getRedisUserInfo(dto);
+        /*if(resultVO.getResult("rs") != null){
+            //TODO : JWT 토큰까지 같은지 확인 유무
+            duplicateLogin = "Y";
+        }*/
+        if(duplicateLogin.equals("Y")){
+            request.getSession().invalidate();
+            resultVO.setResultCode(ResponseCode.DUPLICATE_LOGOUT.getCode());
+            resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGOUT.getMessage());
+        }
+
+        resultVO.putResult("duplicateLogin", duplicateLogin);
+
+        return resultVO;
+    }
 }

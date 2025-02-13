@@ -9,6 +9,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.devjitsu.config.LoginUsers;
+import egovframework.com.devjitsu.config.UserSessionBinding;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
 import egovframework.com.devjitsu.model.login.LoginDto;
 import egovframework.com.devjitsu.model.login.QLettnemplyrinfoVO;
@@ -38,6 +40,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Map;
 
@@ -141,20 +144,36 @@ public class LoginApiService {
                 }
             }
 
+
+            /*UserSessionBinding exists = LoginUsers.getUser(tblUser.getUserId());
+            if(exists != null && !request.getSession().getId().equals(exists.getSessionId())){
+                if(dto.getConfirmPass().equals("N")){
+                    resultVO.setResultCode(ResponseCode.DUPLICATE_LOGIN.getCode());
+                    resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGIN.getMessage());
+                    return resultVO;
+                }else{
+                    exists.getSession().removeAttribute("user");
+                    exists.getSession().setAttribute("duplicateLogin", "Y");
+                }
+            }
+
+            UserSessionBinding user = new UserSessionBinding(tblUser.getUserId());*/
+            String jwtToken = jwtTokenUtil.generateTokenJpa(tblUser);
             resultVO.putResult("userSn", tblUser.getUserSn());
             resultVO.putResult("userId", tblUser.getUserId());
             resultVO.putResult("userName", tblUser.getKornFlnm());
             resultVO.putResult("userSe", tblUser.getUserSn() == 1 ? "ADM" : "UDR");
-            resultVO.putResult("jToken", jwtTokenUtil.generateTokenJpa(tblUser));
+            resultVO.putResult("jToken", jwtToken);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
             request.getSession().setAttribute("userSn", tblUser.getUserSn());
+            /*request.getSession().setAttribute("user", user);*/
 
             TblUserLgnHstry tblUserLgnHstry = new TblUserLgnHstry();
             tblUserLgnHstry.setUserSn(tblUser.getUserSn());
             tblUserLgnHstryRepository.save(tblUserLgnHstry);
 
-            redisApiService.setRedis(0, String.valueOf(tblUser.getUserSn()), resultVO, null);
+            redisApiService.setRedis(0, String.valueOf(tblUser.getUserSn()), jwtToken, null);
         }
 
         return resultVO;
