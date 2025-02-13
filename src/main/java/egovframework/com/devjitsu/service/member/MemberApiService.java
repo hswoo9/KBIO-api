@@ -17,6 +17,7 @@ import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
+import egovframework.com.devjitsu.repository.consult.TblCnsltDsctnRepository;
 import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
 import egovframework.com.devjitsu.repository.consult.TblDfclMttrRepository;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
@@ -66,6 +67,7 @@ public class MemberApiService {
     private final TblComFileRepository tblComFileRepository;
     private final TblDfclMttrRepository tblDfclMttrRepository;
     private final TblCnsltAplyRepository tblCnsltAplyRepository;
+    private final TblCnsltDsctnRepository tblCnsltDsctnRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -764,7 +766,7 @@ public class MemberApiService {
             List<TblCnsltDsctn> tblCnsltDsctnList = q
                     .selectFrom(qTblCnsltDsctn)
                     .where(qTblCnsltDsctn.cnsltAplySn.eq(Long.parseLong(tblCnsltAply.getCnsltAplySn().toString())))
-                    .orderBy(qTblCnsltDsctn.frstCrtDt.desc()).fetch();
+                    .orderBy(qTblCnsltDsctn.frstCrtDt.asc()).fetch();
 
             System.out.println("조회된 tblCnsltDsctnList: " + tblCnsltDsctnList);
 
@@ -774,6 +776,39 @@ public class MemberApiService {
         }catch (Exception e){
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+
+    public ResultVO setSimpleData(TblCnsltDsctn tblCnsltDsctn, List<MultipartFile> files) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
+            tblCnsltDsctnRepository.save(tblCnsltDsctn);
+
+
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                files,
+                                "/simple/" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                "simple_" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                fileCnt
+                        )
+                );
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
         return resultVO;
