@@ -6,6 +6,7 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.consult.TblCnsltDsctn;
+import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
 import egovframework.com.devjitsu.model.consult.TblDfclMttr;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.QTblUser;
@@ -257,19 +258,40 @@ public class MemberApiController {
     }
 
     @Operation(
-            summary = "마이페이지 간편상담 수정",
-            description = "마이페이지 간편상담 수정",
+            summary = "마이페이지 간편상담 답변 수정",
+            description = "마이페이지 간편상담 답변 수정",
             tags = {"MemberController"}
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "간편상담 수정 성공"),
-            @ApiResponse(responseCode = "400", description = "간편상담 수정 실패")
+            @ApiResponse(responseCode = "200", description = "간편상담 답변 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "간편상담 답변 수정 실패")
     })
     @PostMapping("/memberApi/setSimpleData")
     public ResultVO setSimpleData(
             @ModelAttribute TblCnsltDsctn tblCnsltDsctn,
             @RequestParam(value = "files", required = false) List<MultipartFile> files) {
         return memberApiService.setSimpleData(tblCnsltDsctn, files);
+    }
+
+    @Operation(
+            summary = "마이페이지 간편상담 답변 등록",
+            description = "마이페이지 간편상담 답변 등록",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "간편상담 답변 등록 성공"),
+            @ApiResponse(responseCode = "400", description = "간편상담 답변 등록 실패")
+    })
+    @PostMapping("/memberApi/setCreateSimpleData")
+    public ResultVO setCreateSimpleData(
+            @ModelAttribute TblCnsltDsctn tblCnsltDsctn,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+        return memberApiService.setCreateSimpleData(tblCnsltDsctn, files);
+    }
+
+    @PostMapping("/memberApi/setComSimple")
+    public ResultVO setComSimple(@RequestBody TblCnsltDtl tblCnsltDtl){
+        return memberApiService.setComSimple(tblCnsltDtl);
     }
 
 }

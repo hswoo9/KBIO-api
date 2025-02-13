@@ -629,6 +629,7 @@ public class MemberApiService {
             QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
             QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn;
             QTblCnsltDgstfn qTblCnsltDgstfn = QTblCnsltDgstfn.tblCnsltDgstfn;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
@@ -809,6 +810,67 @@ public class MemberApiService {
         }catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setCreateSimpleData(TblCnsltDsctn tblCnsltDsctn, List<MultipartFile> files) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
+            tblCnsltDsctnRepository.save(tblCnsltDsctn);
+
+
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                files,
+                                "/simple/" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                "simple_" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                fileCnt
+                        )
+                );
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setComSimple(TblCnsltDtl tblCnsltDtl) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+
+            long updatedCount = new JPAQueryFactory(em)
+                    .update(qTblCnsltDtl)
+                    .set(qTblCnsltDtl.cnsltSttsCd, "200")
+                    .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDtl.getCnsltAplySn()))
+                    .execute();
+
+            if (updatedCount > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("처리되었습니다.");
+            } else {
+                resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+                resultVO.setResultMessage("실패하였습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("오류가 발생했습니다.");
         }
 
         return resultVO;
