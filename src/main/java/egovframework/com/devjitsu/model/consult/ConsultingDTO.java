@@ -22,11 +22,11 @@ public class ConsultingDTO {
     private long cnsltFld;
     private String ogdpNm;
     private String cnsltSttsCd;
-    private String dgstfnArtcl;
+    private long dgstfnCnt;
     private String ttl;
 
     public ConsultingDTO(Long cnsltAplySn, Long userSn, Long cnslttUserSn, String kornFlnm, String cnslttKornFlnm,
-                         LocalDateTime frstCrtDt, Long cnsltFld, String ogdpNm, String cnsltSttsCd, String dgstfnArtcl, String ttl) {
+                         LocalDateTime frstCrtDt, Long cnsltFld, String ogdpNm, String cnsltSttsCd, Long dgstfnCnt, String ttl) {
         this.cnsltAplySn = cnsltAplySn;
         this.userSn = userSn;
         this.cnslttUserSn = cnslttUserSn;
@@ -36,7 +36,7 @@ public class ConsultingDTO {
         this.cnsltFld = cnsltFld;
         this.ogdpNm = ogdpNm;
         this.cnsltSttsCd = cnsltSttsCd;
-        this.dgstfnArtcl = dgstfnArtcl;
+        this.dgstfnCnt = dgstfnCnt;
         this.ttl = ttl;
     }
 
