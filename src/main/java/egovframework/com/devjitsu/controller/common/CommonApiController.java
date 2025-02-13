@@ -145,6 +145,11 @@ public class CommonApiController {
     }
 
 
+    /**
+     * 중복로그인체크 ( 반영시 주석 해제 )
+     * @param request
+     * @return
+     */
     @PostMapping("/commonApi/getDuplicateLogin.do")
     public ResultVO getDuplicateLogin(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
@@ -152,14 +157,14 @@ public class CommonApiController {
 
         String authHeader = request.getHeader("Authorization");
         ResultVO resultVO = commonApiService.getRedisUserInfo(dto);
-        if(resultVO.getResult("rs") != null && !StringUtils.isEmpty(authHeader)){
-            if(!resultVO.getResult("rs").equals(authHeader)){
-                duplicateLogin = "Y";
-                request.getSession().invalidate();
-                resultVO.setResultCode(ResponseCode.DUPLICATE_LOGOUT.getCode());
-                resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGOUT.getMessage());
-            }
-        }
+//        if(resultVO.getResult("rs") != null && !StringUtils.isEmpty(authHeader)){
+//            if(!resultVO.getResult("rs").equals(authHeader)){
+//                duplicateLogin = "Y";
+//                request.getSession().invalidate();
+//                resultVO.setResultCode(ResponseCode.DUPLICATE_LOGOUT.getCode());
+//                resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGOUT.getMessage());
+//            }
+//        }
 
         resultVO.putResult("duplicateLogin", duplicateLogin);
 
