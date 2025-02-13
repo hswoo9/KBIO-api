@@ -144,8 +144,10 @@ public class ConsultingAdminApiService {
                           qTblCnsltAply.cnsltFld,
                           qTblCnslttMbr.ogdpNm,
                           qTblCnsltDtl.cnsltSttsCd,
-                          JPAExpressions
-                                .select(qTblCnsltDgstfn.dgstfnArtcl.coalesce("미등록"))
+                         JPAExpressions
+                                .select(
+                                         qTblCnsltDgstfn.dgstfnArtcl.count().coalesce(0L)
+                                )
                                 .from(qTblCnsltDgstfn)
                                 .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
                          qTblCnsltAply.ttl
