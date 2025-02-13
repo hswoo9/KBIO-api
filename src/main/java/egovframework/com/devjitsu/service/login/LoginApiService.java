@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -145,19 +146,20 @@ public class LoginApiService {
             }
 
 
-            /*UserSessionBinding exists = LoginUsers.getUser(tblUser.getUserId());
-            if(exists != null && !request.getSession().getId().equals(exists.getSessionId())){
-                if(dto.getConfirmPass().equals("N")){
-                    resultVO.setResultCode(ResponseCode.DUPLICATE_LOGIN.getCode());
-                    resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGIN.getMessage());
-                    return resultVO;
-                }else{
-                    exists.getSession().removeAttribute("user");
-                    exists.getSession().setAttribute("duplicateLogin", "Y");
-                }
-            }
+            /**
+             * 중복로그인체크 ( 반영시 주석 해제 )
+             */
+//            String duplicateChk = redisApiService.getRedis(0, String.valueOf(tblUser.getUserSn())) == null ? "" : (String) redisApiService.getRedis(0, String.valueOf(tblUser.getUserSn()));
+//            if(!StringUtils.isEmpty(duplicateChk)){
+//                if(dto.getConfirmPass().equals("N")){
+//                    resultVO.setResultCode(ResponseCode.DUPLICATE_LOGIN.getCode());
+//                    resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGIN.getMessage());
+//                    return resultVO;
+//                }else{
+//                    redisApiService.delRedis(0, String.valueOf(tblUser.getUserSn()));
+//                }
+//            }
 
-            UserSessionBinding user = new UserSessionBinding(tblUser.getUserId());*/
             String jwtToken = jwtTokenUtil.generateTokenJpa(tblUser);
             resultVO.putResult("userSn", tblUser.getUserSn());
             resultVO.putResult("userId", tblUser.getUserId());
@@ -167,7 +169,6 @@ public class LoginApiService {
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
             request.getSession().setAttribute("userSn", tblUser.getUserSn());
-            /*request.getSession().setAttribute("user", user);*/
 
             TblUserLgnHstry tblUserLgnHstry = new TblUserLgnHstry();
             tblUserLgnHstry.setUserSn(tblUser.getUserSn());

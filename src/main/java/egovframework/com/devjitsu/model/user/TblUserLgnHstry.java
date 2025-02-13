@@ -18,9 +18,9 @@ public class TblUserLgnHstry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "HSTRY_SN" , length = 22)
+    @Column(name = "LGN_HSTRY_SN" , length = 22)
     @Comment("사용자일련번호")
-    private Long hstrySn;
+    private Long lgnHstrySn;
 
     @Column(name = "USER_SN" , length = 22)
     @Comment("사용자일련번호")

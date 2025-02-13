@@ -15,6 +15,7 @@ import egovframework.com.devjitsu.model.menu.*;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
 import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -100,6 +101,7 @@ public class CommonApiService {
     private final TblComFileRepository tblComFileRepository;
     private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
     private final TblMenuRepository tblMenuRepository;
+    private final TblPstRepository tblPstRepository;
 
     public ResultVO getMenu(HttpServletRequest request) {
         ResultVO resultVO = new ResultVO();
@@ -295,6 +297,12 @@ public class CommonApiService {
         String contentType = Files.probeContentType(filePath);
         if (contentType == null) {
             contentType = "application/octet-stream";
+        }
+
+        if(tblComFile.getPsnTblSn().startsWith("pst_")){
+            long pstSn = Long.parseLong(tblComFile.getPsnTblSn().replace("pst_", ""));
+            TblPst tblPst = tblPstRepository.findByPstSn(pstSn);
+            System.out.println("tblPst.getPstCn() = " + tblPst.getPstCn());
         }
 
         return ResponseEntity.ok()
