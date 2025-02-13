@@ -80,16 +80,13 @@ public class StatisticsAdminApiService {
 
         List<Map<String, Object>> returnList = new ArrayList<>();
 
-        // GoogleCredentials 생성 및 범위 설정
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(String.valueOf(resourceLoader.getResource("classpath:/static/googleApiKey/jbok-429204-507832e5f593.json").getFile().toPath())))
                 .createScoped("https://www.googleapis.com/auth/analytics.readonly");
 
-        // BetaAnalyticsDataSettings를 사용하여 클라이언트 설정
         BetaAnalyticsDataSettings settings = BetaAnalyticsDataSettings.newBuilder()
                 .setCredentialsProvider(() -> credentials)
                 .build();
 
-        // BetaAnalyticsDataClient 생성
         try (BetaAnalyticsDataClient analyticsData = BetaAnalyticsDataClient.create(settings)) {
             ObjectMapper objectMapper = new ObjectMapper();
             String[] dimensions = objectMapper.readValue(searchDto.get("dimensions").toString(), String[].class);
@@ -99,22 +96,21 @@ public class StatisticsAdminApiService {
                     .setProperty("properties/421523110")
                     .addDateRanges(DateRange.newBuilder().setStartDate(searchDto.get("startDate").toString()).setEndDate(searchDto.get("endDate").toString()));
 
-            // 차원 추가
             for (String dimension : dimensions) {
                 requestBuilder.addDimensions(Dimension.newBuilder().setName(dimension));
             }
 
-            // 메트릭 추가
             for (String metric : metrics) {
                 requestBuilder.addMetrics(Metric.newBuilder().setName(metric));
             }
 
             RunReportRequest request = requestBuilder.build();
-
-            // 보고서 실행
             RunReportResponse response = analyticsData.runReport(request);
 
-            // 결과 출력
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QTblUser qTblUser = QTblUser.tblUser;
+            BooleanBuilder builder = new BooleanBuilder();
+
             Map<String, Object> otherCityMap = new HashMap<>();
             otherCityMap.put("korCityName", "기타");
             otherCityMap.put("city", "Others");
@@ -156,7 +152,26 @@ public class StatisticsAdminApiService {
                         searchDto.put("searchDate", map.get("date"));
                     }
 
-//                    map.putAll(userManagementRepository.getUserJoinStsByDate(searchDto));
+                    StatisticsUserAccessDto statisticsUserAccessDto = q.select(
+                        Projections.constructor(
+                            StatisticsUserAccessDto.class,
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 3 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType3Count"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 4 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType4Count"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 2 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType2Count"),
+                            Expressions.constant(searchDto.get("searchDate").toString())
+                        )
+                    )
+                    .from(qTblUser)
+                    .where(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y%m%d')", qTblUser.joinYmd).like(searchDto.get("searchDate").toString()+ "%")
+                    ).fetchFirst();
+
+                    map.put("newUserCnt", statisticsUserAccessDto);
                 }
 
                 for(int i = 0; i < metrics.length; i++){

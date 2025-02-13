@@ -355,6 +355,40 @@ public class CommonApiService {
                 continue;
             }
 
+            if(!StringUtils.isEmpty(dto.get("trgtTblNm"))){
+                QTblAtchFileDwnldCnt qTblAtchFileDwnldCnt = QTblAtchFileDwnldCnt.tblAtchFileDwnldCnt;
+                JPAQueryFactory q = new JPAQueryFactory(em);
+                BooleanBuilder builder = new BooleanBuilder();
+
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblAtchFileDwnldCnt.frstCrtDt).eq(
+                                Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                        )
+                );
+
+                if(tblComFile.getPsnTblSn().startsWith("pst_")){
+                    builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString())
+                            .and(qTblAtchFileDwnldCnt.trgtSn.eq(Long.valueOf(dto.get("trgtSn").toString())))
+                    );
+                }else{
+                    builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString()));
+                }
+
+                TblAtchFileDwnldCnt tblAtchFileDwnldCnt = q
+                        .selectFrom(qTblAtchFileDwnldCnt)
+                        .where(builder).fetchFirst();
+
+                if(tblAtchFileDwnldCnt != null){
+                    tblAtchFileDwnldCnt.setAtchFileDwnldCnt(tblAtchFileDwnldCnt.getAtchFileDwnldCnt() + 1);
+                }else{
+                    tblAtchFileDwnldCnt = new TblAtchFileDwnldCnt();
+                    tblAtchFileDwnldCnt.setTrgtTblNm(dto.get("trgtTblNm").toString());
+                    tblAtchFileDwnldCnt.setTrgtSn(dto.get("trgtSn") == null ? null : Long.valueOf(dto.get("trgtSn").toString()));
+                    tblAtchFileDwnldCnt.setAtchFileDwnldCnt(1);
+                }
+                tblAtchFileDwnldCntRepository.save(tblAtchFileDwnldCnt);
+            }
+
             try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile())) {
                 ZipEntry zipEntry = new ZipEntry(fileNm);
                 zipOutputStream.putNextEntry(zipEntry);
