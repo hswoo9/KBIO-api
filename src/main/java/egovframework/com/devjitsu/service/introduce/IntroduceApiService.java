@@ -8,6 +8,7 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.user.*;
 
+import egovframework.com.devjitsu.model.user.QTblMvnEnt;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
 
@@ -71,6 +72,35 @@ public class IntroduceApiService {
             resultVO.putResult("getOperationalList",tblMvnEntList);
             resultVO.putPaginationInfo(paginationInfo);
 
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch(Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+
+        return resultVO;
+    }
+
+    public ResultVO getOperationalAllList(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+        try{
+            QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            BooleanBuilder builder = new BooleanBuilder();
+
+            if(!StringUtils.isEmpty(dto.get("mvnEntNm"))){
+                builder.and(qTblMvnEnt.mvnEntNm.contains((String) dto.get("mvnEntNm")));
+            }
+            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
+                builder.and(qTblMvnEnt.actvtnYn.eq((String) dto.get("actvtnYn")));
+            }
+            List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
+                    .where(builder)
+                    .orderBy(qTblMvnEnt.frstCrtDt.desc())
+                    .fetch();
+            resultVO.putResult("operationalList",tblMvnEntList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch(Exception e){
             e.printStackTrace();

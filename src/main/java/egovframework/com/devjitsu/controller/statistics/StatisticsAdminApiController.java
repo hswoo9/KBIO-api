@@ -68,4 +68,15 @@ public class StatisticsAdminApiController {
         return statisticsAdminApiService.getStatisticsPstAccess(dto);
     }
 
+    /**
+     * 첨부파일이용 통계
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/statisticsApi/getStatisticsPstFile.do")
+    public ResultVO getStatisticsPstFile(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return statisticsAdminApiService.getStatisticsPstFile(dto);
+    }
 }

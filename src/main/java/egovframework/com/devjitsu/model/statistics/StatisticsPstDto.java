@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class StatisticsPstAccessDto {
+public class StatisticsPstDto {
 
     private String day;
-    private Long inqCnt;
+    private Long cnt;
 }

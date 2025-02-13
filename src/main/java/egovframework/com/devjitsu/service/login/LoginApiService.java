@@ -162,6 +162,7 @@ public class LoginApiService {
 
             String jwtToken = jwtTokenUtil.generateTokenJpa(tblUser);
             resultVO.putResult("userSn", tblUser.getUserSn());
+            resultVO.putResult("mbrType", tblUser.getMbrType());
             resultVO.putResult("userId", tblUser.getUserId());
             resultVO.putResult("userName", tblUser.getKornFlnm());
             resultVO.putResult("userSe", tblUser.getUserSn() == 1 ? "ADM" : "UDR");

@@ -8,9 +8,7 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.cmm.util.AccessIP;
 import egovframework.com.devjitsu.model.bbs.PstDto;
 import egovframework.com.devjitsu.model.bbs.TblPst;
-import egovframework.com.devjitsu.model.common.QTblComCdGroup;
-import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.common.*;
 import egovframework.com.devjitsu.model.menu.*;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
@@ -18,6 +16,7 @@ import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
+import egovframework.com.devjitsu.repository.common.TblAtchFileDwnldCntRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
@@ -99,6 +98,8 @@ public class CommonApiService {
     private final TblComCdRepository tblComCdRepository;
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
+    private final TblAtchFileDwnldCntRepository tblAtchFileDwnldCntRepository;
+
     private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
     private final TblMenuRepository tblMenuRepository;
     private final TblPstRepository tblPstRepository;
@@ -284,8 +285,8 @@ public class CommonApiService {
         return resultVO;
     }
 
-    public ResponseEntity<org.springframework.core.io.Resource> getFileDownLoad(TblComFile tblComFile) throws IOException {
-        tblComFile = tblComFileRepository.findByAtchFileSn(tblComFile.getAtchFileSn());
+    public ResponseEntity<org.springframework.core.io.Resource> getFileDownLoad(SearchDto dto) throws IOException {
+        TblComFile tblComFile = tblComFileRepository.findByAtchFileSn(Long.valueOf(dto.get("atchFileSn").toString()));
         String fileNm = tblComFile.getAtchFileNm();
         Path filePath = Paths.get(tblComFile.getAtchFilePathNm() + "/" + tblComFile.getStrgFileNm() + "." + tblComFile.getAtchFileExtnNm());
         org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
@@ -299,10 +300,38 @@ public class CommonApiService {
             contentType = "application/octet-stream";
         }
 
-        if(tblComFile.getPsnTblSn().startsWith("pst_")){
-            long pstSn = Long.parseLong(tblComFile.getPsnTblSn().replace("pst_", ""));
-            TblPst tblPst = tblPstRepository.findByPstSn(pstSn);
-            System.out.println("tblPst.getPstCn() = " + tblPst.getPstCn());
+        if(!StringUtils.isEmpty(dto.get("trgtTblNm"))){
+            QTblAtchFileDwnldCnt qTblAtchFileDwnldCnt = QTblAtchFileDwnldCnt.tblAtchFileDwnldCnt;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+
+            builder.and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblAtchFileDwnldCnt.frstCrtDt).eq(
+                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                )
+            );
+
+            if(tblComFile.getPsnTblSn().startsWith("pst_")){
+                builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString())
+                    .and(qTblAtchFileDwnldCnt.trgtSn.eq(Long.valueOf(dto.get("trgtSn").toString())))
+                );
+            }else{
+                builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString()));
+            }
+
+            TblAtchFileDwnldCnt tblAtchFileDwnldCnt = q
+                    .selectFrom(qTblAtchFileDwnldCnt)
+                    .where(builder).fetchFirst();
+
+            if(tblAtchFileDwnldCnt != null){
+                tblAtchFileDwnldCnt.setAtchFileDwnldCnt(tblAtchFileDwnldCnt.getAtchFileDwnldCnt() + 1);
+            }else{
+                tblAtchFileDwnldCnt = new TblAtchFileDwnldCnt();
+                tblAtchFileDwnldCnt.setTrgtTblNm(dto.get("trgtTblNm").toString());
+                tblAtchFileDwnldCnt.setTrgtSn(dto.get("trgtSn") == null ? null : Long.valueOf(dto.get("trgtSn").toString()));
+                tblAtchFileDwnldCnt.setAtchFileDwnldCnt(1);
+            }
+            tblAtchFileDwnldCntRepository.save(tblAtchFileDwnldCnt);
         }
 
         return ResponseEntity.ok()
@@ -324,6 +353,40 @@ public class CommonApiService {
             org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
             if (!resource.exists() || !resource.isReadable()) {
                 continue;
+            }
+
+            if(!StringUtils.isEmpty(dto.get("trgtTblNm"))){
+                QTblAtchFileDwnldCnt qTblAtchFileDwnldCnt = QTblAtchFileDwnldCnt.tblAtchFileDwnldCnt;
+                JPAQueryFactory q = new JPAQueryFactory(em);
+                BooleanBuilder builder = new BooleanBuilder();
+
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblAtchFileDwnldCnt.frstCrtDt).eq(
+                                Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                        )
+                );
+
+                if(tblComFile.getPsnTblSn().startsWith("pst_")){
+                    builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString())
+                            .and(qTblAtchFileDwnldCnt.trgtSn.eq(Long.valueOf(dto.get("trgtSn").toString())))
+                    );
+                }else{
+                    builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString()));
+                }
+
+                TblAtchFileDwnldCnt tblAtchFileDwnldCnt = q
+                        .selectFrom(qTblAtchFileDwnldCnt)
+                        .where(builder).fetchFirst();
+
+                if(tblAtchFileDwnldCnt != null){
+                    tblAtchFileDwnldCnt.setAtchFileDwnldCnt(tblAtchFileDwnldCnt.getAtchFileDwnldCnt() + 1);
+                }else{
+                    tblAtchFileDwnldCnt = new TblAtchFileDwnldCnt();
+                    tblAtchFileDwnldCnt.setTrgtTblNm(dto.get("trgtTblNm").toString());
+                    tblAtchFileDwnldCnt.setTrgtSn(dto.get("trgtSn") == null ? null : Long.valueOf(dto.get("trgtSn").toString()));
+                    tblAtchFileDwnldCnt.setAtchFileDwnldCnt(1);
+                }
+                tblAtchFileDwnldCntRepository.save(tblAtchFileDwnldCnt);
             }
 
             try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile())) {
