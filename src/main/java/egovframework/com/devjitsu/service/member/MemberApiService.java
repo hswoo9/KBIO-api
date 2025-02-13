@@ -752,6 +752,7 @@ public class MemberApiService {
         try{
             QTblComCd qTblComCd = QTblComCd.tblComCd;
             QTblComFile qTblComFile = QTblComFile.tblComFile;
+            QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn;
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
@@ -760,7 +761,15 @@ public class MemberApiService {
             tblCnsltAply.setCnsltAplyFldNm(q.select(qTblComCd.comCdNm).from(qTblComCd).where(qTblComCd.comCdSn.eq(tblCnsltAply.getCnsltFld())).fetchOne());
             tblCnsltAply.setSimpleFile(q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltAply.getCnsltAplySn())).fetch());
 
+            List<TblCnsltDsctn> tblCnsltDsctnList = q
+                    .selectFrom(qTblCnsltDsctn)
+                    .where(qTblCnsltDsctn.cnsltAplySn.eq(Long.parseLong(tblCnsltAply.getCnsltAplySn().toString())))
+                    .orderBy(qTblCnsltDsctn.frstCrtDt.desc()).fetch();
+
+            System.out.println("조회된 tblCnsltDsctnList: " + tblCnsltDsctnList);
+
             resultVO.putResult("simple", tblCnsltAply);
+            resultVO.putResult("cnsltDsctnList", tblCnsltDsctnList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();
