@@ -13,8 +13,9 @@ import egovframework.com.cmm.service.ResultVO;
 import com.google.analytics.data.v1beta.*;
 import egovframework.com.devjitsu.model.bbs.QTblBbs;
 import egovframework.com.devjitsu.model.bbs.QTblPst;
+import egovframework.com.devjitsu.model.common.QTblAtchFileDwnldCnt;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.statistics.StatisticsPstAccessDto;
+import egovframework.com.devjitsu.model.statistics.StatisticsPstDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserAccessDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserDto;
 import egovframework.com.devjitsu.model.user.QTblUser;
@@ -257,12 +258,8 @@ public class StatisticsAdminApiService {
                 qTblUser.joinYmd.isNotNull()
             )
             .and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y')", qTblUser.joinYmd).goe(
-                    Expressions.stringTemplate("{0}", dto.get("searchYear"))
-                )
-            ).and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%m')", qTblUser.joinYmd).goe(
-                    Expressions.stringTemplate("{0}", dto.get("searchMonth"))
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUser.joinYmd).goe(
+                    Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
                 )
             );
 
@@ -310,12 +307,8 @@ public class StatisticsAdminApiService {
             builder.and(
                 qTblUser.mbrType.eq(1L).or(qTblUser.mbrType.eq(2L)).or(qTblUser.mbrType.eq(3L)).or(qTblUser.mbrType.eq(4L))
             ).and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y')", qTblUserLgnHstry.lgnDt).eq(
-                    Expressions.stringTemplate("{0}", dto.get("searchYear"))
-                )
-            ).and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%m')", qTblUserLgnHstry.lgnDt).eq(
-                    Expressions.stringTemplate("{0}", dto.get("searchMonth"))
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUserLgnHstry.lgnDt).eq(
+                    Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
                 )
             );
 
@@ -365,20 +358,16 @@ public class StatisticsAdminApiService {
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblPst.bbsSn.eq(Long.valueOf(dto.get("bbsSn").toString()))).and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y')", qTblPst.frstCrtDt).eq(
-                    Expressions.stringTemplate("{0}", dto.get("searchYear"))
-                )
-            ).and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%m')", qTblPst.frstCrtDt).eq(
-                    Expressions.stringTemplate("{0}", dto.get("searchMonth"))
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblPst.frstCrtDt).eq(
+                    Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
                 )
             );
 
             StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.frstCrtDt);
-            List<StatisticsPstAccessDto> statisticsPstAccess = q
+            List<StatisticsPstDto> statisticsPstAccess = q
                     .select(
                         Projections.constructor(
-                            StatisticsPstAccessDto.class,
+                                StatisticsPstDto.class,
                             dayFormat,
                             qTblPst.pstInqCnt.sum().nullif(0L)
                         )
@@ -390,6 +379,54 @@ public class StatisticsAdminApiService {
                     .fetch();
 
             resultVO.putResult("statisticsPstAccess", statisticsPstAccess);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getStatisticsPstFile(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QTblAtchFileDwnldCnt qTblAtchFileDwnldCnt = QTblAtchFileDwnldCnt.tblAtchFileDwnldCnt;
+
+            BooleanBuilder builder = new BooleanBuilder();
+
+            if(!StringUtils.isEmpty(dto.get("trgtTblNm"))){
+                builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString()));
+            }
+
+            if(!StringUtils.isEmpty(dto.get("trgtSn"))){
+                builder.and(qTblAtchFileDwnldCnt.trgtSn.eq(Long.valueOf(dto.get("trgtSn").toString())));
+            }
+
+            builder.and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblAtchFileDwnldCnt.frstCrtDt).eq(
+                    Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
+                )
+            );
+
+            StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblAtchFileDwnldCnt.frstCrtDt);
+            List<StatisticsPstDto> statisticsPstFile = q
+                    .select(
+                        Projections.constructor(
+                            StatisticsPstDto.class,
+                            dayFormat,
+                            qTblAtchFileDwnldCnt.atchFileDwnldCnt.sum().nullif(0L)
+                        )
+                    )
+                    .from(qTblAtchFileDwnldCnt)
+                    .where(builder)
+                    .groupBy(dayFormat, qTblAtchFileDwnldCnt.trgtTblNm, qTblAtchFileDwnldCnt.trgtSn)
+                    .orderBy(dayFormat.asc())
+                    .fetch();
+
+            resultVO.putResult("statisticsPstFile", statisticsPstFile);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
             e.printStackTrace();

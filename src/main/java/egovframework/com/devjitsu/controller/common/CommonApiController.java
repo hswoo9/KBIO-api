@@ -4,6 +4,7 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblAtchFileDwnldCnt;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import lombok.RequiredArgsConstructor;
@@ -114,9 +115,10 @@ public class CommonApiController {
      * }
      * @return
      */
-    @PostMapping("/commonApi/getFileDownLoad")
-    public ResponseEntity<Resource> getFileDownLoad(@RequestBody TblComFile tblComFile) throws IOException {
-        return commonApiService.getFileDownLoad(tblComFile);
+    @PostMapping("/commonApi/getFileDownLoad.do")
+    public ResponseEntity<Resource> getFileDownLoad(HttpServletRequest request) throws IOException {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return commonApiService.getFileDownLoad(dto);
     }
 
     /**
