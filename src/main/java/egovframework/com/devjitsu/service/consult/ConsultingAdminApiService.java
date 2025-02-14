@@ -31,6 +31,8 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -294,8 +296,26 @@ public class ConsultingAdminApiService {
                             .where(qTblCnsltDsctn.cnsltAplySn.eq(Long.parseLong(dto.get("cnsltAplySn").toString())))
                                     .orderBy(qTblCnsltDsctn.frstCrtDt.desc()).fetch();
 
+            List<TblComFile> allFiles = q
+                    .selectFrom(qTblComFile)
+                    .where(qTblComFile.psnTblSn.in(
+                            tblCnsltDsctnList.stream()
+                                    .map(tblCnsltDsctn -> "consulting_" + tblCnsltDsctn.getCnsltDsctnSn()) // cnsltDsctnSn을 기반으로 psnTblSn을 생성
+                                    .collect(Collectors.toList())
+                    ))
+                    .orderBy(qTblComFile.atchFileSn.desc())
+                    .fetch();
 
-                resultVO.putResult("cnsltDsctnList", tblCnsltDsctnList);
+            // cnsltDsctnSn 별로 파일을 매칭
+            Map<Long, List<TblComFile>> filesByDsctnSn = allFiles.stream()
+                    .collect(Collectors.groupingBy(file -> {
+                        String psnTblSn = file.getPsnTblSn();
+                        return Long.parseLong(psnTblSn.replace("consulting_", ""));
+                    }));
+
+
+            resultVO.putResult("cnsltDsctnList", tblCnsltDsctnList);
+            resultVO.putResult("filesByDsctnSn",filesByDsctnSn);
 
 
 

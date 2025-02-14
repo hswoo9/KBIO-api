@@ -228,19 +228,6 @@ public class ConsultingApiService {
 
             saveTblCnsltAply.getCnsltAplySn();
 
-
-            if(files != null){
-                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("consulting_" + tblCnsltAply.getCnsltAplySn())).fetchCount();
-                tblComFileRepository.saveAll(
-                    fileUtil.devFileInf(
-                            files,
-                            "/consulting/" + tblCnsltAply.getCnsltAplySn(),
-                            "consulting_" + tblCnsltAply.getCnsltAplySn(),
-                            fileCnt
-                    )
-                );
-            }
-
             tblCnsltDtl.setCnsltAplySn(tblCnsltAply.getCnsltAplySn());
             if(!StringUtils.isEmpty(tblCnsltDtl.getCnslttUserSn())){
                 tblCnsltDtl.setCnslttDsgnDt(LocalDateTime.now());
@@ -254,6 +241,21 @@ public class ConsultingApiService {
             tblCnsltDsctn.setCreatrSn(tblCnsltAply.getUserSn());
             tblCnsltDsctn.setActvtnYn("Y");
             tblCnsltDsctnRepository.save(tblCnsltDsctn);
+
+
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("consulting_" + tblCnsltAply.getCnsltAplySn())).fetchCount();
+                tblComFileRepository.saveAll(
+                    fileUtil.devFileInf(
+                            files,
+                            "/consulting/" + tblCnsltDsctn.getCnsltDsctnSn(),
+                            "consulting_" + tblCnsltDsctn.getCnsltDsctnSn(),
+                            fileCnt
+                    )
+                );
+            }
+
+
 
 
 
