@@ -10,6 +10,7 @@ import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
 import egovframework.com.devjitsu.model.user.*;
@@ -240,14 +241,28 @@ public class ConsultingAdminApiService {
             QTblCnsltAply qTblCnsltAply = QTblCnsltAply.tblCnsltAply;
             QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn;
             QTblCnsltDgstfn qTblCnsltDgstfn = QTblCnsltDgstfn.tblCnsltDgstfn;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             //컨설턴트 정보
             TblUser consulttUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
             TblCnslttMbr consulttDtl = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
 
+            TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", consulttUser.getUserSn()) //사진
+                    )
+            ).fetchOne();
+            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", consulttUser.getUserSn()) //사진
+                    )
+            ).fetch();
+
             resultVO.putResult("consulttUser", consulttUser);
             resultVO.putResult("consulttDtl", consulttDtl);
+            resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
+            resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
 
             //신청자 정보
             TblUser tblUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));

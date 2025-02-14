@@ -277,6 +277,9 @@ public class MemberApiService {
             //컨설턴트회원
         } else if(Integer.valueOf(2).equals(mbrType)) {
             TblCnslttMbr tblCnslttMbr = new TblCnslttMbr();
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
 
             tblCnslttMbr.setUserSn(userSn);
             tblCnslttMbr.setCnsltActv((String) dto.get("cnsltActv"));
@@ -287,8 +290,35 @@ public class MemberApiService {
             tblCnslttMbr.setCnsltArtcl((String) dto.get("cnsltArtcl"));
             tblCnslttMbr.setCnsltSlfint((String) dto.get("cnsltSlfint"));
 
+            TblCnslttMbr fileCnsrttMbr =
             tblCnslttMbrRepository.save(tblCnslttMbr);
-        }
+
+
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("cnsltCertificate_"+fileCnsrttMbr.getUserSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                files,
+                                "/cnsltCertificate/" +fileCnsrttMbr.getUserSn(),
+                                "cnsltCertificate_" +fileCnsrttMbr.getUserSn(),
+                                fileCnt
+                                )
+                );
+            }
+
+            if(cnsltProfileFiles != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("cnsltProfile_"+fileCnsrttMbr.getUserSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                cnsltProfileFiles,
+                                "/cnsltProfile/" +fileCnsrttMbr.getUserSn(),
+                                "cnsltProfile_" +fileCnsrttMbr.getUserSn(),
+                                fileCnt
+                        )
+                );
+            }
+
+        }//컨설턴트회원 가입절차 끝
 
 
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());

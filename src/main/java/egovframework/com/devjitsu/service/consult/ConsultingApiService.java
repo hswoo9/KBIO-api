@@ -139,19 +139,19 @@ public class ConsultingApiService {
                                 ConsultDto.class,
                                 qTblCnslttMbr,
                                 qTblUser
-//                                ,qTblComFile
+                                ,qTblComFile
                             )
                     ).from(qTblUser)
                     .join(qTblCnslttMbr)
                     .on(
                             qTblUser.userSn.eq(qTblCnslttMbr.userSn)
                     )
-/*                    .join(qTblComFile)
+                    .leftJoin(qTblComFile)
                     .on(
                             qTblComFile.psnTblSn.eq(
-                                    Expressions.stringTemplate("CONCAT()") //사진
+                                    Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", qTblCnslttMbr.userSn) //사진
                             )
-                    )*/
+                    )
                     .where(builder)
                     .orderBy(qTblUser.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
@@ -188,14 +188,26 @@ public class ConsultingApiService {
     public ResultVO getConsultantDetail(SearchDto dto){
         ResultVO resultVO = new ResultVO();
 
+        QTblComFile qTblComFile = QTblComFile.tblComFile;
+        JPAQueryFactory q = new JPAQueryFactory(em);
+
         try{
             TblUser tblUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
             TblCnslttMbr tblCnslttMbr = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
+
+            TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", tblCnslttMbr.getUserSn()) //사진
+                    )
+            ).fetchOne();
+
+
 
 
 
             resultVO.putResult("memberDetail",tblUser);
             resultVO.putResult("consultant",tblCnslttMbr);
+            resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
