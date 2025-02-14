@@ -9,9 +9,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class StatisticsUserAccessDto {
 
-    private Long mbrType1Cnt;
-    private Long mbrType3Cnt;
-    private Long mbrType4Cnt;
-    private Long mbrType2Cnt;
+    private long mbrType1Cnt;
+    private long mbrType3Cnt;
+    private long mbrType4Cnt;
+    private long mbrType2Cnt;
     private String day;
 }

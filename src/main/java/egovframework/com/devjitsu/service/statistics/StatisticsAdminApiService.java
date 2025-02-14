@@ -59,23 +59,26 @@ public class StatisticsAdminApiService {
     public ResultVO getTypeStatistics(SearchDto searchDto) throws Exception {
         ResultVO resultVO = new ResultVO();
 
-        List<Map<String, Object>> cityData = new ArrayList<>();
+        List<Map<String, Object>> regionData = new ArrayList<>();
 
-        if(searchDto.get("page").equals("byRegionUser")){
-            addCityData(cityData, "Jeonju-si", "전주시");
-            addCityData(cityData, "Iksan-si", "익산시");
-            addCityData(cityData, "Gunsan-si", "군산시");
-            addCityData(cityData, "Jeongeup-si", "정읍시");
-            addCityData(cityData, "Gimje-si", "김제시");
-            addCityData(cityData, "Namwon-si", "남원시");
-            addCityData(cityData, "Wanju-gun", "완주군");
-            addCityData(cityData, "Gochang-gun", "고창군");
-            addCityData(cityData, "Buan-gun", "부안군");
-            addCityData(cityData, "Imsil-gun", "임실군");
-            addCityData(cityData, "Sunchang-gun", "순창군");
-            addCityData(cityData, "Jinan-gun", "진안군");
-            addCityData(cityData, "Muju-gun", "무주군");
-            addCityData(cityData, "Jangsu-gun", "장수군");
+        if(searchDto.get("page").equals("regionUser")){
+            addRegionData(regionData, "Seoul", "서울특별시", "서울");
+            addRegionData(regionData, "Busan", "부산광역시", "부산");
+            addRegionData(regionData, "Daegu", "대구광역시", "대구");
+            addRegionData(regionData, "Incheon", "인천광역시", "인천");
+            addRegionData(regionData, "Gwangju", "광주광역시", "광주");
+            addRegionData(regionData, "Daejeon", "대전광역시", "대전");
+            addRegionData(regionData, "Ulsan", "울산광역시", "울산");
+            addRegionData(regionData, "Sejong City", "세종특별자치시", "세종특별자치시");
+            addRegionData(regionData, "Gyeonggi-do", "경기도", "경기");
+            addRegionData(regionData, "Gangwon-do", "강원특별자치도", "강원특별자치도");
+            addRegionData(regionData, "Chungcheongbuk-do", "충청북도", "충북");
+            addRegionData(regionData, "Chungcheongnam-do", "충청남도", "충남");
+            addRegionData(regionData, "Jeonbuk State", "전북특별자치도", "전북특별자치도");
+            addRegionData(regionData, "Jeollanam-do", "전라남도", "전남");
+            addRegionData(regionData, "Gyeongsangbuk-do", "경상북도", "경북");
+            addRegionData(regionData, "Gyeongsangnam-do", "경상남도", "경남");
+            addRegionData(regionData, "Jeju-do", "제주특별자치도", "제주특별자치도");
         }
 
         List<Map<String, Object>> returnList = new ArrayList<>();
@@ -111,9 +114,14 @@ public class StatisticsAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
             BooleanBuilder builder = new BooleanBuilder();
 
-            Map<String, Object> otherCityMap = new HashMap<>();
-            otherCityMap.put("korCityName", "기타");
-            otherCityMap.put("city", "Others");
+            Map<String, Object> otherRegionMap = new HashMap<>();
+//            otherRegionMap.put("korRegionName", "기타");
+//            otherRegionMap.put("region", "Others");
+            otherRegionMap.put("korRegionName", "세종특별자치시");
+            otherRegionMap.put("korAddrName", "세종특별자치시");
+            otherRegionMap.put("region", "Sejong City");
+            otherRegionMap.put("engRegionName", "Sejong City");
+
             for (Row row : response.getRowsList()) {
                 Map<String, Object> map = new HashMap<>();
 
@@ -179,54 +187,48 @@ public class StatisticsAdminApiService {
                     System.out.printf(metrics[i] + ": %s\n", row.getMetricValues(i).getValue());
                 }
 
-                if(searchDto.get("page").equals("byRegionUser")){
-                    boolean cityDataInclude = false;
-                    for (Map<String, Object> city : cityData) {
-                        if (map.get("city").equals(city.get("engCityName"))) {
-                            cityDataInclude = true;
-                            searchDto.put("cityName", city.get("korCityName"));
-                            map.put("korCityName", city.get("korCityName"));
-//                            map.putAll(userManagementRepository.getUserJoinStsByDateBetween(searchDto));
+                if(searchDto.get("page").equals("regionUser")){
+                    boolean regionDataInclude = false;
+                    for (Map<String, Object> region : regionData) {
+                        if (map.get("region").equals(region.get("engRegionName"))) {
+                            regionDataInclude = true;
+                            searchDto.put("regionName", region.get("korRegionName"));
+                            map.put("korRegionName", region.get("korRegionName"));
+                            map.put("newUserCnt", regionJoinUser(searchDto, region));
                             returnList.add(map);
                             break;
                         }
                     }
 
-                    if(!cityDataInclude){
-                        otherCityMap.put("totalUsers",
-                                (otherCityMap.get("totalUsers") == null ? 0 : Integer.parseInt(otherCityMap.get("totalUsers").toString())) +
-                                        (map.get("totalUsers") == null ? 0 : Integer.parseInt(map.get("totalUsers").toString())));
-                        otherCityMap.put("activeUsers",
-                                (otherCityMap.get("activeUsers") == null ? 0 : Integer.parseInt(otherCityMap.get("activeUsers").toString())) +
-                                        (map.get("activeUsers") == null ? 0 : Integer.parseInt(map.get("activeUsers").toString())));
-//                        if(StringUtils.isEmpty(otherCityMap.get("NEW_JOIN_USER"))){
-//                            searchDto.put("cityName", "others");
-//                            otherCityMap.putAll(userManagementRepository.getUserJoinStsByDateBetween(params));
-//                        }
+                    if(!regionDataInclude && map.get("region").equals("알 수 없음")){
+                        otherRegionMap.put("totalUsers", map.get("totalUsers"));
+                        otherRegionMap.put("activeUsers", map.get("activeUsers"));
+                        otherRegionMap.put("newUserCnt", regionJoinUser(searchDto, otherRegionMap));
+                        returnList.add(otherRegionMap);
                     }
                 }else if(searchDto.get("page").equals("content")){
-                    String pagePath = (String) map.get("pagePathPlusQueryString");
-                    Map<String, Object> queryMap = new HashMap<>();
-                    if(pagePath.indexOf("?") > -1){
-                        String[] pairs = pagePath.substring(pagePath.indexOf("?") + 1).split("&");
-                        for (String pair : pairs) {
-                            String[] keyValue = pair.split("=");
-                            if (keyValue.length > 1) {
-                                queryMap.put(keyValue[0], keyValue[1]);
-                            } else {
-                                queryMap.put(keyValue[0], "");
-                            }
-                        }
-                    }
+//                    String pagePath = (String) map.get("pagePathPlusQueryString");
+//                    Map<String, Object> queryMap = new HashMap<>();
+//                    if(pagePath.indexOf("?") > -1){
+//                        String[] pairs = pagePath.substring(pagePath.indexOf("?") + 1).split("&");
+//                        for (String pair : pairs) {
+//                            String[] keyValue = pair.split("=");
+//                            if (keyValue.length > 1) {
+//                                queryMap.put(keyValue[0], keyValue[1]);
+//                            } else {
+//                                queryMap.put(keyValue[0], "");
+//                            }
+//                        }
+//                    }
 
-                    if(
-                            pagePath.indexOf("/index.do") == -1 &&
-                                    (pagePath.indexOf("/content/contentView.do") > -1 || pagePath.indexOf("/compDiff/consttPoolList.do") > -1 || pagePath.indexOf("/compDiff/consttView.do") > -1 ||
-                                            pagePath.indexOf("/board") > -1 || pagePath.indexOf("/spWork/supportBusinessList.do") > -1 || pagePath.indexOf("/spWork/supportBDetailedList.do") > -1 ||
-                                            pagePath.indexOf("/spWork/supportOtherBusinessList.do") > -1 || pagePath.indexOf("/spWork/supportBusinessCalList.do") > -1 || pagePath.indexOf("/spWork/supportBusinessView.do") > -1 ||
-                                            pagePath.indexOf("/join/joinTypeSel.do") > -1 || pagePath.indexOf("/login.do") > -1) &&
-                                    !pagePath.equals("/logoutAction.do") && !pagePath.equals("/")
-                    ){
+//                    if(
+//                            pagePath.indexOf("/index.do") == -1 &&
+//                                    (pagePath.indexOf("/content/contentView.do") > -1 || pagePath.indexOf("/compDiff/consttPoolList.do") > -1 || pagePath.indexOf("/compDiff/consttView.do") > -1 ||
+//                                            pagePath.indexOf("/board") > -1 || pagePath.indexOf("/spWork/supportBusinessList.do") > -1 || pagePath.indexOf("/spWork/supportBDetailedList.do") > -1 ||
+//                                            pagePath.indexOf("/spWork/supportOtherBusinessList.do") > -1 || pagePath.indexOf("/spWork/supportBusinessCalList.do") > -1 || pagePath.indexOf("/spWork/supportBusinessView.do") > -1 ||
+//                                            pagePath.indexOf("/join/joinTypeSel.do") > -1 || pagePath.indexOf("/login.do") > -1) &&
+//                                    !pagePath.equals("/logoutAction.do") && !pagePath.equals("/")
+//                    ){
 //                        Map<String, Object> menu = menuMngrRepository.getMenu(queryMap);
 //                        if(menu != null){
 //                            String menuPathName = (String) menu.get("MENU_NAME_PATH");
@@ -235,14 +237,10 @@ public class StatisticsAdminApiService {
 //                                returnList.add(map);
 //                            }
 //                        }
-                    }
+//                    }
                 }else{
                     returnList.add(map);
                 }
-            }
-
-            if(searchDto.get("page").equals("byRegionUser")){
-                returnList.add(otherCityMap);
             }
         }
 
@@ -252,11 +250,12 @@ public class StatisticsAdminApiService {
         return resultVO;
     }
 
-    private static void addCityData(List<Map<String, Object>> cityData, String engCityName, String korCityName) {
-        Map<String, Object> cityMap = new HashMap<>();
-        cityMap.put("engCityName", engCityName);
-        cityMap.put("korCityName", korCityName);
-        cityData.add(cityMap);
+    private static void addRegionData(List<Map<String, Object>> regionData, String engRegionName, String korRegionName, String korAddrname) {
+        Map<String, Object> regionMap = new HashMap<>();
+        regionMap.put("engRegionName", engRegionName);
+        regionMap.put("korRegionName", korRegionName);
+        regionMap.put("korAddrName", korAddrname);
+        regionData.add(regionMap);
     }
 
     public ResultVO getStatisticsUser(SearchDto dto) {
@@ -449,5 +448,38 @@ public class StatisticsAdminApiService {
         }
 
         return resultVO;
+    }
+
+    public StatisticsUserAccessDto regionJoinUser(SearchDto searchDto, Map<String, Object> region){
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        QTblUser qTblUser = QTblUser.tblUser;
+
+        StatisticsUserAccessDto statisticsUserAccessDto = q.select(
+            Projections.constructor(
+                StatisticsUserAccessDto.class,
+                Expressions.numberTemplate(Long.class,
+                        "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
+                Expressions.numberTemplate(Long.class,
+                        "SUM(CASE WHEN {0} = 3 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType3Count"),
+                Expressions.numberTemplate(Long.class,
+                        "SUM(CASE WHEN {0} = 4 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType4Count"),
+                Expressions.numberTemplate(Long.class,
+                        "SUM(CASE WHEN {0} = 2 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType2Count"),
+                Expressions.constant("")
+            )
+        )
+        .from(qTblUser)
+        .where(
+            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblUser.joinYmd).goe(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", searchDto.get("startDate").toString())
+            )
+            .and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblUser.joinYmd).loe(
+                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", searchDto.get("endDate").toString())
+                )
+            ).and(qTblUser.addr.startsWith(region.get("korAddrName").toString()))
+        ).fetchFirst();
+
+        return statisticsUserAccessDto;
     }
 }
