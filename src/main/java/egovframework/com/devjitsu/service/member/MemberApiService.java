@@ -725,7 +725,10 @@ public class MemberApiService {
 
 
             Long userSn = Long.parseLong(dto.get("userSn").toString());
-            builder.and(qTblCnsltAply.userSn.eq(userSn));
+            builder.and(
+                    qTblCnsltAply.userSn.eq(userSn)
+                            .or(qTblCnsltDtl.cnslttUserSn.eq(userSn))
+            );
 
             builder.and(qTblCnsltAply.cnsltSe
                     .eq(Long.valueOf(dto.get("cnsltSe").toString())));
