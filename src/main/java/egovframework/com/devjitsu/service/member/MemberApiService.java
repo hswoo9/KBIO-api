@@ -755,7 +755,10 @@ public class MemberApiService {
 
 
             Long userSn = Long.parseLong(dto.get("userSn").toString());
-            builder.and(qTblCnsltAply.userSn.eq(userSn));
+            builder.and(
+                    qTblCnsltAply.userSn.eq(userSn)
+                            .or(qTblCnsltDtl.cnslttUserSn.eq(userSn))
+            );
 
             builder.and(qTblCnsltAply.cnsltSe
                     .eq(Long.valueOf(dto.get("cnsltSe").toString())));
@@ -932,16 +935,25 @@ public class MemberApiService {
         return resultVO;
     }
 
-    public ResultVO setCreateSimpleData(TblCnsltDsctn tblCnsltDsctn, List<MultipartFile> files) {
+    public ResultVO setCreateSimpleData(TblCnsltDsctn tblCnsltDsctn, List<MultipartFile> files, String cnsltSttsCd) {
         ResultVO resultVO = new ResultVO();
 
         try {
             QTblComFile qTblComFile = QTblComFile.tblComFile;
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
             tblCnsltDsctnRepository.save(tblCnsltDsctn);
 
+            System.out.println("숫자가뭘까 : " + tblCnsltDsctn.getCnsltAplySn());
+
+            if (tblCnsltDsctn.getCnsltAplySn() > 0L) {
+                q.update(qTblCnsltDtl)
+                        .set(qTblCnsltDtl.cnsltSttsCd, cnsltSttsCd)
+                        .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDsctn.getCnsltAplySn()))
+                        .execute();
+            }
 
             if(files != null){
                 long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
@@ -973,6 +985,35 @@ public class MemberApiService {
             long updatedCount = new JPAQueryFactory(em)
                     .update(qTblCnsltDtl)
                     .set(qTblCnsltDtl.cnsltSttsCd, "200")
+                    .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDtl.getCnsltAplySn()))
+                    .execute();
+
+            if (updatedCount > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("처리되었습니다.");
+            } else {
+                resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+                resultVO.setResultMessage("실패하였습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("오류가 발생했습니다.");
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setCancelSimple(TblCnsltDtl tblCnsltDtl) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+
+            long updatedCount = new JPAQueryFactory(em)
+                    .update(qTblCnsltDtl)
+                    .set(qTblCnsltDtl.cnsltSttsCd, "999")
                     .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDtl.getCnsltAplySn()))
                     .execute();
 
