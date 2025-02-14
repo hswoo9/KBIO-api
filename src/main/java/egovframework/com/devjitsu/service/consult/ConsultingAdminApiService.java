@@ -144,7 +144,7 @@ public class ConsultingAdminApiService {
                                  .from(qTblUser)
                                  .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),
                           qTblCnsltAply.frstCrtDt,
-                          qTblCnsltAply.cnsltFld,
+                          qTblCnslttMbr.cnsltFld,
                           qTblCnslttMbr.ogdpNm,
                           qTblCnsltDtl.cnsltSttsCd,
                          JPAExpressions
