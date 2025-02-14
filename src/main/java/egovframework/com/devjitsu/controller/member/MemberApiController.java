@@ -328,4 +328,9 @@ public class MemberApiController {
         return memberApiService.setComSimple(tblCnsltDtl);
     }
 
+    @PostMapping("/memberApi/setCancelSimple")
+    public ResultVO setCancelSimple(@RequestBody TblCnsltDtl tblCnsltDtl){
+        return memberApiService.setCancelSimple(tblCnsltDtl);
+    }
+
 }
