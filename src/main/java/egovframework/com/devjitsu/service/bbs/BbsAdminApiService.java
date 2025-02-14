@@ -279,6 +279,7 @@ public class BbsAdminApiService {
             QTblPst qTblPst = QTblPst.tblPst;
             JPAQueryFactory q = new JPAQueryFactory(em);
             BooleanBuilder builder = new BooleanBuilder();
+            BooleanBuilder subBuilder = new BooleanBuilder();
             if (!StringUtils.isEmpty(dto.get("bbsNm"))) {
                 builder.and(qTblBbs.bbsNm.contains((String) dto.get("bbsNm")));
             }
@@ -287,8 +288,16 @@ public class BbsAdminApiService {
             }
             if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
                 builder.and(qTblBbs.actvtnYn.eq((String) dto.get("actvtnYn")));
+                subBuilder.and(qTblPst.actvtnYn.eq("Y"));
             }
-
+            if (!StringUtils.isEmpty(dto.get("selectDt"))) {
+                /*subBuilder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("selectDt")).between(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.frstCrtDt),
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.frstCrtDt)
+                        )
+                );*/
+            }
             List<TblBbsInPstDTO> bbsList = q.select(
                     Projections.constructor(
                             TblBbsInPstDTO.class,
@@ -309,6 +318,14 @@ public class BbsAdminApiService {
                     )
                 ).from(qTblBbs).where(builder).fetch();
 
+            subBuilder.and(
+                    qTblPst.bbsSn.in(
+                            bbsList.stream().map(
+                                    TblBbsInPstDTO::getBbsSn
+                            ).collect(Collectors.toList())
+                    )
+            );
+
             Map<Long, List<TblPstSimpleDTO>> pstList = q.select(
                         Projections.constructor(
                             TblPstSimpleDTO.class,
@@ -323,13 +340,7 @@ public class BbsAdminApiService {
                             qTblPst.frstCrtDt
                         )
                     ).from(qTblPst)
-                    .where(
-                            qTblPst.bbsSn.in(
-                                    bbsList.stream().map(
-                                            TblBbsInPstDTO::getBbsSn
-                                    ).collect(Collectors.toList())
-                            ).and(qTblPst.actvtnYn.eq("Y"))
-                    ).orderBy(qTblPst.frstCrtDt.desc())
+                    .where(subBuilder).orderBy(qTblPst.frstCrtDt.desc())
                     .limit(20)
                     .fetch().stream()
                     .collect(Collectors.groupingBy(TblPstSimpleDTO::getBbsSn));
