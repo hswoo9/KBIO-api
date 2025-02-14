@@ -1,14 +1,17 @@
 package egovframework.com.devjitsu.controller.member;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.consult.TblCnsltDsctn;
+import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
 import egovframework.com.devjitsu.model.consult.TblDfclMttr;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.QTblUser;
+import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.TblMvnEnt;
 import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.common.CommonApiService;
@@ -73,11 +76,43 @@ public class MemberApiController {
             @ApiResponse(responseCode = "200", description = "회원가입 신청이 완료되었습니다."),
             @ApiResponse(responseCode = "400", description = "회원가입 신청 실패")
     })
+    /*
     @PostMapping(value = "/memberApi/insertMember.do")
     public ResultVO insertMember(HttpServletRequest request)throws Exception {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.insertMember(dto);
+    }*/
+    @PostMapping(value = "/memberApi/insertMember")
+    public ResultVO insertMember(//@ModelAttribute TblUser tblUser,
+                                 //@ModelAttribute TblMvnEnt tblMvnEnt,
+                                 //@ModelAttribute TblCnslttMbr tblCnslttMbr,
+                                 @RequestParam(value = "userInfo") String userInfoJson,
+                                 @RequestParam(value = "profileImgFiles", required = false) List<MultipartFile> cnsltProfileFiles,
+                                 @RequestParam(value = "files", required = false)List<MultipartFile> files)throws Exception {
+        /*if (tblMvnEnt == null) {
+            tblMvnEnt = new TblMvnEnt();
+        }
+        if (tblCnslttMbr == null) {
+            tblCnslttMbr = new TblCnslttMbr();
+        }*/
+        //ResultVO resultVO = new ResultVO();
+        //return resultVO;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        SearchDto dto = new SearchDto();
+        System.out.println("****userInfo****"+userInfoJson);
+        Map<String, Object> userInfoMap = objectMapper.readValue(userInfoJson, Map.class);
+        for (Map.Entry<String, Object> entry : userInfoMap.entrySet()) {
+            dto.put(entry.getKey(), entry.getValue());
+        }
+        System.out.println(dto);
+
+        return memberApiService.insertMember(dto, cnsltProfileFiles, files);
     }
+
+    /*@ModelAttribute TblUser tblUser,
+                                 @ModelAttribute TblMvnEnt tblMvnEnt,
+                                 @ModelAttribute TblCnslttMbr tblCnslttMbr,*/
 
     @Operation(
             summary = "회원가입시 입주기업/유관기관 조회",
@@ -257,19 +292,47 @@ public class MemberApiController {
     }
 
     @Operation(
-            summary = "마이페이지 간편상담 수정",
-            description = "마이페이지 간편상담 수정",
+            summary = "마이페이지 간편상담 답변 수정",
+            description = "마이페이지 간편상담 답변 수정",
             tags = {"MemberController"}
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "간편상담 수정 성공"),
-            @ApiResponse(responseCode = "400", description = "간편상담 수정 실패")
+            @ApiResponse(responseCode = "200", description = "간편상담 답변 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "간편상담 답변 수정 실패")
     })
     @PostMapping("/memberApi/setSimpleData")
     public ResultVO setSimpleData(
             @ModelAttribute TblCnsltDsctn tblCnsltDsctn,
             @RequestParam(value = "files", required = false) List<MultipartFile> files) {
         return memberApiService.setSimpleData(tblCnsltDsctn, files);
+    }
+
+    @Operation(
+            summary = "마이페이지 간편상담 답변 등록",
+            description = "마이페이지 간편상담 답변 등록",
+            tags = {"MemberController"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "간편상담 답변 등록 성공"),
+            @ApiResponse(responseCode = "400", description = "간편상담 답변 등록 실패")
+    })
+    @PostMapping("/memberApi/setCreateSimpleData")
+    public ResultVO setCreateSimpleData(
+            @ModelAttribute TblCnsltDsctn tblCnsltDsctn,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            @RequestParam(value = "cnsltSttsCd", required = false) String cnsltSttsCd) {
+        return memberApiService.setCreateSimpleData(tblCnsltDsctn, files, cnsltSttsCd);
+    }
+
+
+    @PostMapping("/memberApi/setComSimple")
+    public ResultVO setComSimple(@RequestBody TblCnsltDtl tblCnsltDtl){
+        return memberApiService.setComSimple(tblCnsltDtl);
+    }
+
+    @PostMapping("/memberApi/setCancelSimple")
+    public ResultVO setCancelSimple(@RequestBody TblCnsltDtl tblCnsltDtl){
+        return memberApiService.setCancelSimple(tblCnsltDtl);
     }
 
 }

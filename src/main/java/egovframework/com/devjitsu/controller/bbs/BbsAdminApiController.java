@@ -107,4 +107,21 @@ public class BbsAdminApiController {
     public ResultVO setBbsDel(@RequestBody TblBbs tblBbs){
         return bbsAdminApiService.setBbsDel(tblBbs);
     }
+
+    /**
+     * 게시판 전체 리스트 조회
+     * 게시글 포함
+     * params
+     * {
+     *    bbsNm       : 게시판 명
+     *    bbsType       : 게시판 유형
+     *    actvtnYn      : 사용 여부
+     * }
+     * @return
+     */
+    @PostMapping("/bbsApi/getBbsInPstList.do")
+    public ResultVO getBbsInPstList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return bbsAdminApiService.getBbsInPstList(dto);
+    }
 }

@@ -132,6 +132,7 @@ public class MemberApiService {
     }
 
 
+    /*
     public ResultVO insertMember(SearchDto dto) throws Exception {
         ResultVO resultVO = new ResultVO();
 
@@ -145,7 +146,7 @@ public class MemberApiService {
         member.setZip((String) dto.get("zip")); // 우편번호
         String emailDomain = "direct".equals(dto.get("emailProvider")) ? (String) dto.get("emailDomain") : (String) dto.get("emailProvider");
         member.setEmail(dto.get("emailPrefix") + "@" + emailDomain); // 이메일
-        /*member.setMblTelno((String) dto.get("mblTelno")); // 휴대폰 번호*/
+        //*member.setMblTelno((String) dto.get("mblTelno")); // 휴대폰 번호*//*
         String encryptedMblTelno = EgovFileScrty.encode((String) dto.get("mblTelno")); // 휴대폰 번호 암호화
         member.setMblTelno(encryptedMblTelno);
         member.setEmlRcptnAgreYn((String) dto.get("emlRcptnAgreYn")); // 이메일 수신 동의 여부
@@ -210,6 +211,92 @@ public class MemberApiService {
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         resultVO.setResultMessage("회원 등록이 성공적으로 완료되었습니다.");
         return resultVO;
+    }
+    */
+
+    public ResultVO insertMember(SearchDto dto,
+                                 List<MultipartFile> cnsltProfileFiles,
+                                 List<MultipartFile> files) throws Exception {
+        ResultVO resultVO = new ResultVO();
+
+        TblUser member = new TblUser(); // TblUser 엔티티로 변경
+        member.setKornFlnm((String) dto.get("kornFlnm")); // 성명
+        member.setUserId((String) dto.get("userId")); // 사용자 ID
+        String hashedPswd = EgovFileScrty.encryptPassword((String) dto.get("userPw"), (String) dto.get("userId"));
+        member.setUserPw(hashedPswd); // 비밀번호
+        member.setAddr((String) dto.get("addr")); // 주소
+        member.setDaddr((String) dto.get("daddr")); // 상세 주소
+        member.setZip((String) dto.get("zip")); // 우편번호
+        String emailDomain = "direct".equals(dto.get("emailProvider")) ? (String) dto.get("emailDomain") : (String) dto.get("emailProvider");
+        member.setEmail(dto.get("emailPrefix") + "@" + emailDomain); // 이메일
+        //*member.setMblTelno((String) dto.get("mblTelno")); // 휴대폰 번호*//*
+        String encryptedMblTelno = EgovFileScrty.encode((String) dto.get("mblTelno")); // 휴대폰 번호 암호화
+        member.setMblTelno(encryptedMblTelno);
+        member.setEmlRcptnAgreYn((String) dto.get("emlRcptnAgreYn")); // 이메일 수신 동의 여부
+        member.setSmsRcptnAgreYn((String) dto.get("smsRcptnAgreYn")); // SMS 수신 동의 여부
+        member.setInfoRlsYn((String) dto.get("infoRlsYn")); // 정보 공개 여부
+        member.setActvtnYn("W"); // 활성 여부 기본값 설정
+        member.setMbrType((Integer) dto.get("mbrType")); // 회원 타입
+
+        TblUser savedMember = TblUserRepository.save(member);
+        Long userSn = savedMember.getUserSn();
+        if(!StringUtils.isEmpty(dto.get("snsType"))){
+            if(dto.get("snsType").toString().equals("naver")){
+                TblUserSnsCertInfo tblUserSnsCertInfo = new TblUserSnsCertInfo();
+                tblUserSnsCertInfo.setUserSn(userSn);
+                tblUserSnsCertInfo.setSnsClsf(dto.get("snsType").toString());
+                tblUserSnsCertInfo.setSnsUnqNo(dto.get("snsId").toString());
+                tblUserSnsCertInfo.setCreatrSn(userSn);
+                tblUserSnsCertInfoRepository.save(tblUserSnsCertInfo);
+            } else if (dto.get("snsType").toString().equals("kakao")) {
+                TblUserSnsCertInfo tblUserSnsCertInfo = new TblUserSnsCertInfo();
+                tblUserSnsCertInfo.setUserSn(userSn);
+                tblUserSnsCertInfo.setSnsClsf(dto.get("snsType").toString());
+                tblUserSnsCertInfo.setSnsUnqNo(dto.get("snsId").toString());
+                tblUserSnsCertInfo.setCreatrSn(userSn);
+                tblUserSnsCertInfoRepository.save(tblUserSnsCertInfo);
+            }
+        }
+        Object mbrTypeObj = dto.get("mbrType");
+        Integer mbrType = (mbrTypeObj instanceof Integer) ? (Integer) mbrTypeObj : null;
+
+        //입주기업회원
+        if (Integer.valueOf(1).equals(mbrType)) {
+            TblMvnEntMbr mvnEntMbr = new TblMvnEntMbr();
+
+            Object mvnEntSnObj = dto.get("mvnEntSn");
+            Long mvnEntSn = (mvnEntSnObj instanceof Number) ? ((Number) mvnEntSnObj).longValue() : null;
+            System.out.println("**mvnEntSn : **" + mvnEntSn);
+
+            mvnEntMbr.setUserSn(userSn);
+            mvnEntMbr.setMvnEntSn(mvnEntSn);
+
+
+            tblMvnEntMbrRepository.save(mvnEntMbr);
+
+            //컨설턴트회원
+        } else if(Integer.valueOf(2).equals(mbrType)) {
+            TblCnslttMbr tblCnslttMbr = new TblCnslttMbr();
+
+            tblCnslttMbr.setUserSn(userSn);
+            tblCnslttMbr.setCnsltActv((String) dto.get("cnsltActv"));
+            tblCnslttMbr.setOgdpNm((String) dto.get("ogdpNm"));
+            tblCnslttMbr.setJbpsNm((String) dto.get("jbpsNm"));
+            tblCnslttMbr.setCrrPrd(Integer.parseInt(dto.get("crrPrd").toString()) );
+            tblCnslttMbr.setCnsltFld(Long.parseLong((String) dto.get("cnsltFld")));
+            tblCnslttMbr.setCnsltArtcl((String) dto.get("cnsltArtcl"));
+            tblCnslttMbr.setCnsltSlfint((String) dto.get("cnsltSlfint"));
+
+            tblCnslttMbrRepository.save(tblCnslttMbr);
+        }
+
+
+        resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        resultVO.setResultMessage("회원 등록이 성공적으로 완료되었습니다.");
+
+        return resultVO;
+
+
     }
 
 
@@ -629,6 +716,7 @@ public class MemberApiService {
             QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
             QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn;
             QTblCnsltDgstfn qTblCnsltDgstfn = QTblCnsltDgstfn.tblCnsltDgstfn;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
@@ -637,7 +725,10 @@ public class MemberApiService {
 
 
             Long userSn = Long.parseLong(dto.get("userSn").toString());
-            builder.and(qTblCnsltAply.userSn.eq(userSn));
+            builder.and(
+                    qTblCnsltAply.userSn.eq(userSn)
+                            .or(qTblCnsltDtl.cnslttUserSn.eq(userSn))
+            );
 
             builder.and(qTblCnsltAply.cnsltSe
                     .eq(Long.valueOf(dto.get("cnsltSe").toString())));
@@ -809,6 +900,105 @@ public class MemberApiService {
         }catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setCreateSimpleData(TblCnsltDsctn tblCnsltDsctn, List<MultipartFile> files, String cnsltSttsCd) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
+            tblCnsltDsctnRepository.save(tblCnsltDsctn);
+
+            System.out.println("숫자가뭘까 : " + tblCnsltDsctn.getCnsltAplySn());
+
+            if (tblCnsltDsctn.getCnsltAplySn() > 0L) {
+                q.update(qTblCnsltDtl)
+                        .set(qTblCnsltDtl.cnsltSttsCd, cnsltSttsCd)
+                        .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDsctn.getCnsltAplySn()))
+                        .execute();
+            }
+
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                files,
+                                "/simple/" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                "simple_" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                fileCnt
+                        )
+                );
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setComSimple(TblCnsltDtl tblCnsltDtl) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+
+            long updatedCount = new JPAQueryFactory(em)
+                    .update(qTblCnsltDtl)
+                    .set(qTblCnsltDtl.cnsltSttsCd, "200")
+                    .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDtl.getCnsltAplySn()))
+                    .execute();
+
+            if (updatedCount > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("처리되었습니다.");
+            } else {
+                resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+                resultVO.setResultMessage("실패하였습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("오류가 발생했습니다.");
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setCancelSimple(TblCnsltDtl tblCnsltDtl) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+
+            long updatedCount = new JPAQueryFactory(em)
+                    .update(qTblCnsltDtl)
+                    .set(qTblCnsltDtl.cnsltSttsCd, "999")
+                    .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDtl.getCnsltAplySn()))
+                    .execute();
+
+            if (updatedCount > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("처리되었습니다.");
+            } else {
+                resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+                resultVO.setResultMessage("실패하였습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("오류가 발생했습니다.");
         }
 
         return resultVO;
