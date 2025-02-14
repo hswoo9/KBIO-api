@@ -319,9 +319,11 @@ public class MemberApiController {
     @PostMapping("/memberApi/setCreateSimpleData")
     public ResultVO setCreateSimpleData(
             @ModelAttribute TblCnsltDsctn tblCnsltDsctn,
-            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
-        return memberApiService.setCreateSimpleData(tblCnsltDsctn, files);
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            @RequestParam(value = "cnsltSttsCd", required = false) String cnsltSttsCd) {
+        return memberApiService.setCreateSimpleData(tblCnsltDsctn, files, cnsltSttsCd);
     }
+
 
     @PostMapping("/memberApi/setComSimple")
     public ResultVO setComSimple(@RequestBody TblCnsltDtl tblCnsltDtl){

@@ -905,16 +905,25 @@ public class MemberApiService {
         return resultVO;
     }
 
-    public ResultVO setCreateSimpleData(TblCnsltDsctn tblCnsltDsctn, List<MultipartFile> files) {
+    public ResultVO setCreateSimpleData(TblCnsltDsctn tblCnsltDsctn, List<MultipartFile> files, String cnsltSttsCd) {
         ResultVO resultVO = new ResultVO();
 
         try {
             QTblComFile qTblComFile = QTblComFile.tblComFile;
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
             tblCnsltDsctnRepository.save(tblCnsltDsctn);
 
+            System.out.println("숫자가뭘까 : " + tblCnsltDsctn.getCnsltAplySn());
+
+            if (tblCnsltDsctn.getCnsltAplySn() > 0L) {
+                q.update(qTblCnsltDtl)
+                        .set(qTblCnsltDtl.cnsltSttsCd, cnsltSttsCd)
+                        .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDsctn.getCnsltAplySn()))
+                        .execute();
+            }
 
             if(files != null){
                 long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
