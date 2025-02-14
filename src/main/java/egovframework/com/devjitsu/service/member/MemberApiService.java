@@ -16,10 +16,7 @@ import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
-import egovframework.com.devjitsu.repository.consult.TblCnsltAplyRepository;
-import egovframework.com.devjitsu.repository.consult.TblCnsltDsctnRepository;
-import egovframework.com.devjitsu.repository.consult.TblCnslttMbrRepository;
-import egovframework.com.devjitsu.repository.consult.TblDfclMttrRepository;
+import egovframework.com.devjitsu.repository.consult.*;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
@@ -68,6 +65,7 @@ public class MemberApiService {
     private final TblDfclMttrRepository tblDfclMttrRepository;
     private final TblCnsltAplyRepository tblCnsltAplyRepository;
     private final TblCnsltDsctnRepository tblCnsltDsctnRepository;
+    private final TblCnsltDgstfnRepository tblCnsltDgstfnRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -840,6 +838,10 @@ public class MemberApiService {
                     .on(
                             qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn)
                     )
+                    /*.join(qTblCnsltDgstfn)
+                    .on(
+                              qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)
+                    )*/
                     .where(builder)
                     .orderBy(qTblCnsltAply.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
@@ -1029,6 +1031,43 @@ public class MemberApiService {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("오류가 발생했습니다.");
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setSatisSimpleData(TblCnsltDgstfn tblCnsltDgstfn) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            System.out.println("chcScr: " + tblCnsltDgstfn.getChcScr());
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            tblCnsltDgstfnRepository.save(tblCnsltDgstfn);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getSatisPopup(TblCnsltDgstfn tblCnsltDgstfn) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            List<TblCnsltDgstfn> ratingsList = tblCnsltDgstfnRepository.findByCnsltAplySn(tblCnsltDgstfn.getCnsltAplySn());
+            System.out.println(ratingsList);
+            if (ratingsList.isEmpty()) {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            } else {
+                resultVO.putResult("ratings", ratingsList);
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;

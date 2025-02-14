@@ -5,10 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.consult.TblCnsltAply;
-import egovframework.com.devjitsu.model.consult.TblCnsltDsctn;
-import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
-import egovframework.com.devjitsu.model.consult.TblDfclMttr;
+import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.TblCnslttMbr;
@@ -24,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -333,6 +331,28 @@ public class MemberApiController {
     @PostMapping("/memberApi/setCancelSimple")
     public ResultVO setCancelSimple(@RequestBody TblCnsltDtl tblCnsltDtl){
         return memberApiService.setCancelSimple(tblCnsltDtl);
+    }
+
+    @PostMapping("/memberApi/setSatisSimpleData")
+    public ResponseEntity<ResultVO> setSatisSimpleData(@RequestParam Map<String, String> params) {
+        String dgstfnArtcl = params.get("dgstfnArtcl");
+        String chcScr = params.get("chcScr");
+        Long cnsltAplySn = Long.valueOf(params.get("cnsltAplySn"));
+        Long creatrSn = Long.valueOf(params.get("creatrSn"));
+
+        TblCnsltDgstfn tblCnsltDgstfn = new TblCnsltDgstfn();
+        tblCnsltDgstfn.setDgstfnArtcl(dgstfnArtcl);
+        tblCnsltDgstfn.setChcScr(chcScr);
+        tblCnsltDgstfn.setCnsltAplySn(cnsltAplySn);
+        tblCnsltDgstfn.setCreatrSn(creatrSn);
+
+        ResultVO result = memberApiService.setSatisSimpleData(tblCnsltDgstfn);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/memberApi/getSatisPopup")
+    public ResultVO getSatisPopup(@RequestBody TblCnsltDgstfn tblCnsltDgstfn) {
+        return memberApiService.getSatisPopup(tblCnsltDgstfn);
     }
 
 }
