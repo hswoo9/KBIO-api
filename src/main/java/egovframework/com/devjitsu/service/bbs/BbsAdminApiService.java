@@ -3,6 +3,7 @@ package egovframework.com.devjitsu.service.bbs;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
@@ -15,6 +16,11 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.menu.*;
+import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
+import egovframework.com.devjitsu.model.menu.QTblMenu;
+import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroup;
+import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroupUser;
+import egovframework.com.devjitsu.model.search.TblIntgSrchDTO;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -27,7 +33,11 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -260,5 +270,85 @@ public class BbsAdminApiService {
         }
 
         return authrtDto;
+    }
+
+    public ResultVO getBbsInPstList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        try {
+            QTblBbs qTblBbs = QTblBbs.tblBbs;
+            QTblPst qTblPst = QTblPst.tblPst;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+            if (!StringUtils.isEmpty(dto.get("bbsNm"))) {
+                builder.and(qTblBbs.bbsNm.contains((String) dto.get("bbsNm")));
+            }
+            if (!StringUtils.isEmpty(dto.get("bbsTypeNm"))) {
+                builder.and(qTblBbs.bbsTypeNm.eq((String) dto.get("bbsTypeNm")));
+            }
+            if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
+                builder.and(qTblBbs.actvtnYn.eq((String) dto.get("actvtnYn")));
+            }
+
+            List<TblBbsInPstDTO> bbsList = q.select(
+                    Projections.constructor(
+                            TblBbsInPstDTO.class,
+                            qTblBbs.bbsSn,
+                            qTblBbs.bbsNm,
+                            qTblBbs.bbsTypeNm,
+                            qTblBbs.atchFileYn,
+                            qTblBbs.atchFileKndNm,
+                            qTblBbs.wrtrRlsYn,
+                            qTblBbs.cmntPsbltyYn,
+                            qTblBbs.ansPsbltyYn,
+                            qTblBbs.pstCtgryYn,
+                            qTblBbs.rmrkCn,
+                            qTblBbs.actvtnYn,
+                            qTblBbs.creatrSn,
+                            qTblBbs.frstCrtDt,
+                            Expressions.constant(Collections.emptyList())
+                    )
+                ).from(qTblBbs).where(builder).fetch();
+
+            Map<Long, List<TblPstSimpleDTO>> pstList = q.select(
+                        Projections.constructor(
+                            TblPstSimpleDTO.class,
+                            qTblPst.pstSn,
+                            qTblPst.ntcBgngDt,
+                            qTblPst.ntcEndDate,
+                            qTblPst.bbsSn,
+                            qTblPst.pstTtl,
+                            qTblPst.pstCn,
+                            qTblPst.rlsYn,
+                            qTblPst.actvtnYn,
+                            qTblPst.frstCrtDt
+                        )
+                    ).from(qTblPst)
+                    .where(
+                            qTblPst.bbsSn.in(
+                                    bbsList.stream().map(
+                                            TblBbsInPstDTO::getBbsSn
+                                    ).collect(Collectors.toList())
+                            ).and(qTblPst.actvtnYn.eq("Y"))
+                    ).orderBy(qTblPst.frstCrtDt.desc())
+                    .limit(20)
+                    .fetch().stream()
+                    .collect(Collectors.groupingBy(TblPstSimpleDTO::getBbsSn));
+
+            bbsList.forEach( bbs ->
+                    bbs.setTblPstList(
+                            pstList.getOrDefault(
+                                    bbs.getBbsSn(),
+                                    new ArrayList<>()
+                            )
+                    )
+            );
+
+            resultVO.putResult("bbsList", bbsList);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+        return resultVO;
     }
 }
