@@ -185,6 +185,7 @@ public class MemberApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.checkUser(dto);
     }
+
     @Operation(
             summary = "마이페이지 회원조회 ",
             description = "마이페이지 조회",

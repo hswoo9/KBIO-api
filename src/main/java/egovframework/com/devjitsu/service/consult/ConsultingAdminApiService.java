@@ -4,10 +4,12 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
@@ -86,6 +88,10 @@ public class ConsultingAdminApiService {
             QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl; //컨설팅상세
             QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn; //컨설팅내역
             QTblCnsltDgstfn qTblCnsltDgstfn = QTblCnsltDgstfn.tblCnsltDgstfn; //만족도
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+            QTblComCd qTblComCd = QTblComCd.tblComCd; //공통코드
+
+            QTblUser qCnslttUser = new QTblUser("qCnslttUser");
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
@@ -112,16 +118,27 @@ public class ConsultingAdminApiService {
             }
 
             if (!StringUtils.isEmpty(dto.get("cnsltSttsCd"))) {
-                builder.and(qTblCnsltDtl.cnsltSttsCd.eq((String) dto.get("cnsltSttsCd")));
+                //builder.and(qTblCnsltDtl.cnsltSttsCd.eq((String) dto.get("cnsltSttsCd")));
+                builder.and(
+                        qTblCnsltDtl.cnsltSttsCd.in(
+                                JPAExpressions
+                                        .select(qTblComCd.comCd)
+                                        .from(qTblComCd)
+                                        .where(qTblComCd.comCdSn.eq(Long.valueOf(dto.get("cnsltSttsCd").toString())))
+                        )
+                );
+
             }
 
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
-                if(dto.get("searchType").equals("kornFlnm")){
+                if(dto.get("searchType").equals("kornFlnm")){ //신청자
                     builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
-                }else if(dto.get("searchType").equals("ogdpNm")){
+                }else if(dto.get("searchType").equals("ogdpNm")){ //소속
                     builder.and(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")));
-                }else if(dto.get("searchType").equals("jbpsNm")){
-                    builder.and(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("ttl")){ //제목
+                    builder.and(qTblCnsltAply.ttl.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("cnslttKornFlnm")){
+                    builder.and(qCnslttUser.kornFlnm.contains((String) dto.get("searchVal")));
                 }
             }else{
                 builder.and(
@@ -131,6 +148,17 @@ public class ConsultingAdminApiService {
                 );
             }
 
+            JPQLQuery<Long> fileCnt = JPAExpressions
+                    .select(qTblComFile.count())
+                    .from(qTblComFile)
+                    .where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate(
+                                            "CONCAT('consulting_', {0})", qTblCnsltAply.cnsltAplySn
+                                    )
+                            )
+                    );
+
           List<ConsultingDTO> consultantList = q.
                   select(
                          Projections.constructor(
@@ -139,21 +167,32 @@ public class ConsultingAdminApiService {
                          qTblCnsltAply.userSn,
                          qTblCnsltDtl.cnslttUserSn,
                          qTblUser.kornFlnm,
-                         JPAExpressions
+                         /*JPAExpressions
                                  .select(qTblUser.kornFlnm)
                                  .from(qTblUser)
-                                 .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),
-                          qTblCnsltAply.frstCrtDt,
-                          qTblCnslttMbr.cnsltFld,
-                          qTblCnslttMbr.ogdpNm,
-                          qTblCnsltDtl.cnsltSttsCd,
+                                 .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),*/
+                         //컨설턴트유저
+                         qCnslttUser.kornFlnm,
+
+                         qTblCnsltAply.frstCrtDt,
+                         qTblCnsltAply.cnsltFld,
+                         qTblComCd.comCdNm,
+                         qTblCnslttMbr.ogdpNm,
+                          //qTblComCd.comCdSn,
+                          JPAExpressions
+                                  .select(qTblComCd.comCdSn)
+                                  .from(qTblComCd)
+                                  .where(qTblComCd.comCd.eq(qTblCnsltDtl.cnsltSttsCd)
+                                          .and(qTblComCd.cdGroupSn.eq(14L))),
+                         qTblCnsltDtl.cnsltSttsCd,
                          JPAExpressions
                                 .select(
                                          qTblCnsltDgstfn.dgstfnArtcl.count().coalesce(0L)
                                 )
                                 .from(qTblCnsltDgstfn)
                                 .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
-                         qTblCnsltAply.ttl
+                         qTblCnsltAply.ttl,
+                         fileCnt
                           )
                   ).from(qTblCnsltAply)
 
@@ -166,10 +205,15 @@ public class ConsultingAdminApiService {
                   .on(
                           qTblCnsltAply.userSn.eq(qTblUser.userSn)
                   )
+                  //컨설턴트 유저
+                  .join(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
+
                   .join(qTblCnslttMbr)
                   .on(
                           qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn)
                   )
+                  .join(qTblComCd)
+                  .on(qTblComCd.comCdSn.eq(qTblCnsltAply.cnsltFld))
                   /*.join(qTblCnsltDgstfn)
                   .on(
                           qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)
@@ -210,6 +254,7 @@ public class ConsultingAdminApiService {
                     .from(qTblCnsltAply)
                     .join(qTblCnsltDtl).on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
                     .join(qTblUser).on(qTblCnsltAply.userSn.eq(qTblUser.userSn))
+                    .join(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
                     .join(qTblCnslttMbr).on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
                     .where(builder)
                     .fetchOne();
@@ -294,7 +339,7 @@ public class ConsultingAdminApiService {
             List<TblCnsltDsctn> tblCnsltDsctnList = q
                     .selectFrom(qTblCnsltDsctn)
                             .where(qTblCnsltDsctn.cnsltAplySn.eq(Long.parseLong(dto.get("cnsltAplySn").toString())))
-                                    .orderBy(qTblCnsltDsctn.frstCrtDt.desc()).fetch();
+                                    .orderBy(qTblCnsltDsctn.frstCrtDt.asc()).fetch();
 
             List<TblComFile> allFiles = q
                     .selectFrom(qTblComFile)
