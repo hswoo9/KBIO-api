@@ -14,6 +14,7 @@ public class ConsultDto {
 
     private TblCnslttMbr tblCnslttMbr;
     private TblUser tblUser;
+//    private TblCnsltDtl tblCnsltDtl;
     private TblComFile tblComFile;
 
 }

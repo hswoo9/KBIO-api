@@ -215,16 +215,16 @@ public class MvnEntApiService {
         return resultVO;
     }
 
-    public ResultVO setMemberActvYn(TblUser tblUser){
+    public ResultVO setMemberMbrStts(TblUser tblUser){
         ResultVO resultVO = new ResultVO();
         long userSn = tblUser.getUserSn();
-        String actvtnYn = tblUser.getActvtnYn();
+        String mbrStts = tblUser.getMbrStts();
 
         try {
             Optional<TblUser> optionalTblUser = Optional.ofNullable(tblUserRepository.findByUserSn(userSn));
             if (optionalTblUser.isPresent()) {
                 TblUser user = optionalTblUser.get();
-                user.setActvtnYn(actvtnYn); // 상태 변경
+                user.setActvtnYn(mbrStts); // 상태 변경
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             }else{
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());

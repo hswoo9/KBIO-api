@@ -237,7 +237,8 @@ public class MemberApiService {
         member.setEmlRcptnAgreYn((String) dto.get("emlRcptnAgreYn")); // 이메일 수신 동의 여부
         member.setSmsRcptnAgreYn((String) dto.get("smsRcptnAgreYn")); // SMS 수신 동의 여부
         member.setInfoRlsYn((String) dto.get("infoRlsYn")); // 정보 공개 여부
-        member.setActvtnYn("W"); // 활성 여부 기본값 설정
+        member.setActvtnYn("Y");
+        member.setMbrStts("W"); // 활성 여부 기본값 설정
         member.setMbrType((Integer) dto.get("mbrType")); // 회원 타입
 
         TblUser savedMember = TblUserRepository.save(member);
@@ -539,7 +540,7 @@ public class MemberApiService {
 
             long updatedCount = new JPAQueryFactory(em)
                     .update(qTblUser)
-                    .set(qTblUser.actvtnYn, "C")
+                    .set(qTblUser.mbrStts, "C")
                     .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
