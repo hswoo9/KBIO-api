@@ -301,7 +301,7 @@ public class MemberApiController {
     @PostMapping("/memberApi/setSimpleData")
     public ResultVO setSimpleData(
             @ModelAttribute TblCnsltDsctn tblCnsltDsctn,
-            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+            @RequestParam(value = "simpleFiles", required = false) List<MultipartFile> files) {
         return memberApiService.setSimpleData(tblCnsltDsctn, files);
     }
 

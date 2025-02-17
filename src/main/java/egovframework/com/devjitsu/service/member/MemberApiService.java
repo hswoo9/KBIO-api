@@ -944,9 +944,9 @@ public class MemberApiService {
             System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
             tblCnsltDsctnRepository.save(tblCnsltDsctn);
 
-
+            System.out.println("files확인:" +files);
             if(files != null){
-                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("consulting" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
                 tblComFileRepository.saveAll(
                         fileUtil.devFileInf(
                                 files,
@@ -987,12 +987,12 @@ public class MemberApiService {
             }
 
             if(files != null){
-                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("consulting" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
                 tblComFileRepository.saveAll(
                         fileUtil.devFileInf(
                                 files,
-                                "/simple/" + tblCnsltDsctn.getCnsltDsctnSn(),
-                                "simple_" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                "/consulting/" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                "consulting_" + tblCnsltDsctn.getCnsltDsctnSn(),
                                 fileCnt
                         )
                 );
