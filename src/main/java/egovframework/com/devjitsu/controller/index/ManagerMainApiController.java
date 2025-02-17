@@ -30,4 +30,15 @@ public class ManagerMainApiController {
         return managerMainApiService.getStatus();
     }
 
+    /**
+     * 관리자 메인 캘린더 현황
+     * @return
+     */
+    @PostMapping("/mMainApi/getCalendarData.do")
+    public ResultVO getCalendarData(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return managerMainApiService.getCalendarData(dto);
+    }
+
+
 }

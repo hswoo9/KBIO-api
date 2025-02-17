@@ -5,6 +5,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
@@ -17,7 +18,9 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.consult.QTblCnsltAply;
 import egovframework.com.devjitsu.model.consult.QTblDfclMttr;
+import egovframework.com.devjitsu.model.main.MainCalendarDto;
 import egovframework.com.devjitsu.model.main.MainStatusDto;
+import egovframework.com.devjitsu.model.statistics.StatisticsDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserAccessDto;
 import egovframework.com.devjitsu.model.user.QTblMvnEnt;
 import egovframework.com.devjitsu.model.user.QTblUser;
@@ -34,6 +37,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +79,61 @@ public class ManagerMainApiService {
             getJoinStatus(mainStatusDto);
 
             resultVO.putResult("mainStatus", mainStatusDto);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getCalendarData(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QTblDfclMttr qTblDfclMttr = QTblDfclMttr.tblDfclMttr;
+            QTblCnsltAply qTblCnsltAply = QTblCnsltAply.tblCnsltAply;
+            StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblDfclMttr.frstCrtDt);
+            List<MainCalendarDto> mainCalendarDto = q.select(
+                Projections.constructor(
+                    MainCalendarDto.class,
+                    Expressions.constant("dfclMttr"),
+                    dayFormat,
+                    qTblDfclMttr.count()
+                )
+            )
+            .from(qTblDfclMttr)
+            .where(
+                qTblDfclMttr.actvtnYn.eq("Y").and(
+                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblDfclMttr.frstCrtDt).eq(
+                        Expressions.stringTemplate("{0}", dto.get("year") + "-" + dto.get("month"))
+                    )
+                )
+            ).groupBy(dayFormat).fetch();
+
+            StringTemplate dayFormat2 = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt);
+            mainCalendarDto.addAll(
+                q.select(
+                    Projections.constructor(
+                        MainCalendarDto.class,
+                        new CaseBuilder().when(qTblCnsltAply.cnsltSe.eq(26L)).then("consulting").otherwise("simpleConsult"),
+                        dayFormat2,
+                        qTblCnsltAply.cnsltSe.count()
+                    )
+                )
+                .from(qTblCnsltAply)
+                .where(qTblCnsltAply.actvtnYn.eq("Y").and(
+                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblCnsltAply.frstCrtDt).eq(
+                        Expressions.stringTemplate("{0}", dto.get("year") + "-" + dto.get("month"))
+                    )
+                ))
+                .groupBy(dayFormat2)
+                .fetch()
+            );
+
+            resultVO.putResult("mainCalendar", mainCalendarDto);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
             e.printStackTrace();
