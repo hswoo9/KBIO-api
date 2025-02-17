@@ -15,7 +15,7 @@ import egovframework.com.devjitsu.model.bbs.QTblBbs;
 import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.common.QTblAtchFileDwnldCnt;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.statistics.StatisticsPstDto;
+import egovframework.com.devjitsu.model.statistics.StatisticsDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserAccessDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserDto;
 import egovframework.com.devjitsu.model.user.QTblUser;
@@ -378,10 +378,10 @@ public class StatisticsAdminApiService {
             );
 
             StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.frstCrtDt);
-            List<StatisticsPstDto> statisticsPstAccess = q
+            List<StatisticsDto> statisticsPstAccess = q
                     .select(
                         Projections.constructor(
-                                StatisticsPstDto.class,
+                            StatisticsDto.class,
                             dayFormat,
                             qTblPst.pstInqCnt.sum().nullif(0L)
                         )
@@ -426,10 +426,10 @@ public class StatisticsAdminApiService {
             );
 
             StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblAtchFileDwnldCnt.frstCrtDt);
-            List<StatisticsPstDto> statisticsPstFile = q
+            List<StatisticsDto> statisticsPstFile = q
                     .select(
                         Projections.constructor(
-                            StatisticsPstDto.class,
+                            StatisticsDto.class,
                             dayFormat,
                             qTblAtchFileDwnldCnt.atchFileDwnldCnt.sum().nullif(0L)
                         )

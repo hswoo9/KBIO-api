@@ -1,6 +1,7 @@
 package egovframework.com.devjitsu.model.bbs;
 
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.user.TblUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -118,6 +119,10 @@ public class TblPst {
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP", updatable = false)
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
+
+    @ManyToOne
+    @JoinColumn(name = "CREATR_SN", referencedColumnName = "USER_SN", insertable = false, updatable = false)
+    private TblUser tblUser;
 
     @Transient
     private List<TblPstCmnt> pstCmnt;
