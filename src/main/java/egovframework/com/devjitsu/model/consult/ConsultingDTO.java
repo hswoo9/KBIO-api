@@ -24,9 +24,10 @@ public class ConsultingDTO {
     private String cnsltSttsCd;
     private long dgstfnCnt;
     private String ttl;
+    private Long fileCnt;
 
     public ConsultingDTO(Long cnsltAplySn, Long userSn, Long cnslttUserSn, String kornFlnm, String cnslttKornFlnm,
-                         LocalDateTime frstCrtDt, Long cnsltFld, String ogdpNm, String cnsltSttsCd, Long dgstfnCnt, String ttl) {
+                         LocalDateTime frstCrtDt, Long cnsltFld, String ogdpNm, String cnsltSttsCd, Long dgstfnCnt, String ttl, Long fileCnt) {
         this.cnsltAplySn = cnsltAplySn;
         this.userSn = userSn;
         this.cnslttUserSn = cnslttUserSn;
@@ -38,6 +39,7 @@ public class ConsultingDTO {
         this.cnsltSttsCd = cnsltSttsCd;
         this.dgstfnCnt = dgstfnCnt;
         this.ttl = ttl;
+        this.fileCnt = fileCnt;
     }
 
 

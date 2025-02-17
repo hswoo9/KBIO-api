@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
@@ -86,6 +87,7 @@ public class ConsultingAdminApiService {
             QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl; //컨설팅상세
             QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn; //컨설팅내역
             QTblCnsltDgstfn qTblCnsltDgstfn = QTblCnsltDgstfn.tblCnsltDgstfn; //만족도
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
@@ -131,6 +133,17 @@ public class ConsultingAdminApiService {
                 );
             }
 
+            JPQLQuery<Long> fileCnt = JPAExpressions
+                    .select(qTblComFile.count())
+                    .from(qTblComFile)
+                    .where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate(
+                                            "CONCAT('consulting_', {0})", qTblCnsltAply.cnsltAplySn
+                                    )
+                            )
+                    );
+
           List<ConsultingDTO> consultantList = q.
                   select(
                          Projections.constructor(
@@ -153,7 +166,8 @@ public class ConsultingAdminApiService {
                                 )
                                 .from(qTblCnsltDgstfn)
                                 .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
-                         qTblCnsltAply.ttl
+                         qTblCnsltAply.ttl,
+                         fileCnt
                           )
                   ).from(qTblCnsltAply)
 

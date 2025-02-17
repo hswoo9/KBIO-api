@@ -5,6 +5,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
@@ -747,7 +748,9 @@ public class MemberApiService {
             QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
             QTblCnsltDsctn qTblCnsltDsctn = QTblCnsltDsctn.tblCnsltDsctn;
             QTblCnsltDgstfn qTblCnsltDgstfn = QTblCnsltDgstfn.tblCnsltDgstfn;
+
             QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
@@ -787,20 +790,34 @@ public class MemberApiService {
             }
 
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
-                if(dto.get("searchType").equals("kornFlnm")){
-                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
-                }else if(dto.get("searchType").equals("ogdpNm")){
-                    builder.and(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")));
-                }else if(dto.get("searchType").equals("jbpsNm")){
-                    builder.and(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")));
+                if(dto.get("searchType").equals("ttl")){
+                    builder.and(qTblCnsltAply.ttl.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("cn")){
+                    builder.and(qTblCnsltAply.cn.contains((String) dto.get("searchVal")));
                 }
             }else{
                 builder.and(
-                        qTblUser.kornFlnm.contains((String) dto.get("searchVal"))
-                                .or(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")))
-                                .or(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")))
+                        qTblCnsltAply.ttl.contains((String) dto.get("searchVal"))
+                                .or(qTblCnsltAply.cn.contains((String) dto.get("searchVal")))
                 );
             }
+
+            if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
+                builder.and(qTblCnsltAply.actvtnYn.eq((String) dto.get("actvtnYn")));
+            }else{
+                builder.and(qTblCnsltAply.actvtnYn.eq("Y"));
+            }
+
+            JPQLQuery<Long> fileCnt = JPAExpressions
+                    .select(qTblComFile.count())
+                    .from(qTblComFile)
+                    .where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate(
+                                            "CONCAT('consulting_', {0})", qTblCnsltAply.cnsltAplySn
+                                    )
+                            )
+                    );
 
             List<ConsultingDTO> consultantList = q.
                     select(
@@ -824,7 +841,8 @@ public class MemberApiService {
                                             )
                                             .from(qTblCnsltDgstfn)
                                             .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
-                                    qTblCnsltAply.ttl
+                                    qTblCnsltAply.ttl,
+                                    fileCnt
                             )
                     ).from(qTblCnsltAply)
 
