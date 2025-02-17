@@ -291,13 +291,11 @@ public class BbsAdminApiService {
                 subBuilder.and(qTblPst.actvtnYn.eq("Y"));
             }
             if (!StringUtils.isEmpty(dto.get("selectDt"))) {
-                /*subBuilder.and(
-                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("selectDt")).between(
-                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.frstCrtDt),
-                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.frstCrtDt)
-                        )
-                );*/
+                subBuilder.and(
+                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblPst.frstCrtDt).like(dto.get("selectDt") + "%")
+                );
             }
+
             List<TblBbsInPstDTO> bbsList = q.select(
                     Projections.constructor(
                             TblBbsInPstDTO.class,

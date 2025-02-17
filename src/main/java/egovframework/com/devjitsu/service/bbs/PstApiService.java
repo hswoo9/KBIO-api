@@ -180,6 +180,7 @@ public class PstApiService {
                             qTblPst.bbsSn,
                             pstClsfNm,
                             qTblPst.pstTtl,
+                            qTblPst.pstCn,
                             qTblPst.pstInqCnt,
                             qTblPst.rlsYn,
                             qTblPst.actvtnYn,

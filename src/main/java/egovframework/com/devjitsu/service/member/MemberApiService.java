@@ -820,15 +820,15 @@ public class MemberApiService {
                             )
                     );
 
-            List<ConsultingDTO> consultantList = q.
+            List<SimpleDTO> consultantList = q.
                     select(
                             Projections.constructor(
-                                    ConsultingDTO.class,
+                                    SimpleDTO.class,
                                     qTblCnsltAply.cnsltAplySn,
                                     qTblCnsltAply.userSn,
                                     qTblCnsltDtl.cnslttUserSn,
                                     qTblUser.kornFlnm,
-                                    JPAExpressions
+                                     JPAExpressions
                                             .select(qTblUser.kornFlnm)
                                             .from(qTblUser)
                                             .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),
