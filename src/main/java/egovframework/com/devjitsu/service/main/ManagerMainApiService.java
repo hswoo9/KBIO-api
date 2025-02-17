@@ -87,27 +87,25 @@ public class ManagerMainApiService {
     public void getOperationalStatus(MainStatusDto mainStatusDto) {
         JPAQueryFactory q = new JPAQueryFactory(em);
         QTblUser qTblUser = QTblUser.tblUser;
+        QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
         QTblDfclMttr qTblDfclMttr = QTblDfclMttr.tblDfclMttr;
 
         Tuple result = q.select(
             Expressions.numberTemplate(Long.class,
-            "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
-            Expressions.numberTemplate(Long.class,
             "SUM(CASE WHEN {0} = 2 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType2Count"),
-            Expressions.numberTemplate(Long.class,
-            "SUM(CASE WHEN {0} = 3 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType3Count"),
             Expressions.numberTemplate(Long.class,
             "SUM(CASE WHEN {0} = 4 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType4Count")
         ).from(qTblUser)
         .where(qTblUser.actvtnYn.eq("Y")).fetchFirst();
 
         if (result != null) {
-            mainStatusDto.setMbrType1Cnt(result.get(0, Long.class));
-            mainStatusDto.setMbrType2Cnt(result.get(1, Long.class));
-            mainStatusDto.setMbrType3Cnt(result.get(2, Long.class));
-            mainStatusDto.setMbrType4Cnt(result.get(3, Long.class));
+            mainStatusDto.setMbrType2Cnt(result.get(0, Long.class));
+            mainStatusDto.setMbrType4Cnt(result.get(1, Long.class));
         }
 
+        mainStatusDto.setMvnEntCnt(q.selectFrom(qTblMvnEnt).where(qTblMvnEnt.actvtnYn.eq("Y")).fetchCount());
+        /** 유관기관 추가해야함 dto도 추가해야함 */
+//        mainStatusDto.setMvnEntCnt(q.selectFrom(qTblMvnEnt).where(qTblMvnEnt.actvtnYn.eq("Y")).fetchCount());
         mainStatusDto.setDfclCnt(q.selectFrom(qTblDfclMttr).where(qTblDfclMttr.actvtnYn.eq("Y")).fetchCount());
     }
 

@@ -8,10 +8,11 @@ import lombok.Setter;
 @Setter
 public class MainStatusDto {
 
-    private long mbrType1Cnt;
     private long mbrType2Cnt;
-    private long mbrType3Cnt;
     private long mbrType4Cnt;
+
+    private long mvnEntCnt;
+
     private long dfclCnt;
     private long cnsltAply26Cnt;
     private long cnsltAply27Cnt;
