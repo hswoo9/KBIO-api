@@ -12,6 +12,7 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.*;
@@ -37,10 +38,12 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -884,17 +887,43 @@ public class MemberApiService {
             tblCnsltAply = tblCnsltAplyRepository.findByCnsltAplySn(tblCnsltAply.getCnsltAplySn());
             System.out.println("조회된 tblCnsltAply: " + tblCnsltAply);
             tblCnsltAply.setCnsltAplyFldNm(q.select(qTblComCd.comCdNm).from(qTblComCd).where(qTblComCd.comCdSn.eq(tblCnsltAply.getCnsltFld())).fetchOne());
-            tblCnsltAply.setSimpleFile(q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltAply.getCnsltAplySn())).fetch());
 
             List<TblCnsltDsctn> tblCnsltDsctnList = q
                     .selectFrom(qTblCnsltDsctn)
                     .where(qTblCnsltDsctn.cnsltAplySn.eq(Long.parseLong(tblCnsltAply.getCnsltAplySn().toString())))
                     .orderBy(qTblCnsltDsctn.frstCrtDt.asc()).fetch();
 
-            System.out.println("조회된 tblCnsltDsctnList: " + tblCnsltDsctnList);
+            List<Long> dsctnSnList = tblCnsltDsctnList.stream()
+                    .map(TblCnsltDsctn::getCnsltDsctnSn)
+                    .collect(Collectors.toList());
 
+            System.out.println("dsctn리스트 : " + dsctnSnList);
+
+            List<TblComFile> allFiles = q
+                    .selectFrom(qTblComFile)
+                    .where(qTblComFile.psnTblSn.in(
+                            dsctnSnList.stream()
+                                    .map(dsctnSn -> "consulting_" + dsctnSn)
+                                    .collect(Collectors.toList())
+                    ))
+                    .orderBy(qTblComFile.atchFileSn.desc())
+                    .fetch();
+
+            System.out.println("조회된 전체 첨부파일 리스트:");
+            for (TblComFile file : allFiles) {
+                System.out.println(file);
+            }
+
+            Map<Long, List<TblComFile>> filesByDsctnSn = allFiles.stream()
+                    .collect(Collectors.groupingBy(file -> {
+                        String psnTblSn = file.getPsnTblSn();
+                        return Long.parseLong(psnTblSn.replace("consulting_", ""));
+                    }));
+
+            System.out.println("조회된 tblCnsltDsctnList: " + tblCnsltDsctnList);
             resultVO.putResult("simple", tblCnsltAply);
             resultVO.putResult("cnsltDsctnList", tblCnsltDsctnList);
+            resultVO.putResult("filesByDsctnSn",filesByDsctnSn);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();
@@ -915,14 +944,14 @@ public class MemberApiService {
             System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
             tblCnsltDsctnRepository.save(tblCnsltDsctn);
 
-
+            System.out.println("files확인:" +files);
             if(files != null){
-                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("consulting" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
                 tblComFileRepository.saveAll(
                         fileUtil.devFileInf(
                                 files,
-                                "/simple/" + tblCnsltDsctn.getCnsltDsctnSn(),
-                                "simple_" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                "/consulting/" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                "consulting_" + tblCnsltDsctn.getCnsltDsctnSn(),
                                 fileCnt
                         )
                 );
@@ -958,12 +987,12 @@ public class MemberApiService {
             }
 
             if(files != null){
-                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("simple" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("consulting" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
                 tblComFileRepository.saveAll(
                         fileUtil.devFileInf(
                                 files,
-                                "/simple/" + tblCnsltDsctn.getCnsltDsctnSn(),
-                                "simple_" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                "/consulting/" + tblCnsltDsctn.getCnsltDsctnSn(),
+                                "consulting_" + tblCnsltDsctn.getCnsltDsctnSn(),
                                 fileCnt
                         )
                 );
