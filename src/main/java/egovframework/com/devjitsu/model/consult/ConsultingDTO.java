@@ -20,7 +20,9 @@ public class ConsultingDTO {
     private String cnslttKornFlnm;
     private LocalDateTime frstCrtDt;
     private long cnsltFld;
+    private String cnsltFldNm;
     private String ogdpNm;
+    private long cnsltSttsCdSn;
     private String cnsltSttsCd;
     private long dgstfnCnt;
     private String ttl;
