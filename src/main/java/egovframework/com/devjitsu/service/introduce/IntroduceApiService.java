@@ -12,6 +12,7 @@ import egovframework.com.devjitsu.model.user.QTblMvnEnt;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
 
+import egovframework.com.devjitsu.repository.user.TblRelInstRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
@@ -34,6 +35,7 @@ public class IntroduceApiService {
     private final TblMvnEntRepository tblMvnEntRepository;
     private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
     private final TblUserRepository tblUserRepository;
+    private final TblRelInstRepository tblRelInstRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -116,6 +118,65 @@ public class IntroduceApiService {
 
         try{
             resultVO.putResult("operational",tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn()));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getRelatedList(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try{
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            BooleanBuilder builder = new BooleanBuilder();
+
+            if(!StringUtils.isEmpty(dto.get("relInstNm"))){
+                builder.and(qTblRelInst.relInstNm.contains((String) dto.get("relInstNm")));
+            }
+
+            List<TblRelInst> tblRelInstList = q.selectFrom(qTblRelInst)
+                    .where(builder)
+                    .orderBy(qTblRelInst.frstCrtDt.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage()).fetch();
+
+            Long totCnt = q.select(qTblRelInst.count()).from(qTblRelInst).where(builder).fetchOne();
+
+            if(totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            resultVO.putResult("getRelatedList",tblRelInstList);
+            resultVO.putPaginationInfo(paginationInfo);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch(Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+
+        return resultVO;
+    }
+
+
+    public ResultVO getRelInstDetail(TblRelInst tblRelInst) {
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            resultVO.putResult("related",tblRelInstRepository.findByRelInstSn(tblRelInst.getRelInstSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();
