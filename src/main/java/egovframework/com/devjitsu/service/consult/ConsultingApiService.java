@@ -129,11 +129,29 @@ public class ConsultingApiService {
 
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
-            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
-                builder.and(qTblUser.kornFlnm.contains((String) dto.get("kornFlnm")));
+
+            if(!StringUtils.isEmpty(dto.get("cnsltFld"))){
+                builder.and(qTblCnslttMbr.cnsltFld.eq(Long.valueOf((String) dto.get("cnsltFld"))));
             }
-            if (!StringUtils.isEmpty(dto.get("ogdpNm"))) { //소속 검색조건
-                builder.and(qTblCnslttMbr.ogdpNm.eq((String) dto.get("ogdpNm")));
+
+            if(!StringUtils.isEmpty(dto.get("cnsltYn"))){
+                builder.and(qTblCnslttMbr.cnsltActv.eq((String) dto.get("cnsltYn")));
+            }
+
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("kornFlnm")) { //이름
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("ogdpNm")) { //소속
+                    builder.and(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("jbpsNm")) { //직위
+                    builder.and(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblUser.kornFlnm.contains((String) dto.get("searchVal"))
+                                .or(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")))
+                                .or(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")))
+                );
             }
 
             /*List<ConsultDto> consultantList = q
@@ -233,6 +251,8 @@ public class ConsultingApiService {
                     .join(qTblCnslttMbr).on(qTblUser.userSn.eq(qTblCnslttMbr.userSn))
                     .where(builder)
                     .fetchOne();
+
+
 
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
