@@ -3,6 +3,7 @@ package egovframework.com.devjitsu.controller.introduce;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.user.TblMvnEnt;
+import egovframework.com.devjitsu.model.user.TblRelInst;
 import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.introduce.IntroduceApiService;
 import egovframework.com.devjitsu.service.user.MvnEntApiService;
@@ -44,5 +45,17 @@ public class IntroduceApiController {
     @PostMapping("/introduceApi/getOperationalDetail")
     public ResultVO getOperationalDetail(@RequestBody TblMvnEnt tblMvnEnt) {
         return introduceApiService.getOperationalDetail(tblMvnEnt);
+    }
+
+    @PostMapping("/introduceApi/getRelatedList.do")
+    public ResultVO getRelatedList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+        return introduceApiService.getRelatedList(dto);
+    }
+
+    @PostMapping("/introduceApi/getRelInstDetail")
+    public ResultVO getRelInstDetail(@RequestBody TblRelInst tblRelInst) {
+        return introduceApiService.getRelInstDetail(tblRelInst);
     }
 }

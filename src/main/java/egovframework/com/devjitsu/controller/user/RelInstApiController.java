@@ -36,5 +36,28 @@ public class RelInstApiController {
         return relInstApiService.getRelInstList(dto);
     }
 
+    @PostMapping("/relatedApi/getRc")
+    public ResultVO getRc(@RequestBody TblRelInst tblRelInst){
+        return relInstApiService.getRc(tblRelInst);
+    }
+
+    @PostMapping("/relatedApi/getRelatedtMemberList.do")
+    public ResultVO getRelatedtMemberList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+        return relInstApiService.getRelatedtMemberList(dto);
+    }
+
+    @PostMapping("/relatedApi/setMemberMbrStts")
+    public ResultVO setMemberMbrStts(@RequestBody TblUser request){
+        return relInstApiService.setMemberMbrStts(request);
+    }
+
+    @PostMapping("/relatedApi/getRelatedMemberOne.do")
+    public ResultVO getRelatedMemberOne(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+        return relInstApiService.getRelatedMemberOne(dto);
+    }
 
 }

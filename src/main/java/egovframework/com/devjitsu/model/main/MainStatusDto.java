@@ -12,6 +12,7 @@ public class MainStatusDto {
     private long mbrType4Cnt;
 
     private long mvnEntCnt;
+    private long relInstCnt;
 
     private long dfclCnt;
     private long cnsltAply26Cnt;

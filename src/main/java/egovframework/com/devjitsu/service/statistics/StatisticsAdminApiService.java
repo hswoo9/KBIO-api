@@ -83,7 +83,7 @@ public class StatisticsAdminApiService {
 
         List<Map<String, Object>> returnList = new ArrayList<>();
 
-        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(String.valueOf(resourceLoader.getResource("classpath:/static/googleApiKey/jbok-429204-507832e5f593.json").getFile().toPath())))
+        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(String.valueOf(resourceLoader.getResource("classpath:/static/googleApiKey/kbio-447309-ba4bfac8ab2a.json").getFile().toPath())))
                 .createScoped("https://www.googleapis.com/auth/analytics.readonly");
 
         BetaAnalyticsDataSettings settings = BetaAnalyticsDataSettings.newBuilder()
@@ -96,7 +96,7 @@ public class StatisticsAdminApiService {
             String[] metrics = objectMapper.readValue(searchDto.get("metrics").toString(), String[].class);
 
             RunReportRequest.Builder requestBuilder = RunReportRequest.newBuilder()
-                    .setProperty("properties/421523110")
+                    .setProperty("properties/478528722")
                     .addDateRanges(DateRange.newBuilder().setStartDate(searchDto.get("startDate").toString()).setEndDate(searchDto.get("endDate").toString()));
 
             for (String dimension : dimensions) {
