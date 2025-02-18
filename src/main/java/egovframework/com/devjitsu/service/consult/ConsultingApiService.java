@@ -122,6 +122,7 @@ public class ConsultingApiService {
             QTblUser qTblUser = QTblUser.tblUser;
             QTblCnslttMbr qTblCnslttMbr = QTblCnslttMbr.tblCnslttMbr;
             QTblComFile qTblComFile = QTblComFile.tblComFile;
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             /** query DSL 조건 추가하는 방법 */
@@ -138,8 +139,9 @@ public class ConsultingApiService {
                             Projections.constructor(
                                 ConsultDto.class,
                                 qTblCnslttMbr,
-                                qTblUser
-                                ,qTblComFile
+                                qTblUser,
+ //                               qTblCnsltDtl,
+                                qTblComFile
                             )
                     ).from(qTblUser)
                     .join(qTblCnslttMbr)
@@ -152,7 +154,10 @@ public class ConsultingApiService {
                                     Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", qTblCnslttMbr.userSn) //사진
                             )
                     )
+/*                    .leftJoin(qTblCnsltDtl)
+                    .on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))*/
                     .where(builder)
+ //                   .groupBy(qTblCnslttMbr.userSn)
                     .orderBy(qTblUser.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())

@@ -83,6 +83,10 @@ public class TblUser {
   @Comment("활성여부")
   private String actvtnYn;
 
+  @Column(name = "MBR_STTS", length = 20)
+  @Comment("회원상태")
+  private String mbrStts;
+
   @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
   @Comment("생성자일련번호")
   private long creatrSn;
