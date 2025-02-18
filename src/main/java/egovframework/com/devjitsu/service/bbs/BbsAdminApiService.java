@@ -292,7 +292,10 @@ public class BbsAdminApiService {
             }
             if (!StringUtils.isEmpty(dto.get("selectDt"))) {
                 subBuilder.and(
-                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblPst.frstCrtDt).like(dto.get("selectDt") + "%")
+                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", dto.get("selectDt")).between(
+                            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblPst.ntcBgngDt),
+                            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblPst.ntcEndDate)
+                    )
                 );
             }
 
