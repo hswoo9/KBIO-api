@@ -41,6 +41,11 @@ public class RelInstApiController {
         return relInstApiService.getRc(tblRelInst);
     }
 
+    @PostMapping("/mvnEntApi/getrelatedMemberList.do")
+    public ResultVO getrelatedMemberList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
 
+        return relInstApiService.getrelatedMemberList(dto);
+    }
 
 }
