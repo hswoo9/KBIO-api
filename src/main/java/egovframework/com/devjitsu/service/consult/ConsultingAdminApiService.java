@@ -34,6 +34,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -304,7 +305,7 @@ public class ConsultingAdminApiService {
             ).fetchOne();
             List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
                     qTblComFile.psnTblSn.eq(
-                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", consulttUser.getUserSn()) //사진
+                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", consulttUser.getUserSn()) //자격증
                     )
             ).fetch();
 
@@ -377,6 +378,28 @@ public class ConsultingAdminApiService {
             }
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
 
+        } catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setCnslttMbrActv (TblCnslttMbr tblCnslttMbr){
+        ResultVO resultVO = new ResultVO();
+        long userSn = tblCnslttMbr.getUserSn();
+
+        try{
+            System.out.println("tblCnslttMbr"+tblCnslttMbr);
+            Optional<TblCnslttMbr> tblCnslttMbrOptional = Optional.ofNullable(tblCnslttMbrRepository.findByUserSn(userSn));
+            if(tblCnslttMbrOptional.isPresent()) {
+                TblCnslttMbr cnslttMbr = tblCnslttMbrOptional.get();
+                cnslttMbr.setCnsltActv(tblCnslttMbr.getCnsltActv());
+
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            }else{
+                resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
+            }
         } catch (Exception e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }

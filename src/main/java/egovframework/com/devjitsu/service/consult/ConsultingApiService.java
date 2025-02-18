@@ -262,6 +262,11 @@ public class ConsultingApiService {
                             Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", tblCnslttMbr.getUserSn()) //사진
                     )
             ).fetchOne();
+            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", tblCnslttMbr.getUserSn()) //자격증
+                    )
+            ).fetch();
 
 
 
@@ -270,6 +275,7 @@ public class ConsultingApiService {
             resultVO.putResult("memberDetail",tblUser);
             resultVO.putResult("consultant",tblCnslttMbr);
             resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
+            resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
