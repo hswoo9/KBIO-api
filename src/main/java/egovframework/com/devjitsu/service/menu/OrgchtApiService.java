@@ -107,12 +107,16 @@ public class OrgchtApiService {
                 builder.and(qTblOrgcht.jbttlSn.eq(Long.parseLong(dto.get("jbttlSn").toString())));
             }
 
-            /*List<TblOrgcht> orgchtList = q.selectFrom(qTblOrgcht)
-                    .where(builder)
-                    .orderBy(qTblOrgcht.sortSeq.asc())
-                    .offset(paginationInfo.getFirstRecordIndex())
-                    .limit(paginationInfo.getRecordCountPerPage())
-                    .fetch();*/
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").toString().equals("kornFlnm")){
+                    builder.and(qTblOrgcht.kornFlnm.contains(dto.get("searchVal").toString()));
+                }else if(dto.get("searchType").toString().equals("tkcgTask")){
+                    builder.and(qTblOrgcht.tkcgTask.contains(dto.get("searchVal").toString()));
+                }else{
+                    builder.and(qTblOrgcht.kornFlnm.contains(dto.get("searchVal").toString()).or(qTblOrgcht.tkcgTask.contains(dto.get("searchVal").toString())));
+                }
+            }
+
             List<TblOrgchtDTO> orgchtList = q.select(
                     Projections.constructor(
                             TblOrgchtDTO.class,
