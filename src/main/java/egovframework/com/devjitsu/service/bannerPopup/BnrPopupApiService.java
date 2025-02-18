@@ -9,6 +9,7 @@ import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bannerPopup.*;
+import egovframework.com.devjitsu.model.bannerPopup.QTblBnrPopup;
 import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.QTblComCd;
@@ -63,6 +64,18 @@ public class BnrPopupApiService {
             if (!StringUtils.isEmpty(dto.get("bnrPopupKnd"))) {
                 builder.and(qTblBnrPopup.bnrPopupKnd.eq((String) dto.get("bnrPopupKnd")));
             }
+
+            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
+                builder.and(qTblBnrPopup.actvtnYn.eq(dto.get("actvtnYn").toString()));
+            }
+            if(!StringUtils.isEmpty(dto.get("searchType")) && !StringUtils.isEmpty(dto.get("searchVal"))){
+                if(dto.get("searchType").toString().equals("bnrPopupTtl")){
+                    builder.and(qTblBnrPopup.bnrPopupTtl.contains(dto.get("searchVal").toString()));
+                }else{
+                    builder.and(qTblBnrPopup.bnrPopupTtl.contains(dto.get("searchVal").toString()));
+                }
+            }
+
 
             List<TblBnrPopup> bannerPopupList = q.selectFrom(qTblBnrPopup).where(builder).orderBy(qTblBnrPopup.frstCrtDt.desc()).offset(paginationInfo.getFirstRecordIndex()).limit(paginationInfo.getRecordCountPerPage()).fetch();
 
