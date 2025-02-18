@@ -36,5 +36,11 @@ public class RelInstApiController {
         return relInstApiService.getRelInstList(dto);
     }
 
+    @PostMapping("/relatedApi/getRc")
+    public ResultVO getRc(@RequestBody TblRelInst tblRelInst){
+        return relInstApiService.getRc(tblRelInst);
+    }
+
+
 
 }

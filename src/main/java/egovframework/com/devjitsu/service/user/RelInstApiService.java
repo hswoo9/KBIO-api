@@ -107,4 +107,18 @@ public class RelInstApiService {
 
         return resultVO;
     }
+
+    public ResultVO getRc(TblRelInst tblRelInst) {
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            resultVO.putResult("rc",tblRelInstRepository.findByRelInstSn(tblRelInst.getRelInstSn()));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
 }
