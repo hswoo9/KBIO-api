@@ -21,6 +21,7 @@ import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.*;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
+import egovframework.com.devjitsu.repository.user.TblRelInstMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.repository.user.TblUserSnsCertInfoRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
@@ -63,6 +64,7 @@ public class MemberApiService {
     private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
     private final TblUserRepository TblUserRepository;
     private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
+    private final TblRelInstMbrRepository tblRelInstMbrRepository;
     private final TblCnslttMbrRepository tblCnslttMbrRepository;
     private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
     private final TblComFileRepository tblComFileRepository;
@@ -114,24 +116,37 @@ public class MemberApiService {
         ResultVO resultVO = new ResultVO();
 
         QTblMvnEnt tblMvnEnt = QTblMvnEnt.tblMvnEnt;
+        QTblRelInst tblRelInst = QTblRelInst.tblRelInst;
 
-        TblMvnEnt businessInfo = new JPAQueryFactory(em)
-                .selectFrom(tblMvnEnt)
-                .where(tblMvnEnt.brno.eq(dto.get("businessNumber").toString()))
+        TblRelInst relatedInstInfo = new JPAQueryFactory(em)
+                .selectFrom(tblRelInst)
+                .where(tblRelInst.brno.eq(dto.get("businessNumber").toString()))
                 .fetchOne();
 
-        if (businessInfo != null) {
+        if (relatedInstInfo == null) {
+            TblMvnEnt businessInfo = new JPAQueryFactory(em)
+                    .selectFrom(tblMvnEnt)
+                    .where(tblMvnEnt.brno.eq(dto.get("businessNumber").toString()))
+                    .fetchOne();
+
+            if (businessInfo != null) {
+                resultVO.setResultCode(200);
+                resultVO.putResult("businessCnt", 1);
+                resultVO.putResult("businessData", businessInfo);
+            } else {
+                resultVO.setResultCode(400);
+                resultVO.putResult("businessCnt", 0);
+                resultVO.putResult("businessData", null);
+            }
+        } else {
             resultVO.setResultCode(200);
             resultVO.putResult("businessCnt", 1);
-            resultVO.putResult("businessData", businessInfo);
-        } else {
-            resultVO.setResultCode(400);
-            resultVO.putResult("businessCnt", 0);
-            resultVO.putResult("businessData", null);
+            resultVO.putResult("businessData", relatedInstInfo); // TblRelInst의 정보 반환
         }
 
         return resultVO;
     }
+
 
 
     /*
@@ -322,6 +337,21 @@ public class MemberApiService {
             }
 
         }//컨설턴트회원 가입절차 끝
+        //유관기관
+        else if (Integer.valueOf(3).equals(mbrType)) {
+            TblRelInstMbr relInstMbr = new TblRelInstMbr();
+
+            Object relInstSnObj = dto.get("relInstSn");
+            Long relInstSn = (relInstSnObj instanceof Number) ? ((Number) relInstSnObj).longValue() : null;
+            System.out.println("**relInstSnObj : **" + relInstSnObj);
+
+            relInstMbr.setUserSn(userSn);
+            relInstMbr.setRelInstSn(relInstSn);
+
+
+            tblRelInstMbrRepository.save(relInstMbr);
+
+        }
 
 
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
