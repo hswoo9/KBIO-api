@@ -139,6 +139,8 @@ public class ConsultingAdminApiService {
                     builder.and(qTblCnsltAply.ttl.contains((String) dto.get("searchVal")));
                 }else if(dto.get("searchType").equals("cnslttKornFlnm")){
                     builder.and(qCnslttUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("cnslttSn")){
+                    builder.and(qTblCnsltDtl.cnslttUserSn.eq(Long.valueOf(dto.get("userSn").toString())));
                 }
             }else{
                 builder.and(

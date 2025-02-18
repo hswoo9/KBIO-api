@@ -14,7 +14,10 @@ public class ConsultDto {
 
     private TblCnslttMbr tblCnslttMbr;
     private TblUser tblUser;
-//    private TblCnsltDtl tblCnsltDtl;
+    private TblCnsltDtl tblCnsltDtl;
+    private String cnsltFldNm;
+    private Long cnsltCount;
+    private Long simpleCount;
     private TblComFile tblComFile;
 
 }
