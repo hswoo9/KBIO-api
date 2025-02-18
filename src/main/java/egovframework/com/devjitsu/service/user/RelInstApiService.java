@@ -124,7 +124,7 @@ public class RelInstApiService {
         return resultVO;
     }
 
-    public ResultVO getrelatedMemberList(SearchDto dto){
+    public ResultVO getRelatedtMemberList(SearchDto dto){
         ResultVO resultVO = new ResultVO();
         PaginationInfo paginationInfo = new PaginationInfo();
         Map<String, Object> conditions = new HashMap<>();
@@ -136,6 +136,9 @@ public class RelInstApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             long relInstSn = ((Number)dto.get("relInstSn")).longValue();
+
+
+            System.out.println("****relInstSn :*****"+relInstSn);
 
             if (!StringUtils.isEmpty(dto.get("sysMngrYn"))){
                 //관리자설정에서 실행됨
@@ -222,5 +225,43 @@ public class RelInstApiService {
         query.where(predicates.toArray(new Predicate[0]));
 
         return em.createQuery(query).getResultList();
+    }
+
+
+    public ResultVO setMemberMbrStts(TblUser tblUser){
+        ResultVO resultVO = new ResultVO();
+        long userSn = tblUser.getUserSn();
+        String mbrStts = tblUser.getMbrStts();
+
+        try {
+            Optional<TblUser> optionalTblUser = Optional.ofNullable(tblUserRepository.findByUserSn(userSn));
+            if (optionalTblUser.isPresent()) {
+                TblUser user = optionalTblUser.get();
+                user.setActvtnYn(mbrStts); // 상태 변경
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            }else{
+                resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
+            }
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getRelatedMemberOne(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+        long userSn = ((Number)dto.get("userSn")).longValue();
+        long relInstSn = ((Number)dto.get("relInstSn")).longValue();
+        try {
+            resultVO.putResult("member", tblUserRepository.findByUserSn(userSn));
+            resultVO.putResult("rc",tblRelInstRepository.findByRelInstSn(relInstSn));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+
+        }
+
+        return resultVO;
     }
 }
