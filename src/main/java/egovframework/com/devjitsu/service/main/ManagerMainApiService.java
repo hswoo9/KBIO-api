@@ -23,6 +23,7 @@ import egovframework.com.devjitsu.model.main.MainStatusDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserAccessDto;
 import egovframework.com.devjitsu.model.user.QTblMvnEnt;
+import egovframework.com.devjitsu.model.user.QTblRelInst;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.TblMvnEnt;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
@@ -147,6 +148,8 @@ public class ManagerMainApiService {
         JPAQueryFactory q = new JPAQueryFactory(em);
         QTblUser qTblUser = QTblUser.tblUser;
         QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+        QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+
         QTblDfclMttr qTblDfclMttr = QTblDfclMttr.tblDfclMttr;
 
         Tuple result = q.select(
@@ -163,8 +166,7 @@ public class ManagerMainApiService {
         }
 
         mainStatusDto.setMvnEntCnt(q.selectFrom(qTblMvnEnt).where(qTblMvnEnt.actvtnYn.eq("Y")).fetchCount());
-        /** 유관기관 추가해야함 dto도 추가해야함 */
-//        mainStatusDto.setMvnEntCnt(q.selectFrom(qTblMvnEnt).where(qTblMvnEnt.actvtnYn.eq("Y")).fetchCount());
+        mainStatusDto.setRelInstCnt(q.selectFrom(qTblRelInst).where(qTblRelInst.actvtnYn.eq("Y")).fetchCount());
         mainStatusDto.setDfclCnt(q.selectFrom(qTblDfclMttr).where(qTblDfclMttr.actvtnYn.eq("Y")).fetchCount());
     }
 
