@@ -93,6 +93,24 @@ public class CodeApiService {
 
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
+
+            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
+                builder.and(qTblComCdGroup.actvtnYn.eq(dto.get("actvtnYn").toString()));
+                //builder.and(qTblComCdGroup.actvtnYn.eq(Long.valueOf(dto.get("upperMenuSn").toString())));
+            }
+            if(!StringUtils.isEmpty(dto.get("searchType")) && !StringUtils.isEmpty(dto.get("searchVal"))){
+                if(dto.get("searchType").toString().equals("cdGroup")){
+                    builder.and(qTblComCdGroup.cdGroup.contains(dto.get("searchVal").toString()));
+                }else if(dto.get("searchType").toString().equals("cdGroupNm")){
+                    builder.and(qTblComCdGroup.cdGroupNm.contains(dto.get("searchVal").toString()));
+                }else{
+                    builder.and(
+                            qTblComCdGroup.cdGroup.contains(dto.get("searchVal").toString())
+                            .or(qTblComCdGroup.cdGroupNm.contains(dto.get("searchVal").toString()))
+                    );
+                }
+            }
+
             List<TblComCdGroup> cdGroupList = q.selectFrom(qTblComCdGroup).where(builder).orderBy(qTblComCdGroup.frstCrtDt.desc()).offset(paginationInfo.getFirstRecordIndex()).limit(paginationInfo.getRecordCountPerPage()).fetch();
 
             Long totCnt = q.select(qTblComCdGroup.count())
@@ -129,6 +147,24 @@ public class CodeApiService {
             if (!StringUtils.isEmpty(dto.get("cdGroupSn"))) {
                 builder.and(qTblComCd.cdGroupSn.eq(Long.valueOf(Integer.parseInt(dto.get("cdGroupSn").toString()))));
             }
+
+            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
+                builder.and(qTblComCd.actvtnYn.eq(dto.get("actvtnYn").toString()));
+            }
+            if(!StringUtils.isEmpty(dto.get("searchType")) && !StringUtils.isEmpty(dto.get("searchVal"))){
+                if(dto.get("searchType").toString().equals("comCd")){
+                    builder.and(qTblComCd.comCd.contains(dto.get("searchVal").toString()));
+                }else if(dto.get("searchType").toString().equals("comCdNm")){
+                    builder.and(qTblComCd.comCdNm.contains(dto.get("searchVal").toString()));
+                }else{
+                    builder.and(
+                            qTblComCd.comCd.contains(dto.get("searchVal").toString())
+                            .or(qTblComCd.comCdNm.contains(dto.get("searchVal").toString()))
+                    );
+                }
+            }
+
+
             List<TblComCd> cdList = q.selectFrom(qTblComCd).where(builder).orderBy(qTblComCd.frstCrtDt.desc()).offset(paginationInfo.getFirstRecordIndex()).limit(paginationInfo.getRecordCountPerPage()).fetch();
 
             Long totCnt = q.select(qTblComCd.count())
