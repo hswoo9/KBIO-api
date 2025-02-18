@@ -489,31 +489,33 @@ public class MemberApiService {
         }
     }
 
-    public ResultVO setMemberMyPageModfiy(TblUser tbluser) {
+    public ResultVO setMemberMyPageModfiy(TblUser tblUser, TblCnslttMbr tblCnslttMbr) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            /*if (tbluser.getUserPw() != null && !tbluser.getUserPw().isEmpty()) {
-                String hashedPswd = EgovFileScrty.encryptPassword(tbluser.getUserPw(), tbluser.getUserId());
-                tbluser.setUserPw(hashedPswd);
-            }*/
-
-            if (tbluser.getMblTelno() != null && !tbluser.getMblTelno().isEmpty()) {
-                String encryptedMblTelno = EgovFileScrty.encode(tbluser.getMblTelno());
-                tbluser.setMblTelno(encryptedMblTelno);
+            if (tblUser.getMblTelno() != null && !tblUser.getMblTelno().isEmpty()) {
+                String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+                tblUser.setMblTelno(encryptedMblTelno);
             }
 
-            TblUserRepository.save(tbluser);
+            TblUserRepository.save(tblUser);
+
+            // 컨설턴트 정보가 있는 경우만 저장
+            if (tblCnslttMbr != null) {
+                tblCnslttMbrRepository.save(tblCnslttMbr);
+            }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage("회원 수정이 완료되었습니다.");
         } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+            resultVO.setResultMessage("회원 수정 중 오류가 발생했습니다.");
         }
 
         return resultVO;
     }
+
 
     public ResultVO checkUser(SearchDto dto) throws Exception {
         ResultVO resultVO = new ResultVO();
@@ -552,8 +554,19 @@ public class MemberApiService {
         try {
             TblUser member = TblUserRepository.findByUserSn(tblUser.getUserSn());
 
-            resultVO.putResult("member", member);
-            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            TblCnslttMbr cnslttMbr = tblCnslttMbrRepository.findByUserSn(tblUser.getUserSn());
+
+            if (member != null && cnslttMbr != null) {
+                System.out.printf("회원 정보: %s\n", member);
+                System.out.printf("컨설턴트 정보: %s\n", cnslttMbr);
+
+                resultVO.putResult("member", member);
+                resultVO.putResult("cnslttMbr", cnslttMbr);
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            } else {
+                // 사용자 정보 또는 컨설턴트 정보가 없을 경우
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());

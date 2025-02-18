@@ -167,8 +167,8 @@ public class MemberApiController {
             @ApiResponse(responseCode = "400", description = "회원 수정 실패")
     })
     @PostMapping(value = "/memberApi/setMemberMyPageModfiy")
-    public ResultVO setMemberMyPageModfiy(@ModelAttribute TblUser tbluser){
-        return memberApiService.setMemberMyPageModfiy(tbluser);
+    public ResultVO setMemberMyPageModfiy(@ModelAttribute TblUser tbluser, @ModelAttribute TblCnslttMbr tblCnslttMbr){
+        return memberApiService.setMemberMyPageModfiy(tbluser, tblCnslttMbr);
     }
 
     @Operation(
