@@ -76,6 +76,19 @@ public class UtztnTrmsApiService {
                 builder.and(qTblUtztnTrms.useYn.eq((String) dto.get("useYn")));
             }
 
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("utztnTrmsCn")){
+                    builder.and(qTblUtztnTrms.utztnTrmsCn.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("utztnTrmsTtl")){
+                    builder.and(qTblUtztnTrms.utztnTrmsTtl.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblUtztnTrms.utztnTrmsCn.contains((String) dto.get("searchVal"))
+                                .or(qTblUtztnTrms.utztnTrmsTtl.contains((String) dto.get("searchVal")))
+                );
+            }
+
             List<TblUtztnTrms> getPrivacyPolicyList = q.selectFrom(qTblUtztnTrms)
                     .where(builder)
                     .where(qTblUtztnTrms.useYn.in("Y", "N"))

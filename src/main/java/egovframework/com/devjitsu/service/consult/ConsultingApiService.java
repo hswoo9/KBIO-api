@@ -5,6 +5,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
@@ -14,10 +15,7 @@ import egovframework.com.devjitsu.model.bbs.QTblBbs;
 import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.bbs.TblPst;
-import egovframework.com.devjitsu.model.common.QTblComCdGroup;
-import egovframework.com.devjitsu.model.common.QTblComFile;
-import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.common.*;
 import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.menu.MenuDto;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
@@ -123,18 +121,40 @@ public class ConsultingApiService {
             QTblCnslttMbr qTblCnslttMbr = QTblCnslttMbr.tblCnslttMbr;
             QTblComFile qTblComFile = QTblComFile.tblComFile;
             QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+            QTblCnsltAply qTblCnsltAply = QTblCnsltAply.tblCnsltAply;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+
+
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
-            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
-                builder.and(qTblUser.kornFlnm.contains((String) dto.get("kornFlnm")));
-            }
-            if (!StringUtils.isEmpty(dto.get("ogdpNm"))) { //소속 검색조건
-                builder.and(qTblCnslttMbr.ogdpNm.eq((String) dto.get("ogdpNm")));
+
+            if(!StringUtils.isEmpty(dto.get("cnsltFld"))){
+                builder.and(qTblCnslttMbr.cnsltFld.eq(Long.valueOf((String) dto.get("cnsltFld"))));
             }
 
-            List<ConsultDto> consultantList = q
+            if(!StringUtils.isEmpty(dto.get("cnsltYn"))){
+                builder.and(qTblCnslttMbr.cnsltActv.eq((String) dto.get("cnsltYn")));
+            }
+
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("kornFlnm")) { //이름
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("ogdpNm")) { //소속
+                    builder.and(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("jbpsNm")) { //직위
+                    builder.and(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblUser.kornFlnm.contains((String) dto.get("searchVal"))
+                                .or(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")))
+                                .or(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")))
+                );
+            }
+
+            /*List<ConsultDto> consultantList = q
                     .select(
                             Projections.constructor(
                                 ConsultDto.class,
@@ -154,14 +174,69 @@ public class ConsultingApiService {
                                     Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", qTblCnslttMbr.userSn) //사진
                             )
                     )
-/*                    .leftJoin(qTblCnsltDtl)
-                    .on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))*/
+*//*                    .leftJoin(qTblCnsltDtl)
+                    .on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))*//*
                     .where(builder)
  //                   .groupBy(qTblCnslttMbr.userSn)
                     .orderBy(qTblUser.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();*/
+            List<ConsultDto> consultantList = q
+                    .select(
+                            Projections.constructor(
+                                    ConsultDto.class,
+                                    qTblCnslttMbr,
+                                    qTblUser,
+                                    qTblCnsltDtl,
+                                    qTblComCd.comCdNm,
+                                    Expressions.numberTemplate(Long.class, "COALESCE(({0}), {1})",
+                                            JPAExpressions.select(qTblCnsltDtl.count())
+                                                    .from(qTblCnsltDtl)
+                                                    .join(qTblCnsltAply)
+                                                    .on(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltAply.cnsltAplySn)
+                                                            .and(qTblCnsltAply.cnsltSe.eq(26L)))  // cnsltSe = 26 개수(컨설팅)
+                                                    .where(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
+                                                    .groupBy(qTblCnsltDtl.cnslttUserSn),
+                                            0L  // NULL이면 0 반환
+                                    ),
+
+                                    Expressions.numberTemplate(Long.class, "COALESCE(({0}), {1})",
+                                            JPAExpressions.select(qTblCnsltDtl.count())
+                                                    .from(qTblCnsltDtl)
+                                                    .join(qTblCnsltAply)
+                                                    .on(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltAply.cnsltAplySn)
+                                                            .and(qTblCnsltAply.cnsltSe.eq(27L)))  // cnsltSe = 27 개수(간편)
+                                                    .where(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
+                                                    .groupBy(qTblCnsltDtl.cnslttUserSn),
+                                            0L  // NULL이면 0 반환
+                                    ),
+
+                                    qTblComFile
+                            )
+                    ).from(qTblUser)
+                    .join(qTblCnslttMbr)
+                    .on(qTblUser.userSn.eq(qTblCnslttMbr.userSn))
+                    .leftJoin(qTblComFile)
+                    .on(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", qTblCnslttMbr.userSn) // 사진 조인
+                            )
+                    )
+                    .leftJoin(qTblCnsltDtl)
+                    .on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
+                    .leftJoin(qTblComCd)
+                    .on(qTblComCd.comCd.eq(Expressions.stringTemplate("{0}", qTblCnslttMbr.cnsltFld))
+                            .and(qTblComCd.cdGroupSn.eq(10L)))
+                    .leftJoin(qTblCnsltAply)
+                    .on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
+                    .where(builder)
+                    .groupBy(qTblCnslttMbr.userSn)
+                    .orderBy(qTblUser.frstCrtDt.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
 
 
             /*Long totCnt = q.select(qTblUser.count())
@@ -176,6 +251,8 @@ public class ConsultingApiService {
                     .join(qTblCnslttMbr).on(qTblUser.userSn.eq(qTblCnslttMbr.userSn))
                     .where(builder)
                     .fetchOne();
+
+
 
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
@@ -205,6 +282,11 @@ public class ConsultingApiService {
                             Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", tblCnslttMbr.getUserSn()) //사진
                     )
             ).fetchOne();
+            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", tblCnslttMbr.getUserSn()) //자격증
+                    )
+            ).fetch();
 
 
 
@@ -213,6 +295,7 @@ public class ConsultingApiService {
             resultVO.putResult("memberDetail",tblUser);
             resultVO.putResult("consultant",tblCnslttMbr);
             resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
+            resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {

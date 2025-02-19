@@ -41,11 +41,23 @@ public class RelInstApiController {
         return relInstApiService.getRc(tblRelInst);
     }
 
-    @PostMapping("/mvnEntApi/getrelatedMemberList.do")
-    public ResultVO getrelatedMemberList(HttpServletRequest request){
+    @PostMapping("/relatedApi/getRelatedtMemberList.do")
+    public ResultVO getRelatedtMemberList(HttpServletRequest request){
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
 
-        return relInstApiService.getrelatedMemberList(dto);
+        return relInstApiService.getRelatedtMemberList(dto);
+    }
+
+    @PostMapping("/relatedApi/setMemberMbrStts")
+    public ResultVO setMemberMbrStts(@RequestBody TblUser request){
+        return relInstApiService.setMemberMbrStts(request);
+    }
+
+    @PostMapping("/relatedApi/getRelatedMemberOne.do")
+    public ResultVO getRelatedMemberOne(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+        return relInstApiService.getRelatedMemberOne(dto);
     }
 
 }

@@ -3,6 +3,7 @@ package egovframework.com.devjitsu.service.search;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
@@ -15,6 +16,7 @@ import egovframework.com.devjitsu.model.menu.TblMenu;
 import egovframework.com.devjitsu.model.search.QTblIntgSrch;
 import egovframework.com.devjitsu.model.search.TblIntgSrch;
 import egovframework.com.devjitsu.model.search.TblIntgSrchDTO;
+import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.repository.menu.TblContentRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,11 +51,23 @@ public class SearchApiService {
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
                 paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
             }
-            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
-            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            if (!StringUtils.isEmpty(dto.get("pageSize"))) {
+                paginationInfo.setPageSize(Integer.parseInt(dto.get("pageIndex").toString()));
+            }else{
+                paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+            }
+
+            if (!StringUtils.isEmpty(dto.get("pageUnit"))) {
+                paginationInfo.setRecordCountPerPage(Integer.parseInt(dto.get("pageUnit").toString()));
+            }else{
+                paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            }
 
             QTblIntgSrch qTblIntgSrch = QTblIntgSrch.tblIntgSrch;
             QTblMenu qTblMenu = QTblMenu.tblMenu;
+            QTblMenu qTblMenu2 = QTblMenu.tblMenu;
+            QTblUser qTblUser = QTblUser.tblUser;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             /** query DSL 조건 추가하는 방법 */
@@ -102,6 +116,7 @@ public class SearchApiService {
                                 TblIntgSrchDTO.class,
                                 qTblIntgSrch.intgSrchSn,
                                 qTblIntgSrch.menuSn,
+                                qTblMenu.upperMenuSn,
                                 qTblIntgSrch.atchFileSn,
                                 qTblIntgSrch.pstSn,
                                 qTblIntgSrch.knd,
@@ -111,6 +126,7 @@ public class SearchApiService {
                                 qTblIntgSrch.atchFileNm,
                                 qTblIntgSrch.atchFileExtnNm,
                                 qTblMenu.menuNmPath,
+                                JPAExpressions.select(qTblUser.kornFlnm).from(qTblUser).where(qTblUser.userSn.eq(qTblIntgSrch.creatrSn)),
                                 qTblIntgSrch.frstCrtDt
                         )
                     )

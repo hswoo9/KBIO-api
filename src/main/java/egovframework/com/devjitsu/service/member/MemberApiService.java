@@ -21,6 +21,7 @@ import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.*;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
+import egovframework.com.devjitsu.repository.user.TblRelInstMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.repository.user.TblUserSnsCertInfoRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
@@ -63,6 +64,7 @@ public class MemberApiService {
     private final LettnemplyrinfoRepository lettnemplyrinfoRepository;
     private final TblUserRepository TblUserRepository;
     private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
+    private final TblRelInstMbrRepository tblRelInstMbrRepository;
     private final TblCnslttMbrRepository tblCnslttMbrRepository;
     private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
     private final TblComFileRepository tblComFileRepository;
@@ -114,24 +116,37 @@ public class MemberApiService {
         ResultVO resultVO = new ResultVO();
 
         QTblMvnEnt tblMvnEnt = QTblMvnEnt.tblMvnEnt;
+        QTblRelInst tblRelInst = QTblRelInst.tblRelInst;
 
-        TblMvnEnt businessInfo = new JPAQueryFactory(em)
-                .selectFrom(tblMvnEnt)
-                .where(tblMvnEnt.brno.eq(dto.get("businessNumber").toString()))
+        TblRelInst relatedInstInfo = new JPAQueryFactory(em)
+                .selectFrom(tblRelInst)
+                .where(tblRelInst.brno.eq(dto.get("businessNumber").toString()))
                 .fetchOne();
 
-        if (businessInfo != null) {
+        if (relatedInstInfo == null) {
+            TblMvnEnt businessInfo = new JPAQueryFactory(em)
+                    .selectFrom(tblMvnEnt)
+                    .where(tblMvnEnt.brno.eq(dto.get("businessNumber").toString()))
+                    .fetchOne();
+
+            if (businessInfo != null) {
+                resultVO.setResultCode(200);
+                resultVO.putResult("businessCnt", 1);
+                resultVO.putResult("businessData", businessInfo);
+            } else {
+                resultVO.setResultCode(400);
+                resultVO.putResult("businessCnt", 0);
+                resultVO.putResult("businessData", null);
+            }
+        } else {
             resultVO.setResultCode(200);
             resultVO.putResult("businessCnt", 1);
-            resultVO.putResult("businessData", businessInfo);
-        } else {
-            resultVO.setResultCode(400);
-            resultVO.putResult("businessCnt", 0);
-            resultVO.putResult("businessData", null);
+            resultVO.putResult("businessData", relatedInstInfo); // TblRelInst의 정보 반환
         }
 
         return resultVO;
     }
+
 
 
     /*
@@ -322,6 +337,21 @@ public class MemberApiService {
             }
 
         }//컨설턴트회원 가입절차 끝
+        //유관기관
+        else if (Integer.valueOf(3).equals(mbrType)) {
+            TblRelInstMbr relInstMbr = new TblRelInstMbr();
+
+            Object relInstSnObj = dto.get("relInstSn");
+            Long relInstSn = (relInstSnObj instanceof Number) ? ((Number) relInstSnObj).longValue() : null;
+            System.out.println("**relInstSnObj : **" + relInstSnObj);
+
+            relInstMbr.setUserSn(userSn);
+            relInstMbr.setRelInstSn(relInstSn);
+
+
+            tblRelInstMbrRepository.save(relInstMbr);
+
+        }
 
 
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -459,31 +489,38 @@ public class MemberApiService {
         }
     }
 
-    public ResultVO setMemberMyPageModfiy(TblUser tbluser) {
+    public ResultVO setMemberMyPageModfiy(TblUser tblUser, TblCnslttMbr tblCnslttMbr) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            /*if (tbluser.getUserPw() != null && !tbluser.getUserPw().isEmpty()) {
-                String hashedPswd = EgovFileScrty.encryptPassword(tbluser.getUserPw(), tbluser.getUserId());
-                tbluser.setUserPw(hashedPswd);
-            }*/
-
-            if (tbluser.getMblTelno() != null && !tbluser.getMblTelno().isEmpty()) {
-                String encryptedMblTelno = EgovFileScrty.encode(tbluser.getMblTelno());
-                tbluser.setMblTelno(encryptedMblTelno);
+            if (tblUser.getMblTelno() != null && !tblUser.getMblTelno().isEmpty()) {
+                String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+                tblUser.setMblTelno(encryptedMblTelno);
             }
 
-            TblUserRepository.save(tbluser);
+            if (tblUser.getUserPwdRe() != null && !tblUser.getUserPwdRe().isEmpty()) {
+                String encryptedUserPw = EgovFileScrty.encryptPassword(tblUser.getUserPwdRe(), tblUser.getUserId());
+                tblUser.setUserPw(encryptedUserPw);
+            }
+
+
+            TblUserRepository.save(tblUser);
+
+            if (tblCnslttMbr != null) {
+                tblCnslttMbrRepository.save(tblCnslttMbr);
+            }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage("회원 수정이 완료되었습니다.");
         } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+            resultVO.setResultMessage("회원 수정 중 오류가 발생했습니다.");
         }
 
         return resultVO;
     }
+
 
     public ResultVO checkUser(SearchDto dto) throws Exception {
         ResultVO resultVO = new ResultVO();
@@ -521,9 +558,21 @@ public class MemberApiService {
 
         try {
             TblUser member = TblUserRepository.findByUserSn(tblUser.getUserSn());
+            TblCnslttMbr cnslttMbr = tblCnslttMbrRepository.findByUserSn(tblUser.getUserSn());
 
-            resultVO.putResult("member", member);
-            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            if (member != null) {
+                System.out.printf("회원 정보: %s\n", member);
+                resultVO.putResult("member", member);
+
+                if (cnslttMbr != null) {
+                    System.out.printf("컨설턴트 정보: %s\n", cnslttMbr);
+                    resultVO.putResult("cnslttMbr", cnslttMbr);
+                }
+
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            } else {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
@@ -1115,6 +1164,32 @@ public class MemberApiService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO checkPassword(SearchDto dto) throws Exception {
+        ResultVO resultVO = new ResultVO();
+
+        QTblUser qTblUser = QTblUser.tblUser;
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        String encryptedPassword = EgovFileScrty.encryptPassword(dto.get("userPw").toString(), dto.get("userId").toString());
+        System.out.println("Encrypted password: " + encryptedPassword);
+
+        TblUser tblUser = q.selectFrom(qTblUser)
+                .where(
+                        qTblUser.userId.eq(dto.get("userId").toString())
+                                .and(qTblUser.userPw.eq(encryptedPassword))
+                )
+                .fetchOne();
+
+        if (tblUser != null) {
+            System.out.println("User found: " + tblUser.getUserId());
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } else {
+            System.out.println("No matching user found");
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
