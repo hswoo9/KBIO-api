@@ -67,13 +67,23 @@ public class CommonApiController {
     }
 
     /**
-     * 사용자 메세지 조회
+     * 사용자 알림 노출 여부 수정
      * @return
      */
     @PostMapping("/commonApi/setUserMsgExpsrYn")
     public ResultVO setUserMsgExpsrYn(@RequestBody TblUserMsg tblUserMsg) {
         return commonApiService.setUserMsgExpsrYn(tblUserMsg);
     }
+
+    /**
+     * 사용자 알림 확인 수정
+     * @return
+     */
+    @PostMapping("/commonApi/setMsgConfirm")
+    public ResultVO setMsgConfirm(@RequestBody TblUserMsg tblUserMsg) {
+        return commonApiService.setMsgConfirm(tblUserMsg);
+    }
+
 
     /**
      * 관리자 아이피 체크

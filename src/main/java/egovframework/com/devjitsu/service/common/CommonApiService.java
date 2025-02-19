@@ -223,7 +223,7 @@ public class CommonApiService {
                             )
                         )
                         .from(qTblUserMsg)
-                        .join(qTblUser).on(qTblUserMsg.rcptnUserSn.eq(qTblUser.userSn))
+                        .join(qTblUser).on(qTblUserMsg.dsptchUserSn.eq(qTblUser.userSn))
 
                         .where(
                             qTblUserMsg.actvtnYn.eq("Y")
@@ -267,6 +267,27 @@ public class CommonApiService {
         return resultVO;
     }
 
+    public ResultVO setMsgConfirm(TblUserMsg tblUserMsg) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblUserMsg qTblUserMsg = QTblUserMsg.tblUserMsg;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            q.update(qTblUserMsg)
+                    .set(qTblUserMsg.rcptnIdntyYn, "Y")
+                    .set(qTblUserMsg.mdfrSn, tblUserMsg.getMdfrSn())
+                    .where(qTblUserMsg.msgSn.eq(tblUserMsg.getMsgSn()))
+                    .execute();
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
 
     public ResultVO getMngrAcsIpChk(HttpServletRequest request) {
         ResultVO resultVO = new ResultVO();
