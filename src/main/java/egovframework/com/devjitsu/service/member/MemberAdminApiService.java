@@ -50,21 +50,24 @@ public class MemberAdminApiService {
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y"));
-            // 기존 검색 조건
-            if (!StringUtils.isEmpty(dto.get("userSn"))) {
-                builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
-            }
-            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
-                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
+
+            if (!StringUtils.isEmpty(dto.get("mbrType"))) {
+                builder.and(qTblUser.mbrType.eq(Long.valueOf((String) dto.get("mbrType"))));
             }
             if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
                 builder.and(qTblUser.mbrStts.eq((String) dto.get("mbrStts")));
             }
-            if (!StringUtils.isEmpty(dto.get("mbrType"))) {
-                builder.and(qTblUser.mbrType.eq(Long.valueOf((String) dto.get("mbrType"))));
-            }
-            if (!StringUtils.isEmpty(dto.get("userId"))) {
-                builder.and(qTblUser.userId.eq((String) dto.get("userId")));
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("userId")){
+                    builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("kornFlnm")){
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblUser.userId.contains((String) dto.get("searchVal"))
+                                .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
+                );
             }
 
             List<TblUser> getNormalMemberList = q.selectFrom(qTblUser)
@@ -197,8 +200,20 @@ public class MemberAdminApiService {
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
-                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
+            if (!StringUtils.isEmpty(dto.get("mbrType"))) {
+                builder.and(qTblUser.mbrType.eq(Long.valueOf((String) dto.get("mbrType"))));
+            }
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("userId")) {
+                    builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("kornFlnm")) {
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }
+            } else {
+                builder.and(
+                        qTblUser.userId.contains((String) dto.get("searchVal"))
+                                .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
+                );
             }
 
             List<TblUser> getApprovalMemberList = q.selectFrom(qTblUser)
@@ -257,11 +272,20 @@ public class MemberAdminApiService {
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("W")));
 
-            if (!StringUtils.isEmpty(dto.get("userSn"))) {
-                builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
+            if (!StringUtils.isEmpty(dto.get("mbrType"))) {
+                builder.and(qTblUser.mbrType.eq(Long.valueOf((String) dto.get("mbrType"))));
             }
-            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
-                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("userId")){
+                    builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("kornFlnm")){
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblUser.userId.contains((String) dto.get("searchVal"))
+                                .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
+                );
             }
 
             List<TblUser> getWaitMemberList = q.selectFrom(qTblUser)
@@ -381,8 +405,20 @@ public class MemberAdminApiService {
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
-                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
+            if (!StringUtils.isEmpty(dto.get("mbrType"))) {
+                builder.and(qTblUser.mbrType.eq(Long.valueOf((String) dto.get("mbrType"))));
+            }
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("userId")) {
+                    builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("kornFlnm")) {
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }
+            } else {
+                builder.and(
+                        qTblUser.userId.contains((String) dto.get("searchVal"))
+                                .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
+                );
             }
 
             List<TblUser> getRejectMemberList = q.selectFrom(qTblUser)
@@ -473,8 +509,20 @@ public class MemberAdminApiService {
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
-                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
+            if (!StringUtils.isEmpty(dto.get("mbrType"))) {
+                builder.and(qTblUser.mbrType.eq(Long.valueOf((String) dto.get("mbrType"))));
+            }
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("userId")) {
+                    builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("kornFlnm")) {
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }
+            } else {
+                builder.and(
+                        qTblUser.userId.contains((String) dto.get("searchVal"))
+                                .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
+                );
             }
 
             List<TblUser> getStopMemberList = q.selectFrom(qTblUser)
@@ -565,8 +613,20 @@ public class MemberAdminApiService {
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
             }
-            if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
-                builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
+            if (!StringUtils.isEmpty(dto.get("mbrType"))) {
+                builder.and(qTblUser.mbrType.eq(Long.valueOf((String) dto.get("mbrType"))));
+            }
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("userId")) {
+                    builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("kornFlnm")) {
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }
+            } else {
+                builder.and(
+                        qTblUser.userId.contains((String) dto.get("searchVal"))
+                                .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
+                );
             }
 
             List<TblUser> getCancelMemberList = q.selectFrom(qTblUser)
