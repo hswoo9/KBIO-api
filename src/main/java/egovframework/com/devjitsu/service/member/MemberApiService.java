@@ -816,47 +816,6 @@ public class MemberApiService {
 
             builder.and(qTblCnsltAply.cnsltSe
                     .eq(Long.valueOf(dto.get("cnsltSe").toString())));
-            if (!StringUtils.isEmpty(dto.get("startDt"))) {
-                builder.and(
-                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).goe(
-                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("startDt"))
-                        )
-                );
-            }
-            if (!StringUtils.isEmpty(dto.get("endDt"))) {
-                builder.and(
-                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).loe(
-                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("endDt"))
-                        )
-                );
-            }
-
-            if (!StringUtils.isEmpty(dto.get("cnsltFld"))) {
-                builder.and(qTblCnsltAply.cnsltFld.eq(Long.valueOf((String) dto.get("cnsltFld"))));
-            }
-
-            if (!StringUtils.isEmpty(dto.get("cnsltSttsCd"))) {
-                builder.and(qTblCnsltDtl.cnsltSttsCd.eq((String) dto.get("cnsltSttsCd")));
-            }
-
-            if (!StringUtils.isEmpty(dto.get("searchType"))) {
-                if(dto.get("searchType").equals("ttl")){
-                    builder.and(qTblCnsltAply.ttl.contains((String) dto.get("searchVal")));
-                }else if(dto.get("searchType").equals("cn")){
-                    builder.and(qTblCnsltAply.cn.contains((String) dto.get("searchVal")));
-                }
-            }else{
-                builder.and(
-                        qTblCnsltAply.ttl.contains((String) dto.get("searchVal"))
-                                .or(qTblCnsltAply.cn.contains((String) dto.get("searchVal")))
-                );
-            }
-
-            if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
-                builder.and(qTblCnsltAply.actvtnYn.eq((String) dto.get("actvtnYn")));
-            }else{
-                builder.and(qTblCnsltAply.actvtnYn.eq("Y"));
-            }
 
             JPQLQuery<Long> fileCnt = JPAExpressions
                     .select(qTblComFile.count())
@@ -868,6 +827,7 @@ public class MemberApiService {
                                     )
                             )
                     );
+
 
             List<SimpleDTO> consultantList = q.
                     select(
@@ -883,6 +843,10 @@ public class MemberApiService {
                                             .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),
                                     qTblCnsltAply.frstCrtDt,
                                     qTblCnsltAply.cnsltFld,
+                                    JPAExpressions
+                                            .select(qTblComCd.comCdNm)
+                                            .from(qTblComCd)
+                                            .where(qTblComCd.comCdSn.eq(qTblCnsltAply.cnsltFld)),
                                     qTblCnslttMbr.ogdpNm,
                                     qTblCnsltDtl.cnsltSttsCd,
                                     JPAExpressions
