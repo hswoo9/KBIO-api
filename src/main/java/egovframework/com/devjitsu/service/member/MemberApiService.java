@@ -553,18 +553,19 @@ public class MemberApiService {
 
         try {
             TblUser member = TblUserRepository.findByUserSn(tblUser.getUserSn());
-
             TblCnslttMbr cnslttMbr = tblCnslttMbrRepository.findByUserSn(tblUser.getUserSn());
 
-            if (member != null && cnslttMbr != null) {
+            if (member != null) {
                 System.out.printf("회원 정보: %s\n", member);
-                System.out.printf("컨설턴트 정보: %s\n", cnslttMbr);
-
                 resultVO.putResult("member", member);
-                resultVO.putResult("cnslttMbr", cnslttMbr);
+
+                if (cnslttMbr != null) {
+                    System.out.printf("컨설턴트 정보: %s\n", cnslttMbr);
+                    resultVO.putResult("cnslttMbr", cnslttMbr);
+                }
+
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             } else {
-                // 사용자 정보 또는 컨설턴트 정보가 없을 경우
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
         } catch (Exception e) {
