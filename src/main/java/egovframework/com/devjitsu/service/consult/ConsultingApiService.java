@@ -21,16 +21,16 @@ import egovframework.com.devjitsu.model.menu.MenuDto;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
 import egovframework.com.devjitsu.model.menu.TblMenu;
-import egovframework.com.devjitsu.model.user.QTblCnslttMbr;
-import egovframework.com.devjitsu.model.user.QTblUser;
-import egovframework.com.devjitsu.model.user.TblCnslttMbr;
-import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.*;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
+import egovframework.com.devjitsu.repository.user.TblAcbgRepository;
+import egovframework.com.devjitsu.repository.user.TblCrrRepository;
+import egovframework.com.devjitsu.repository.user.TblQlfcLcnsRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
 import egovframework.com.devjitsu.service.common.RedisApiService;
@@ -90,6 +90,11 @@ public class ConsultingApiService {
     private final TblCnslttMbrRepository tblCnslttMbrRepository;
     private final TblCnsltDtlRepository tblCnsltDtlRepository;
     private final TblCnsltDsctnRepository tblCnsltDsctnRepository;
+    private final TblQlfcLcnsRepository tblQlfcLcnsRepository;
+    private final TblCrrRepository tblCrrRepository;
+    private final TblAcbgRepository tblAcbgRepository;
+
+
 
     /**
      * jpa 부등호
@@ -285,6 +290,11 @@ public class ConsultingApiService {
             TblUser tblUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
             TblCnslttMbr tblCnslttMbr = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
 
+            List<TblQlfcLcns> tblQlfcLcnsList = tblQlfcLcnsRepository.findAllByUserSn(tblUser.getUserSn());
+            List<TblAcbg> tblAcbgList = tblAcbgRepository.findAllByUserSn(tblUser.getUserSn());
+            List<TblCrr> tblCrrList = tblCrrRepository.findAllByUserSn(tblUser.getUserSn());
+
+
             TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
                     qTblComFile.psnTblSn.eq(
                             Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", tblCnslttMbr.getUserSn()) //사진
@@ -302,6 +312,9 @@ public class ConsultingApiService {
 
             resultVO.putResult("memberDetail",tblUser);
             resultVO.putResult("consultant",tblCnslttMbr);
+            resultVO.putResult("tblQlfcLcnsList",tblQlfcLcnsList);
+            resultVO.putResult("tblAcbgList",tblAcbgList);
+            resultVO.putResult("tblCrrList",tblCrrList);
             resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
             resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
 

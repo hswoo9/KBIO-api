@@ -8,9 +8,9 @@ import java.util.List;
 
 @Repository
 public interface TblQlfcLcnsRepository extends JpaRepository<TblQlfcLcns,String> {
-    /*TblQlfcLcns findByQlfcLcnsSn(long qlfcLcnsSn);
+    TblQlfcLcns findByQlfcLcnsSn(long qlfcLcnsSn);
 
-    List<TblQlfcLcns> findAllbyUserSn(long userSn);
+    List<TblQlfcLcns> findAllByUserSn(long userSn);
 
-    TblQlfcLcns findByUserSn(long userSn);*/
+    TblQlfcLcns findByUserSn(long userSn);
 }
