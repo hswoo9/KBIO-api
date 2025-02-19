@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,6 +17,7 @@ public class SimpleDTO {
     private String cnslttKornFlnm;
     private LocalDateTime frstCrtDt;
     private long cnsltFld;
+    private String cnsltAplyFldNm;
     private String ogdpNm;
     private String cnsltSttsCd;
     private long dgstfnCnt;
@@ -23,7 +25,8 @@ public class SimpleDTO {
     private Long fileCnt;
 
     public SimpleDTO(Long cnsltAplySn, Long userSn, Long cnslttUserSn, String kornFlnm, String cnslttKornFlnm,
-                         LocalDateTime frstCrtDt, Long cnsltFld, String ogdpNm, String cnsltSttsCd, Long dgstfnCnt, String ttl, Long fileCnt) {
+                     LocalDateTime frstCrtDt, Long cnsltFld, String cnsltAplyFldNm, String ogdpNm, String cnsltSttsCd,
+                     Long dgstfnCnt, String ttl, Long fileCnt) {
         this.cnsltAplySn = cnsltAplySn;
         this.userSn = userSn;
         this.cnslttUserSn = cnslttUserSn;
@@ -31,6 +34,7 @@ public class SimpleDTO {
         this.cnslttKornFlnm = cnslttKornFlnm;
         this.frstCrtDt = frstCrtDt;
         this.cnsltFld = cnsltFld;
+        this.cnsltAplyFldNm = cnsltAplyFldNm;
         this.ogdpNm = ogdpNm;
         this.cnsltSttsCd = cnsltSttsCd;
         this.dgstfnCnt = dgstfnCnt;
