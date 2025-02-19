@@ -104,4 +104,7 @@ public class TblUser {
   @Comment("수정일")
   private LocalDateTime mdfcnDt;
 
+  @Transient
+  private String userPwdRe;
+
 }

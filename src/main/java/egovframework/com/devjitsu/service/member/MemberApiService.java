@@ -498,9 +498,14 @@ public class MemberApiService {
                 tblUser.setMblTelno(encryptedMblTelno);
             }
 
+            if (tblUser.getUserPwdRe() != null && !tblUser.getUserPwdRe().isEmpty()) {
+                String encryptedUserPw = EgovFileScrty.encryptPassword(tblUser.getUserPwdRe(), tblUser.getUserId());
+                tblUser.setUserPw(encryptedUserPw);
+            }
+
+
             TblUserRepository.save(tblUser);
 
-            // 컨설턴트 정보가 있는 경우만 저장
             if (tblCnslttMbr != null) {
                 tblCnslttMbrRepository.save(tblCnslttMbr);
             }
@@ -1159,6 +1164,32 @@ public class MemberApiService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO checkPassword(SearchDto dto) throws Exception {
+        ResultVO resultVO = new ResultVO();
+
+        QTblUser qTblUser = QTblUser.tblUser;
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        String encryptedPassword = EgovFileScrty.encryptPassword(dto.get("userPw").toString(), dto.get("userId").toString());
+        System.out.println("Encrypted password: " + encryptedPassword);
+
+        TblUser tblUser = q.selectFrom(qTblUser)
+                .where(
+                        qTblUser.userId.eq(dto.get("userId").toString())
+                                .and(qTblUser.userPw.eq(encryptedPassword))
+                )
+                .fetchOne();
+
+        if (tblUser != null) {
+            System.out.println("User found: " + tblUser.getUserId());
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } else {
+            System.out.println("No matching user found");
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
