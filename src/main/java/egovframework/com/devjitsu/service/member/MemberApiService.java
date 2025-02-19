@@ -827,7 +827,18 @@ public class MemberApiService {
                                     )
                             )
                     );
-
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("ttl")){
+                    builder.and(qTblCnsltAply.ttl.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("cn")){
+                    builder.and(qTblCnsltAply.cn.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblCnsltAply.ttl.contains((String) dto.get("searchVal"))
+                                .or(qTblCnsltAply.cn.contains((String) dto.get("searchVal")))
+                );
+            }
 
             List<SimpleDTO> consultantList = q.
                     select(
