@@ -18,8 +18,8 @@ public class MainStatusDto {
     private long cnsltAply26Cnt;
     private long cnsltAply27Cnt;
 
-    private long activeYCnt;
-    private long activeWCnt;
-    private long activeRCnt;
-    private long activeSCnt;
+    private long mbrSttsYCnt;
+    private long mbrSttsWCnt;
+    private long mbrSttsRCnt;
+    private long mbrSttsSCnt;
 }

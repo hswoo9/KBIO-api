@@ -217,17 +217,21 @@ public class ConsultingApiService {
                     ).from(qTblUser)
                     .join(qTblCnslttMbr)
                     .on(qTblUser.userSn.eq(qTblCnslttMbr.userSn))
+                    /** 사진 */
                     .leftJoin(qTblComFile)
                     .on(
                             qTblComFile.psnTblSn.eq(
                                     Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", qTblCnslttMbr.userSn) // 사진 조인
                             )
                     )
+                    /** 컨설팅 신청상세 */
                     .leftJoin(qTblCnsltDtl)
                     .on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
+                    /** 컨설팅 분류 코드 */
                     .leftJoin(qTblComCd)
                     .on(qTblComCd.comCd.eq(Expressions.stringTemplate("{0}", qTblCnslttMbr.cnsltFld))
                             .and(qTblComCd.cdGroupSn.eq(10L)))
+                    /** 컨설팅 신청 */
                     .leftJoin(qTblCnsltAply)
                     .on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
                     .where(builder)

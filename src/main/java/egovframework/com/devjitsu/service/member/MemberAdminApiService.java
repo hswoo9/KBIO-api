@@ -49,7 +49,7 @@ public class MemberAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-
+            builder.and(qTblUser.actvtnYn.eq("Y"));
             // 기존 검색 조건
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
@@ -57,8 +57,8 @@ public class MemberAdminApiService {
             if (!StringUtils.isEmpty(dto.get("kornFlnm"))) {
                 builder.and(qTblUser.kornFlnm.eq((String) dto.get("kornFlnm")));
             }
-            if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
-                builder.and(qTblUser.actvtnYn.eq((String) dto.get("actvtnYn")));
+            if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
+                builder.and(qTblUser.mbrStts.eq((String) dto.get("mbrStts")));
             }
             if (!StringUtils.isEmpty(dto.get("mbrType"))) {
                 builder.and(qTblUser.mbrType.eq(Long.valueOf((String) dto.get("mbrType"))));
@@ -142,7 +142,7 @@ public class MemberAdminApiService {
 
             long updatedCount = new JPAQueryFactory(em)
                     .update(qTblUser)
-                    .set(qTblUser.actvtnYn, "N")
+                    .set(qTblUser.mbrStts, "N")
                     .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
@@ -192,7 +192,7 @@ public class MemberAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblUser.actvtnYn.eq("Y"));
+            builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("Y")));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
@@ -255,7 +255,7 @@ public class MemberAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblUser.actvtnYn.eq("W"));
+            builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("W")));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
@@ -297,7 +297,7 @@ public class MemberAdminApiService {
 
             long updatedCount = new JPAQueryFactory(em)
                     .update(qTblUser)
-                    .set(qTblUser.actvtnYn, "Y")
+                    .set(qTblUser.mbrStts, "Y")
                     .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
@@ -326,7 +326,7 @@ public class MemberAdminApiService {
 
             long updatedCount = new JPAQueryFactory(em)
                     .update(qTblUser)
-                    .set(qTblUser.actvtnYn, "R")
+                    .set(qTblUser.mbrStts, "R")
                     .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
@@ -376,7 +376,7 @@ public class MemberAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblUser.actvtnYn.eq("R"));
+            builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("R")));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
@@ -418,7 +418,7 @@ public class MemberAdminApiService {
 
             long updatedCount = new JPAQueryFactory(em)
                     .update(qTblUser)
-                    .set(qTblUser.actvtnYn, "Y")
+                    .set(qTblUser.mbrStts, "Y")
                     .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
@@ -468,7 +468,7 @@ public class MemberAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblUser.actvtnYn.eq("S"));
+            builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("S")));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
@@ -510,7 +510,7 @@ public class MemberAdminApiService {
 
             long updatedCount = new JPAQueryFactory(em)
                     .update(qTblUser)
-                    .set(qTblUser.actvtnYn, "Y")
+                    .set(qTblUser.mbrStts, "Y")
                     .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
@@ -560,7 +560,7 @@ public class MemberAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblUser.actvtnYn.eq("C"));
+            builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("C")));
 
             if (!StringUtils.isEmpty(dto.get("userSn"))) {
                 builder.and(qTblUser.userSn.eq(Long.valueOf((String) dto.get("userSn"))));
