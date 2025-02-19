@@ -6,6 +6,8 @@ import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblAtchFileDwnldCnt;
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.TblUserMsg;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,35 @@ public class CommonApiController {
     public ResultVO getLeftMenu(HttpServletRequest request) {
         return commonApiService.getLeftMenu(request);
     }
+
+    /**
+     * 사용자 메세지 조회
+     * @return
+     */
+    @PostMapping("/commonApi/getUserMsgList.do")
+    public ResultVO getUserMsgList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return commonApiService.getUserMsgList(dto);
+    }
+
+    /**
+     * 사용자 알림 노출 여부 수정
+     * @return
+     */
+    @PostMapping("/commonApi/setUserMsgExpsrYn")
+    public ResultVO setUserMsgExpsrYn(@RequestBody TblUserMsg tblUserMsg) {
+        return commonApiService.setUserMsgExpsrYn(tblUserMsg);
+    }
+
+    /**
+     * 사용자 알림 확인 수정
+     * @return
+     */
+    @PostMapping("/commonApi/setMsgConfirm")
+    public ResultVO setMsgConfirm(@RequestBody TblUserMsg tblUserMsg) {
+        return commonApiService.setMsgConfirm(tblUserMsg);
+    }
+
 
     /**
      * 관리자 아이피 체크

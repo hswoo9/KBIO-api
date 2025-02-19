@@ -216,7 +216,10 @@ public class ConsultingApiService {
                                                     .groupBy(qTblCnsltDtl.cnslttUserSn),
                                             0L  // NULL이면 0 반환
                                     ),
-
+//                                    Expressions.numberTemplate(Long.class,
+//                                            "SUM(CASE WHEN {0} = 26 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
+//                                    Expressions.numberTemplate(Long.class,
+//                                            "SUM(CASE WHEN {0} = 27 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
                                     qTblComFile
                             )
                     ).from(qTblUser)

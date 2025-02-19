@@ -629,9 +629,14 @@ public class MemberApiService {
                 tblUser.setMblTelno(encryptedMblTelno);
             }
 
+            if (tblUser.getUserPwdRe() != null && !tblUser.getUserPwdRe().isEmpty()) {
+                String encryptedUserPw = EgovFileScrty.encryptPassword(tblUser.getUserPwdRe(), tblUser.getUserId());
+                tblUser.setUserPw(encryptedUserPw);
+            }
+
+
             TblUserRepository.save(tblUser);
 
-            // 컨설턴트 정보가 있는 경우만 저장
             if (tblCnslttMbr != null) {
                 tblCnslttMbrRepository.save(tblCnslttMbr);
             }
@@ -681,21 +686,36 @@ public class MemberApiService {
 
     public ResultVO getMyPageNormalMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
+        QTblComFile qTblComFile = QTblComFile.tblComFile;
+        JPAQueryFactory q = new JPAQueryFactory(em);
 
         try {
             TblUser member = TblUserRepository.findByUserSn(tblUser.getUserSn());
-
             TblCnslttMbr cnslttMbr = tblCnslttMbrRepository.findByUserSn(tblUser.getUserSn());
 
-            if (member != null && cnslttMbr != null) {
+            TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", cnslttMbr.getUserSn()) //사진
+                    )
+            ).fetchOne();
+            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", cnslttMbr.getUserSn()) //자격증
+                    )
+            ).fetch();
+            if (member != null) {
                 System.out.printf("회원 정보: %s\n", member);
-                System.out.printf("컨설턴트 정보: %s\n", cnslttMbr);
-
                 resultVO.putResult("member", member);
-                resultVO.putResult("cnslttMbr", cnslttMbr);
+
+                if (cnslttMbr != null) {
+                    System.out.printf("컨설턴트 정보: %s\n", cnslttMbr);
+                    resultVO.putResult("cnslttMbr", cnslttMbr);
+                    resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
+                    resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
+                }
+
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             } else {
-                // 사용자 정보 또는 컨설턴트 정보가 없을 경우
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
         } catch (Exception e) {
@@ -941,29 +961,17 @@ public class MemberApiService {
 
             builder.and(qTblCnsltAply.cnsltSe
                     .eq(Long.valueOf(dto.get("cnsltSe").toString())));
-            if (!StringUtils.isEmpty(dto.get("startDt"))) {
-                builder.and(
-                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).goe(
-                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("startDt"))
-                        )
-                );
-            }
-            if (!StringUtils.isEmpty(dto.get("endDt"))) {
-                builder.and(
-                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblCnsltAply.frstCrtDt).loe(
-                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", dto.get("endDt"))
-                        )
-                );
-            }
 
-            if (!StringUtils.isEmpty(dto.get("cnsltFld"))) {
-                builder.and(qTblCnsltAply.cnsltFld.eq(Long.valueOf((String) dto.get("cnsltFld"))));
-            }
-
-            if (!StringUtils.isEmpty(dto.get("cnsltSttsCd"))) {
-                builder.and(qTblCnsltDtl.cnsltSttsCd.eq((String) dto.get("cnsltSttsCd")));
-            }
-
+            JPQLQuery<Long> fileCnt = JPAExpressions
+                    .select(qTblComFile.count())
+                    .from(qTblComFile)
+                    .where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate(
+                                            "CONCAT('consulting_', {0})", qTblCnsltAply.cnsltAplySn
+                                    )
+                            )
+                    );
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 if(dto.get("searchType").equals("ttl")){
                     builder.and(qTblCnsltAply.ttl.contains((String) dto.get("searchVal")));
@@ -976,23 +984,6 @@ public class MemberApiService {
                                 .or(qTblCnsltAply.cn.contains((String) dto.get("searchVal")))
                 );
             }
-
-            if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
-                builder.and(qTblCnsltAply.actvtnYn.eq((String) dto.get("actvtnYn")));
-            }else{
-                builder.and(qTblCnsltAply.actvtnYn.eq("Y"));
-            }
-
-            JPQLQuery<Long> fileCnt = JPAExpressions
-                    .select(qTblComFile.count())
-                    .from(qTblComFile)
-                    .where(
-                            qTblComFile.psnTblSn.eq(
-                                    Expressions.stringTemplate(
-                                            "CONCAT('consulting_', {0})", qTblCnsltAply.cnsltAplySn
-                                    )
-                            )
-                    );
 
             List<SimpleDTO> consultantList = q.
                     select(
@@ -1008,6 +999,10 @@ public class MemberApiService {
                                             .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),
                                     qTblCnsltAply.frstCrtDt,
                                     qTblCnsltAply.cnsltFld,
+                                    JPAExpressions
+                                            .select(qTblComCd.comCdNm)
+                                            .from(qTblComCd)
+                                            .where(qTblComCd.comCdSn.eq(qTblCnsltAply.cnsltFld)),
                                     qTblCnslttMbr.ogdpNm,
                                     qTblCnsltDtl.cnsltSttsCd,
                                     JPAExpressions
@@ -1287,6 +1282,112 @@ public class MemberApiService {
                 resultVO.putResult("ratings", ratingsList);
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO checkPassword(SearchDto dto) throws Exception {
+        ResultVO resultVO = new ResultVO();
+
+        QTblUser qTblUser = QTblUser.tblUser;
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        String encryptedPassword = EgovFileScrty.encryptPassword(dto.get("userPw").toString(), dto.get("userId").toString());
+        System.out.println("Encrypted password: " + encryptedPassword);
+
+        TblUser tblUser = q.selectFrom(qTblUser)
+                .where(
+                        qTblUser.userId.eq(dto.get("userId").toString())
+                                .and(qTblUser.userPw.eq(encryptedPassword))
+                )
+                .fetchOne();
+
+        if (tblUser != null) {
+            System.out.println("User found: " + tblUser.getUserId());
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } else {
+            System.out.println("No matching user found");
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO getUserMsgList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+
+            if (!StringUtils.isEmpty(dto.get("pageSize"))) {
+                paginationInfo.setPageSize(Integer.parseInt(dto.get("pageIndex").toString()));
+            }else{
+                paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+            }
+
+            if (!StringUtils.isEmpty(dto.get("pageUnit"))) {
+                paginationInfo.setRecordCountPerPage(Integer.parseInt(dto.get("pageUnit").toString()));
+            }else{
+                paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            }
+
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserMsg qTblUserMsg = QTblUserMsg.tblUserMsg;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qTblUserMsg.actvtnYn.eq("Y"))
+                    .and(qTblUserMsg.rcptnUserSn.eq(Long.parseLong(dto.get("userSn").toString())))
+                    .and(qTblUserMsg.expsrYn.eq("Y"));
+
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("msgTtl")){
+                    builder.and(qTblUserMsg.msgTtl.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("msgCn")){
+                    builder.and(qTblUserMsg.msgCn.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("kornFlnm")){
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                    qTblUserMsg.msgTtl.contains((String) dto.get("searchVal"))
+                        .or(qTblUserMsg.msgCn.contains((String) dto.get("searchVal")))
+                        .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
+                );
+            }
+
+            List<UserMsgDto> userMsgList = q
+                .select(
+                    Projections.constructor(
+                        UserMsgDto.class,
+                        qTblUserMsg,
+                        qTblUser
+                    )
+                )
+                .from(qTblUserMsg)
+                .join(qTblUser).on(qTblUserMsg.dsptchUserSn.eq(qTblUser.userSn))
+                .where(builder)
+                .orderBy(qTblUserMsg.frstCrtDt.desc())
+                .offset(paginationInfo.getFirstRecordIndex())
+                .limit(paginationInfo.getRecordCountPerPage())
+                .fetch();
+
+            Long totCnt = q.select(qTblUserMsg.count())
+                    .from(qTblUserMsg)
+                    .join(qTblUser).on(qTblUserMsg.dsptchUserSn.eq(qTblUser.userSn))
+                    .where(builder)
+                    .fetchOne();
+            if(totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            resultVO.putResult("userMsgList", userMsgList);
+            resultVO.putPaginationInfo(paginationInfo);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());

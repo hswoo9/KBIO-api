@@ -158,7 +158,7 @@ public class ManagerMainApiService {
             Expressions.numberTemplate(Long.class,
             "SUM(CASE WHEN {0} = 4 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType4Count")
         ).from(qTblUser)
-        .where(qTblUser.actvtnYn.eq("Y")).fetchFirst();
+        .where(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("Y"))).fetchFirst();
 
         if (result != null) {
             mainStatusDto.setMbrType2Cnt(result.get(0, Long.class));
@@ -196,20 +196,20 @@ public class ManagerMainApiService {
 
         Tuple result = q.select(
                         Expressions.numberTemplate(Long.class,
-                                "SUM(CASE WHEN {0} = 'Y' THEN 1 ELSE 0 END)", qTblUser.actvtnYn).as("activeYCnt"),
+                                "SUM(CASE WHEN {0} = 'Y' THEN 1 ELSE 0 END)", qTblUser.mbrStts).as("mbrSttsYCnt"),
                         Expressions.numberTemplate(Long.class,
-                                "SUM(CASE WHEN {0} = 'W' THEN 1 ELSE 0 END)", qTblUser.actvtnYn).as("activeWCnt"),
+                                "SUM(CASE WHEN {0} = 'W' THEN 1 ELSE 0 END)", qTblUser.mbrStts).as("mbrSttsWCnt"),
                         Expressions.numberTemplate(Long.class,
-                                "SUM(CASE WHEN {0} = 'R' THEN 1 ELSE 0 END)", qTblUser.actvtnYn).as("activeRCnt"),
+                                "SUM(CASE WHEN {0} = 'R' THEN 1 ELSE 0 END)", qTblUser.mbrStts).as("mbrSttsRCnt"),
                         Expressions.numberTemplate(Long.class,
-                                "SUM(CASE WHEN {0} = 'S' THEN 1 ELSE 0 END)", qTblUser.actvtnYn).as("activeSCnt")
+                                "SUM(CASE WHEN {0} = 'S' THEN 1 ELSE 0 END)", qTblUser.mbrStts).as("mbrSttsSCnt")
                 ).from(qTblUser).fetchFirst();
 
         if (result != null) {
-            mainStatusDto.setActiveYCnt(result.get(0, Long.class));
-            mainStatusDto.setActiveWCnt(result.get(1, Long.class));
-            mainStatusDto.setActiveRCnt(result.get(2, Long.class));
-            mainStatusDto.setActiveSCnt(result.get(3, Long.class));
+            mainStatusDto.setMbrSttsYCnt(result.get(0, Long.class));
+            mainStatusDto.setMbrSttsWCnt(result.get(1, Long.class));
+            mainStatusDto.setMbrSttsRCnt(result.get(2, Long.class));
+            mainStatusDto.setMbrSttsSCnt(result.get(3, Long.class));
         }
     }
 }

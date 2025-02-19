@@ -375,4 +375,15 @@ public class MemberApiController {
         return memberApiService.getSatisPopup(tblCnsltDgstfn);
     }
 
+    @PostMapping(value = "/memberApi/checkPassword.do")
+    public ResultVO checkPassword(HttpServletRequest request) throws Exception {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.checkPassword(dto);
+    }
+
+    @PostMapping(value = "/memberApi/getUserMsgList.do")
+    public ResultVO getUserMsgList(HttpServletRequest request) throws Exception {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.getUserMsgList(dto);
+    }
 }
