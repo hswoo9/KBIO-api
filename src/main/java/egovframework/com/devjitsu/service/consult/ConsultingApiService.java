@@ -211,27 +211,26 @@ public class ConsultingApiService {
                                                     .groupBy(qTblCnsltDtl.cnslttUserSn),
                                             0L  // NULL이면 0 반환
                                     ),
-
+//                                    Expressions.numberTemplate(Long.class,
+//                                            "SUM(CASE WHEN {0} = 26 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
+//                                    Expressions.numberTemplate(Long.class,
+//                                            "SUM(CASE WHEN {0} = 27 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
                                     qTblComFile
                             )
                     ).from(qTblUser)
                     .join(qTblCnslttMbr)
                     .on(qTblUser.userSn.eq(qTblCnslttMbr.userSn))
-                    /** 사진 */
                     .leftJoin(qTblComFile)
                     .on(
                             qTblComFile.psnTblSn.eq(
                                     Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", qTblCnslttMbr.userSn) // 사진 조인
                             )
                     )
-                    /** 컨설팅 신청상세 */
                     .leftJoin(qTblCnsltDtl)
                     .on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
-                    /** 컨설팅 분류 코드 */
                     .leftJoin(qTblComCd)
                     .on(qTblComCd.comCd.eq(Expressions.stringTemplate("{0}", qTblCnslttMbr.cnsltFld))
                             .and(qTblComCd.cdGroupSn.eq(10L)))
-                    /** 컨설팅 신청 */
                     .leftJoin(qTblCnsltAply)
                     .on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
                     .where(builder)
