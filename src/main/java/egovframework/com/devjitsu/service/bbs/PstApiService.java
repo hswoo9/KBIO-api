@@ -117,6 +117,11 @@ public class PstApiService {
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblPst.bbsSn.eq(Long.parseLong(dto.get("bbsSn").toString())));
+
+            if (!StringUtils.isEmpty(dto.get("pstClsf"))) {
+                builder.and(qTblPst.pstClsf.eq(Long.valueOf(dto.get("pstClsf").toString())));
+            }
+
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 if(dto.get("searchType").equals("pstTtl")){
                     builder.and(qTblPst.pstTtl.contains((String) dto.get("searchVal")));

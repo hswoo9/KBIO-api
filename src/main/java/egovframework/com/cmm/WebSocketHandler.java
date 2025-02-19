@@ -2,8 +2,10 @@ package egovframework.com.cmm;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.model.user.TblUserMsg;
 import egovframework.com.devjitsu.repository.user.TblUserMsgRepository;
+import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.let.utl.fcc.service.EgovFormBasedFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,9 +25,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     private Map<String, WebSocketSession> users = new ConcurrentHashMap<>();
 
+    private final TblUserRepository tblUserRepository;
     private final TblUserMsgRepository tblUserMsgRepository;
 
-    public WebSocketHandler(TblUserMsgRepository tblUserMsgRepository) {
+    public WebSocketHandler(TblUserRepository tblUserRepository, TblUserMsgRepository tblUserMsgRepository) {
+        this.tblUserRepository = tblUserRepository;
         this.tblUserMsgRepository = tblUserMsgRepository;
     }
 
@@ -66,14 +70,28 @@ public class WebSocketHandler extends TextWebSocketHandler {
             Gson gson = new Gson();
             TblUserMsg tblUserMsg = gson.fromJson(msg, new TypeToken<TblUserMsg>() {}.getType());
             if(tblUserMsg.getSendType().equals("all")){
-                for(WebSocketSession user : users.values()){
-                    if(user != null) {
-                        TextMessage tmpMsg = new TextMessage(gson.toJson(tblUserMsg));
-                        user.sendMessage(tmpMsg);
+                List<TblUser> tblUsers = tblUserRepository.findAll();
+
+                for(TblUser tblUser : tblUsers){
+                    if(tblUser != null) {
+                        TblUserMsg saveMsg = getTblUserMsg(tblUser, tblUserMsg);
+                        tblUserMsgRepository.save(saveMsg);
+
+                        WebSocketSession targetSession = users.get(tblUser.getUserSn().toString());
+                        if(targetSession != null) {
+                            TextMessage tmpMsg = new TextMessage(gson.toJson(saveMsg));
+                            targetSession.sendMessage(tmpMsg);
+                        }
                     }
                 }
             }else{
                 if(tblUserMsg.getRcptnUserSn() != null){
+                    TblUser tblUser = tblUserRepository.findByUserSn(tblUserMsg.getRcptnUserSn());
+                    tblUserMsg.setRcptnUserSn(tblUser.getUserSn());
+                    tblUserMsg.setSndngYmd(EgovFormBasedFileUtil.getTodayString());
+                    tblUserMsg.setCreatrSn(tblUserMsg.getDsptchUserSn());
+                    tblUserMsgRepository.save(tblUserMsg);
+
                     String target = tblUserMsg.getRcptnUserSn().toString();
                     WebSocketSession targetSession = users.get(target);
                     if(targetSession != null) {
@@ -82,11 +100,19 @@ public class WebSocketHandler extends TextWebSocketHandler {
                     }
                 }
             }
-
-            tblUserMsg.setSndngYmd(EgovFormBasedFileUtil.getTodayString());
-            tblUserMsg.setCreatrSn(tblUserMsg.getDsptchUserSn());
-            tblUserMsgRepository.save(tblUserMsg);
         }
+    }
+
+    private static TblUserMsg getTblUserMsg(TblUser tblUser, TblUserMsg tblUserMsg) {
+        TblUserMsg saveMsg = new TblUserMsg();
+        saveMsg.setSendType(tblUserMsg.getSendType());
+        saveMsg.setDsptchUserSn(tblUserMsg.getDsptchUserSn());
+        saveMsg.setRcptnUserSn(tblUser.getUserSn());
+        saveMsg.setMsgTtl(tblUserMsg.getMsgTtl());
+        saveMsg.setMsgCn(tblUserMsg.getMsgCn());
+        saveMsg.setSndngYmd(EgovFormBasedFileUtil.getTodayString());
+        saveMsg.setCreatrSn(tblUserMsg.getDsptchUserSn());
+        return saveMsg;
     }
 
     private String getQueryParam(URI uri, String param) {

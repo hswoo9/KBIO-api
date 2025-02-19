@@ -6,6 +6,8 @@ import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblAtchFileDwnldCnt;
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.TblUserMsg;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,25 @@ public class CommonApiController {
     @PostMapping("/commonApi/getLeftMenu.do")
     public ResultVO getLeftMenu(HttpServletRequest request) {
         return commonApiService.getLeftMenu(request);
+    }
+
+    /**
+     * 사용자 메세지 조회
+     * @return
+     */
+    @PostMapping("/commonApi/getUserMsgList.do")
+    public ResultVO getUserMsgList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return commonApiService.getUserMsgList(dto);
+    }
+
+    /**
+     * 사용자 메세지 조회
+     * @return
+     */
+    @PostMapping("/commonApi/setUserMsgExpsrYn")
+    public ResultVO setUserMsgExpsrYn(@RequestBody TblUserMsg tblUserMsg) {
+        return commonApiService.setUserMsgExpsrYn(tblUserMsg);
     }
 
     /**

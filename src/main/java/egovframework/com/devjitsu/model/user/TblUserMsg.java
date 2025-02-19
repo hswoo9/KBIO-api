@@ -47,6 +47,10 @@ public class TblUserMsg {
   @Comment("수신확인여부")
   private String rcptnIdntyYn = "N";
 
+  @Column(name = "EXPSR_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+  @Comment("노출여부")
+  private String expsrYn = "Y";
+
   @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
   @Comment("활성여부")
   private String actvtnYn = "Y";

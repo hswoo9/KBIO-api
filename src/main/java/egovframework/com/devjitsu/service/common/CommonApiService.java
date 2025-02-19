@@ -1,18 +1,20 @@
 package egovframework.com.devjitsu.service.common;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.cmm.util.AccessIP;
+import egovframework.com.devjitsu.model.bannerPopup.BannerPopupDto;
 import egovframework.com.devjitsu.model.bbs.PstDto;
 import egovframework.com.devjitsu.model.bbs.TblPst;
 import egovframework.com.devjitsu.model.common.*;
 import egovframework.com.devjitsu.model.menu.*;
 import egovframework.com.devjitsu.model.menu.QTblAuthrtGroupMenu;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
-import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
@@ -20,6 +22,8 @@ import egovframework.com.devjitsu.repository.common.TblAtchFileDwnldCntRepositor
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
+import egovframework.com.devjitsu.repository.user.TblUserMsgRepository;
+import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
 import egovframework.com.devjitsu.service.menu.MenuAuthGroupApiService;
 import lombok.RequiredArgsConstructor;
@@ -95,10 +99,12 @@ public class CommonApiService {
      * BooleanBuilder builder = new BooleanBuilder();
      * builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
      */
+    private final TblUserRepository tblUserRepository;
     private final TblComCdRepository tblComCdRepository;
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
     private final TblAtchFileDwnldCntRepository tblAtchFileDwnldCntRepository;
+    private final TblUserMsgRepository tblUserMsgRepository;
 
     private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
     private final TblMenuRepository tblMenuRepository;
@@ -197,6 +203,70 @@ public class CommonApiService {
 
         return leftMenuList;
     }
+
+
+    public ResultVO getUserMsgList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserMsg qTblUserMsg = QTblUserMsg.tblUserMsg;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            if(!StringUtils.isEmpty(dto.get("userSn"))){
+                List<UserMsgDto> userMsgList = q
+                        .select(
+                            Projections.constructor(
+                                UserMsgDto.class,
+                                qTblUserMsg,
+                                qTblUser
+                            )
+                        )
+                        .from(qTblUserMsg)
+                        .join(qTblUser).on(qTblUserMsg.rcptnUserSn.eq(qTblUser.userSn))
+
+                        .where(
+                            qTblUserMsg.actvtnYn.eq("Y")
+                            .and(qTblUserMsg.rcptnUserSn.eq(Long.parseLong(dto.get("userSn").toString())))
+                            .and(qTblUserMsg.expsrYn.eq("Y"))
+                        )
+                        .orderBy(qTblUserMsg.frstCrtDt.desc())
+                        .fetch();
+
+                resultVO.putResult("userMsgList", userMsgList);
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setUserMsgExpsrYn(TblUserMsg tblUserMsg) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblUserMsg qTblUserMsg = QTblUserMsg.tblUserMsg;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            q.update(qTblUserMsg)
+            .set(qTblUserMsg.expsrYn, "N")
+            .set(qTblUserMsg.mdfrSn, tblUserMsg.getMdfrSn())
+            .where(qTblUserMsg.msgSn.eq(tblUserMsg.getMsgSn()))
+            .execute();
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 
     public ResultVO getMngrAcsIpChk(HttpServletRequest request) {
         ResultVO resultVO = new ResultVO();
