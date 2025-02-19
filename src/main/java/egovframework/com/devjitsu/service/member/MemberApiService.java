@@ -555,11 +555,23 @@ public class MemberApiService {
 
     public ResultVO getMyPageNormalMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
+        QTblComFile qTblComFile = QTblComFile.tblComFile;
+        JPAQueryFactory q = new JPAQueryFactory(em);
 
         try {
             TblUser member = TblUserRepository.findByUserSn(tblUser.getUserSn());
             TblCnslttMbr cnslttMbr = tblCnslttMbrRepository.findByUserSn(tblUser.getUserSn());
 
+            TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", cnslttMbr.getUserSn()) //사진
+                    )
+            ).fetchOne();
+            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", cnslttMbr.getUserSn()) //자격증
+                    )
+            ).fetch();
             if (member != null) {
                 System.out.printf("회원 정보: %s\n", member);
                 resultVO.putResult("member", member);
@@ -567,6 +579,8 @@ public class MemberApiService {
                 if (cnslttMbr != null) {
                     System.out.printf("컨설턴트 정보: %s\n", cnslttMbr);
                     resultVO.putResult("cnslttMbr", cnslttMbr);
+                    resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
+                    resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
                 }
 
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
