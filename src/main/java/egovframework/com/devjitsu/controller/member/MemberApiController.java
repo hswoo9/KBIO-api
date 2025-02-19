@@ -1,5 +1,6 @@
 package egovframework.com.devjitsu.controller.member;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
@@ -24,12 +25,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -81,36 +84,52 @@ public class MemberApiController {
         return memberApiService.insertMember(dto);
     }*/
     @PostMapping(value = "/memberApi/insertMember")
-    public ResultVO insertMember(//@ModelAttribute TblUser tblUser,
-                                 //@ModelAttribute TblMvnEnt tblMvnEnt,
-                                 //@ModelAttribute TblCnslttMbr tblCnslttMbr,
-                                 @RequestParam(value = "userInfo") String userInfoJson,
+    public ResultVO insertMember(@RequestParam(value = "userInfo") String userInfoJson,
+                                 @RequestParam(value = "certInfo", required = false) String certInfoJson,
+                                 @RequestParam(value = "careerInfo", required = false) String careerInfoJson,
+                                 @RequestParam(value = "acbgInfo", required = false) String acbgInfoJson,
                                  @RequestParam(value = "profileImgFiles", required = false) List<MultipartFile> cnsltProfileFiles,
-                                 @RequestParam(value = "files", required = false)List<MultipartFile> files)throws Exception {
-        /*if (tblMvnEnt == null) {
-            tblMvnEnt = new TblMvnEnt();
-        }
-        if (tblCnslttMbr == null) {
-            tblCnslttMbr = new TblCnslttMbr();
-        }*/
-        //ResultVO resultVO = new ResultVO();
-        //return resultVO;
+                                 @RequestParam(value = "certFiles", required = false)List<MultipartFile> certFiles,
+                                 @RequestParam(value = "careerFiles", required = false)List<MultipartFile> careerFiles,
+                                 @RequestParam(value = "acbgFiles", required = false)List<MultipartFile> acbgFiles
+    )throws Exception {
 
         ObjectMapper objectMapper = new ObjectMapper();
         SearchDto dto = new SearchDto();
         System.out.println("****userInfo****"+userInfoJson);
+        System.out.println("****certInfo****"+certInfoJson);
+        System.out.println("****careerInfo****"+careerInfoJson);
+        System.out.println("****acbgInfo****"+acbgInfoJson);
+
         Map<String, Object> userInfoMap = objectMapper.readValue(userInfoJson, Map.class);
         for (Map.Entry<String, Object> entry : userInfoMap.entrySet()) {
             dto.put(entry.getKey(), entry.getValue());
         }
         System.out.println(dto);
 
-        return memberApiService.insertMember(dto, cnsltProfileFiles, files);
+
+        List<Map<String, Object>> certInfoList = new ArrayList<>();
+        List<Map<String, Object>> careerInfoList = new ArrayList<>();
+        List<Map<String, Object>> acbgInfoList = new ArrayList<>();
+
+        // certInfoJson이 null이 아니고 비어있지 않을 때만 JSON 파싱
+        if (StringUtils.hasText(certInfoJson)) {
+            certInfoList = objectMapper.readValue(certInfoJson, new TypeReference<List<Map<String, Object>>>() {});
+        }
+        if (StringUtils.hasText(careerInfoJson)) {
+            careerInfoList = objectMapper.readValue(careerInfoJson, new TypeReference<List<Map<String, Object>>>() {});
+        }
+        if (StringUtils.hasText(acbgInfoJson)) {
+            acbgInfoList = objectMapper.readValue(acbgInfoJson, new TypeReference<List<Map<String, Object>>>() {});
+        }
+
+
+
+
+
+        return memberApiService.insertMember(dto, certInfoList, careerInfoList, acbgInfoList, cnsltProfileFiles, certFiles, careerFiles, acbgFiles );
     }
 
-    /*@ModelAttribute TblUser tblUser,
-                                 @ModelAttribute TblMvnEnt tblMvnEnt,
-                                 @ModelAttribute TblCnslttMbr tblCnslttMbr,*/
 
     @Operation(
             summary = "회원가입시 입주기업/유관기관 조회",

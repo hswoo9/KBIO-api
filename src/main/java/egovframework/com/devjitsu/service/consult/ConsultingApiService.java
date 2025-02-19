@@ -138,6 +138,11 @@ public class ConsultingApiService {
                 builder.and(qTblCnslttMbr.cnsltActv.eq((String) dto.get("cnsltYn")));
             }
 
+            //사용자 페이지의 경우 비공개인 컨설턴트는 내보내지 않음
+            if(!StringUtils.isEmpty(dto.get("usedByGeneral"))){
+                builder.and(qTblCnslttMbr.cnsltActv.eq((String) dto.get("usedByGeneral")));
+            }
+
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 if (dto.get("searchType").equals("kornFlnm")) { //이름
                     builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
