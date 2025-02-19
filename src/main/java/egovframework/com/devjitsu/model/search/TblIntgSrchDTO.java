@@ -18,6 +18,7 @@ public class TblIntgSrchDTO {
 
     private Long intgSrchSn;
     private Long menuSn;
+    private Long upperMenuSn;
     private Long atchFileSn;
     private Long pstSn;
     private String knd;
@@ -27,5 +28,6 @@ public class TblIntgSrchDTO {
     private String atchFileNm;
     private String atchFileExtnNm;
     private String menuNmPath;
+    private String kornFlnm;
     private LocalDateTime frstCrtDt;
 }
