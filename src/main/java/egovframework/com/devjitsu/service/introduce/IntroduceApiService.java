@@ -56,11 +56,17 @@ public class IntroduceApiService {
 
             BooleanBuilder builder = new BooleanBuilder();
 
-            if(!StringUtils.isEmpty(dto.get("mvnEntNm"))){
-                builder.and(qTblMvnEnt.mvnEntNm.contains((String) dto.get("mvnEntNm")));
-            }
-            if(!StringUtils.isEmpty(dto.get("rpsvNm"))){
-                builder.and(qTblMvnEnt.rpsvNm.contains((String) dto.get("rpsvNm")));
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("mvnEntNm")){
+                    builder.and(qTblMvnEnt.mvnEntNm.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("rpsvNm")){
+                    builder.and(qTblMvnEnt.rpsvNm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblMvnEnt.mvnEntNm.contains((String) dto.get("searchVal"))
+                                .or(qTblMvnEnt.rpsvNm.contains((String) dto.get("searchVal")))
+                );
             }
 
             List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
@@ -146,11 +152,17 @@ public class IntroduceApiService {
 
             BooleanBuilder builder = new BooleanBuilder();
 
-            if(!StringUtils.isEmpty(dto.get("relInstNm"))){
-                builder.and(qTblRelInst.relInstNm.contains((String) dto.get("relInstNm")));
-            }
-            if(!StringUtils.isEmpty(dto.get("rpsvNm"))){
-                builder.and(qTblRelInst.rpsvNm.contains((String) dto.get("rpsvNm")));
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("relInstNm")){
+                    builder.and(qTblRelInst.relInstNm.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("rpsvNm")){
+                    builder.and(qTblRelInst.rpsvNm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblRelInst.relInstNm.contains((String) dto.get("searchVal"))
+                                .or(qTblRelInst.rpsvNm.contains((String) dto.get("searchVal")))
+                );
             }
 
             List<TblRelInst> tblRelInstList = q.selectFrom(qTblRelInst)
