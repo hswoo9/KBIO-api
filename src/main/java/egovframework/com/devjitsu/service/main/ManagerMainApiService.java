@@ -130,7 +130,7 @@ public class ManagerMainApiService {
                         Expressions.stringTemplate("{0}", dto.get("year") + "-" + dto.get("month"))
                     )
                 ))
-                .groupBy(dayFormat2)
+                .groupBy(dayFormat2, qTblCnsltAply.cnsltSe)
                 .fetch()
             );
 

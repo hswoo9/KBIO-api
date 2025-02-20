@@ -8,10 +8,7 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.consult.*;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
-import egovframework.com.devjitsu.model.user.QTblUser;
-import egovframework.com.devjitsu.model.user.TblCnslttMbr;
-import egovframework.com.devjitsu.model.user.TblMvnEnt;
-import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.service.common.CommonApiService;
 import egovframework.com.devjitsu.service.member.MemberApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
@@ -379,11 +376,5 @@ public class MemberApiController {
     public ResultVO checkPassword(HttpServletRequest request) throws Exception {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.checkPassword(dto);
-    }
-
-    @PostMapping(value = "/memberApi/getUserMsgList.do")
-    public ResultVO getUserMsgList(HttpServletRequest request) throws Exception {
-        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
-        return memberApiService.getUserMsgList(dto);
     }
 }

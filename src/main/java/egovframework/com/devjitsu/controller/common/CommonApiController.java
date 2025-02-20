@@ -57,35 +57,6 @@ public class CommonApiController {
     }
 
     /**
-     * 사용자 메세지 조회
-     * @return
-     */
-    @PostMapping("/commonApi/getUserMsgList.do")
-    public ResultVO getUserMsgList(HttpServletRequest request) {
-        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
-        return commonApiService.getUserMsgList(dto);
-    }
-
-    /**
-     * 사용자 알림 노출 여부 수정
-     * @return
-     */
-    @PostMapping("/commonApi/setUserMsgExpsrYn")
-    public ResultVO setUserMsgExpsrYn(@RequestBody TblUserMsg tblUserMsg) {
-        return commonApiService.setUserMsgExpsrYn(tblUserMsg);
-    }
-
-    /**
-     * 사용자 알림 확인 수정
-     * @return
-     */
-    @PostMapping("/commonApi/setMsgConfirm")
-    public ResultVO setMsgConfirm(@RequestBody TblUserMsg tblUserMsg) {
-        return commonApiService.setMsgConfirm(tblUserMsg);
-    }
-
-
-    /**
      * 관리자 아이피 체크
      * @return
      */
