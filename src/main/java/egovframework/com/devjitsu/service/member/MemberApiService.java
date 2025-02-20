@@ -621,7 +621,10 @@ public class MemberApiService {
         }
     }
 
-    public ResultVO setMemberMyPageModfiy(TblUser tblUser, TblCnslttMbr tblCnslttMbr) {
+    public ResultVO setMemberMyPageModfiy(TblUser tblUser, TblCnslttMbr tblCnslttMbr,
+                                        List<TblQlfcLcns> hasCertData,
+                                        List<TblCrr> hasCrrData,
+                                        List<TblAcbg> hasAcbgData) {
         ResultVO resultVO = new ResultVO();
 
         try {
@@ -635,11 +638,22 @@ public class MemberApiService {
                 tblUser.setUserPw(encryptedUserPw);
             }
 
-
             TblUserRepository.save(tblUser);
 
             if (tblCnslttMbr != null) {
                 tblCnslttMbrRepository.save(tblCnslttMbr);
+            }
+
+            if (hasCertData != null) {
+                tblQlfcLcnsRepository.saveAll(hasCertData);
+            }
+
+            if (hasCrrData != null) {
+                tblCrrRepository.saveAll(hasCrrData);
+            }
+
+            if (hasAcbgData != null) {
+                tblAcbgRepository.saveAll(hasAcbgData);
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -652,6 +666,7 @@ public class MemberApiService {
 
         return resultVO;
     }
+
 
 
     public ResultVO checkUser(SearchDto dto) throws Exception {
@@ -694,6 +709,14 @@ public class MemberApiService {
             TblUser member = TblUserRepository.findByUserSn(tblUser.getUserSn());
             TblCnslttMbr cnslttMbr = tblCnslttMbrRepository.findByUserSn(tblUser.getUserSn());
 
+            List<TblQlfcLcns> tblQlfcLcnsList = tblQlfcLcnsRepository.findAllByUserSn(tblUser.getUserSn());
+            List<TblAcbg> tblAcbgList = tblAcbgRepository.findAllByUserSn(tblUser.getUserSn());
+            List<TblCrr> tblCrrList = tblCrrRepository.findAllByUserSn(tblUser.getUserSn());
+
+            List<Long> qlfcLcnsSnList = tblQlfcLcnsList.stream()
+                    .map(TblQlfcLcns::getQlfcLcnsSn)
+                    .collect(Collectors.toList());
+
 
             if (member != null) {
                 System.out.printf("회원 정보: %s\n", member);
@@ -705,16 +728,38 @@ public class MemberApiService {
                                     Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", cnslttMbr.getUserSn()) //사진
                             )
                     ).fetchOne();
-                    List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
-                            qTblComFile.psnTblSn.eq(
-                                    Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", cnslttMbr.getUserSn()) //자격증
-                            )
-                    ).fetch();
+                    List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile)
+                            .where(qTblComFile.psnTblSn.in(
+                                    qlfcLcnsSnList.stream()
+                                            .map(sn -> "cnsltCertificate_" + sn)
+                                            .collect(Collectors.toList())
+                            ))
+                            .fetch();
 
-                    System.out.printf("컨설턴트 정보: %s\n", cnslttMbr);
+                    List<TblComFile> cnsltCareerFile = q.selectFrom(qTblComFile)
+                            .where(qTblComFile.psnTblSn.in(
+                                    qlfcLcnsSnList.stream()
+                                            .map(sn -> "cnsltCareer" + sn)
+                                            .collect(Collectors.toList())
+                            ))
+                            .fetch();
+
+                    List<TblComFile> cnsltAcgbFile = q.selectFrom(qTblComFile)
+                            .where(qTblComFile.psnTblSn.in(
+                                    qlfcLcnsSnList.stream()
+                                            .map(sn -> "cnsltAcgnFile" + sn)
+                                            .collect(Collectors.toList())
+                            ))
+                            .fetch();
+
                     resultVO.putResult("cnslttMbr", cnslttMbr);
                     resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
                     resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
+                    resultVO.putResult("cnsltCareerFile",cnsltCareerFile);
+                    resultVO.putResult("cnsltAcgbFile",cnsltAcgbFile);
+                    resultVO.putResult("tblQlfcLcnsList",tblQlfcLcnsList);
+                    resultVO.putResult("tblAcbgList",tblAcbgList);
+                    resultVO.putResult("tblCrrList",tblCrrList);
                 }
 
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());

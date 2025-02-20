@@ -2,6 +2,7 @@ package egovframework.com.devjitsu.controller.member;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.ResultVO;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -183,8 +185,26 @@ public class MemberApiController {
             @ApiResponse(responseCode = "400", description = "회원 수정 실패")
     })
     @PostMapping(value = "/memberApi/setMemberMyPageModfiy")
-    public ResultVO setMemberMyPageModfiy(@ModelAttribute TblUser tbluser, @ModelAttribute TblCnslttMbr tblCnslttMbr){
-        return memberApiService.setMemberMyPageModfiy(tbluser, tblCnslttMbr);
+    public ResultVO setMemberMyPageModfiy(
+            @ModelAttribute TblUser tblUser,
+            @ModelAttribute TblCnslttMbr tblCnslttMbr,
+            @RequestParam(value = "hasCertData", required = false) List<String> hasCertData,
+            @RequestParam(value = "hasCrrData", required = false) List<String> hasCrrData,
+            @RequestParam(value = "hasAcbgData", required = false) List<String> hasAcbgData) {
+
+        List<TblQlfcLcns> certList = hasCertData != null ? hasCertData.stream()
+                .map(data -> new Gson().fromJson(data, TblQlfcLcns.class))
+                .collect(Collectors.toList()) : null;
+
+        List<TblCrr> crrList = hasCrrData != null ? hasCrrData.stream()
+                .map(data -> new Gson().fromJson(data, TblCrr.class))
+                .collect(Collectors.toList()) : null;
+
+        List<TblAcbg> acbgList = hasAcbgData != null ? hasAcbgData.stream()
+                .map(data -> new Gson().fromJson(data, TblAcbg.class))
+                .collect(Collectors.toList()) : null;
+
+        return memberApiService.setMemberMyPageModfiy(tblUser, tblCnslttMbr, certList, crrList, acbgList);
     }
 
     @Operation(
