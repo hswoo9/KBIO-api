@@ -64,10 +64,12 @@ public class MemberAdminApiService {
                     builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
                 }
             }else{
-                builder.and(
-                        qTblUser.userId.contains((String) dto.get("searchVal"))
-                                .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
-                );
+                if (!StringUtils.isEmpty(dto.get("searchVal"))) {
+                    builder.and(
+                            qTblUser.userId.contains((String) dto.get("searchVal"))
+                                    .or(qTblUser.kornFlnm.contains((String) dto.get("searchVal")))
+                    );
+                }
             }
 
             List<TblUser> getNormalMemberList = q.selectFrom(qTblUser)
