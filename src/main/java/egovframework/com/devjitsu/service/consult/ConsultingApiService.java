@@ -197,7 +197,7 @@ public class ConsultingApiService {
                     .on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
                     .where(builder)
                     .groupBy(qTblCnslttMbr.userSn)
-                    .orderBy(qTblUser.frstCrtDt.desc())
+                    .orderBy(qTblUser.userSn.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
