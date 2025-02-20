@@ -48,6 +48,15 @@ public class CommonApiController {
     }
 
     /**
+     * 사용자 전체 메뉴 조회 ( 트리구조 )
+     * @return
+     */
+    @PostMapping("/commonApi/getMenuOnTree.do")
+    public ResultVO getMenuOnTree(HttpServletRequest request) {
+        return commonApiService.getMenuOnTree(request);
+    }
+
+    /**
      * 사용자 left 메뉴 조회
      * @return
      */

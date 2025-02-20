@@ -153,6 +153,73 @@ public class CommonApiService {
         return resultVO;
     }
 
+    public ResultVO getMenuOnTree(HttpServletRequest request) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+            QTblMenu qTblMenu = QTblMenu.tblMenu;
+            QTblAuthrtGroupMenu qTblAuthrtGroupMenu = QTblAuthrtGroupMenu.tblAuthrtGroupMenu;
+
+            String menuAuthrtGroups = "1";
+
+            if(!StringUtils.isEmpty(dto.get("userSn"))){
+                menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups(Long.parseLong(String.valueOf(dto.get("userSn"))));
+            }
+
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qTblMenu.actvtnYn.eq("Y"));
+            builder.and(Expressions.booleanTemplate("FIND_IN_SET({0}, {1}) > 0", qTblAuthrtGroupMenu.authrtGroupSn, menuAuthrtGroups));
+
+            if(!StringUtils.isEmpty(dto.get("menuSeq"))){
+                builder.and(qTblMenu.menuSeq.eq(Long.valueOf(dto.get("menuSeq").toString())));
+            }
+
+            if(!StringUtils.isEmpty(dto.get("upperMenuSn"))){
+                builder.and(qTblMenu.upperMenuSn.eq(Long.valueOf(dto.get("upperMenuSn").toString())));
+            }
+
+            List<TblMenu> menuList =
+                    q.selectFrom(qTblMenu)
+                        .join(qTblAuthrtGroupMenu).on(qTblMenu.menuSn.eq(qTblAuthrtGroupMenu.menuSn))
+                        .where(builder).groupBy(qTblMenu.menuSn).orderBy(qTblMenu.upperMenuSn.asc(), qTblMenu.menuSortSeq.asc()).fetch();
+
+            List<TblMenu> returnMenus = new ArrayList<>();
+
+            if(menuList.size() > 0){
+                for (TblMenu menu : menuList) {
+                    for (TblMenu menu2 : menuList) {
+                        if(menu2.getUpperMenuSn() == menu.getMenuSn()){
+                            List<TblMenu> subMenu = new ArrayList();
+                            if(menu.getChildTblMenu().size() > 0){
+                                subMenu = menu.getChildTblMenu();
+                                subMenu.add(menu2);
+                                menu.setChildTblMenu(subMenu);
+                            }else{
+                                subMenu.add(menu2);
+                                menu.setChildTblMenu(subMenu);
+                            }
+                        }
+                    }
+
+                    if(menu.getMenuSeq() == 0){
+                        returnMenus.add(menu);
+                    }
+                }
+            }
+
+            resultVO.putResult("menuList", returnMenus);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 
     public ResultVO getLeftMenu(HttpServletRequest request) {
         ResultVO resultVO = new ResultVO();
