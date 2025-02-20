@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -245,17 +246,30 @@ public class ConsultingApiService {
             List<TblAcbg> tblAcbgList = tblAcbgRepository.findAllByUserSn(tblUser.getUserSn());
             List<TblCrr> tblCrrList = tblCrrRepository.findAllByUserSn(tblUser.getUserSn());
 
+            List<Long> qlfcLcnsSnList = tblQlfcLcnsList.stream()
+                    .map(TblQlfcLcns::getQlfcLcnsSn)
+                    .collect(Collectors.toList());
 
             TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
                     qTblComFile.psnTblSn.eq(
                             Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", tblCnslttMbr.getUserSn()) //사진
                     )
             ).fetchOne();
-            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
-                    qTblComFile.psnTblSn.eq(
-                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", tblCnslttMbr.getUserSn()) //자격증
-                    )
-            ).fetch();
+
+//            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+//                    qTblComFile.psnTblSn.eq(
+//                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", tblCnslttMbr.getUserSn()) //자격증
+//                    )
+//            ).fetch();
+
+            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile)
+                    .where(qTblComFile.psnTblSn.in(
+                            qlfcLcnsSnList.stream()
+                                    .map(sn -> "cnsltCertificate_" + sn)
+                                    .collect(Collectors.toList())
+                    ))
+                    .fetch();
+
 
 
 
