@@ -59,6 +59,9 @@ public class IntroduceApiService {
             if(!StringUtils.isEmpty(dto.get("mvnEntNm"))){
                 builder.and(qTblMvnEnt.mvnEntNm.contains((String) dto.get("mvnEntNm")));
             }
+            if(!StringUtils.isEmpty(dto.get("rpsvNm"))){
+                builder.and(qTblMvnEnt.rpsvNm.contains((String) dto.get("rpsvNm")));
+            }
 
             List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
                     .where(builder)
@@ -145,6 +148,9 @@ public class IntroduceApiService {
 
             if(!StringUtils.isEmpty(dto.get("relInstNm"))){
                 builder.and(qTblRelInst.relInstNm.contains((String) dto.get("relInstNm")));
+            }
+            if(!StringUtils.isEmpty(dto.get("rpsvNm"))){
+                builder.and(qTblRelInst.rpsvNm.contains((String) dto.get("rpsvNm")));
             }
 
             List<TblRelInst> tblRelInstList = q.selectFrom(qTblRelInst)
