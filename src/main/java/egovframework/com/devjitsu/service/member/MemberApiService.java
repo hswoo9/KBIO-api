@@ -694,21 +694,23 @@ public class MemberApiService {
             TblUser member = TblUserRepository.findByUserSn(tblUser.getUserSn());
             TblCnslttMbr cnslttMbr = tblCnslttMbrRepository.findByUserSn(tblUser.getUserSn());
 
-            TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
-                    qTblComFile.psnTblSn.eq(
-                            Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", cnslttMbr.getUserSn()) //사진
-                    )
-            ).fetchOne();
-            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
-                    qTblComFile.psnTblSn.eq(
-                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", cnslttMbr.getUserSn()) //자격증
-                    )
-            ).fetch();
+
             if (member != null) {
                 System.out.printf("회원 정보: %s\n", member);
                 resultVO.putResult("member", member);
 
                 if (cnslttMbr != null) {
+                    TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", cnslttMbr.getUserSn()) //사진
+                            )
+                    ).fetchOne();
+                    List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", cnslttMbr.getUserSn()) //자격증
+                            )
+                    ).fetch();
+
                     System.out.printf("컨설턴트 정보: %s\n", cnslttMbr);
                     resultVO.putResult("cnslttMbr", cnslttMbr);
                     resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
@@ -966,13 +968,9 @@ public class MemberApiService {
             JPQLQuery<Long> fileCnt = JPAExpressions
                     .select(qTblComFile.count())
                     .from(qTblComFile)
-                    .where(
-                            qTblComFile.psnTblSn.eq(
-                                    Expressions.stringTemplate(
-                                            "CONCAT('consulting_', {0})", qTblCnsltAply.cnsltAplySn
-                                    )
-                            )
-                    );
+                    .innerJoin(qTblCnsltDsctn)
+                    .on(qTblComFile.psnTblSn.eq(Expressions.stringTemplate("CONCAT('consulting_', {0})", qTblCnsltDsctn.cnsltDsctnSn)))
+                    .where(qTblCnsltDsctn.cnsltAplySn.eq(qTblCnsltAply.cnsltAplySn));
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 if(dto.get("searchType").equals("ttl")){
                     builder.and(qTblCnsltAply.ttl.contains((String) dto.get("searchVal")));
