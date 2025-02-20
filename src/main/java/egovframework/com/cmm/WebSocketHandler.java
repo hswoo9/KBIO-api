@@ -69,12 +69,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
         if(msg != null){
             Gson gson = new Gson();
             TblUserMsg tblUserMsg = gson.fromJson(msg, new TypeToken<TblUserMsg>() {}.getType());
+            long maxGroup = tblUserMsgRepository.findNextMsgGroup();
+
             if(tblUserMsg.getSendType().equals("all")){
                 List<TblUser> tblUsers = tblUserRepository.findAll();
 
                 for(TblUser tblUser : tblUsers){
                     if(tblUser != null) {
                         TblUserMsg saveMsg = getTblUserMsg(tblUser, tblUserMsg);
+                        saveMsg.setMsgGroup(maxGroup);
                         tblUserMsgRepository.save(saveMsg);
 
                         WebSocketSession targetSession = users.get(tblUser.getUserSn().toString());
@@ -85,22 +88,33 @@ public class WebSocketHandler extends TextWebSocketHandler {
                     }
                 }
             }else{
-                if(tblUserMsg.getRcptnUserSn() != null){
-                    TblUser tblUser = tblUserRepository.findByUserSn(tblUserMsg.getRcptnUserSn());
-                    tblUserMsg.setRcptnUserSn(tblUser.getUserSn());
-                    tblUserMsg.setSndngYmd(EgovFormBasedFileUtil.getTodayString());
-                    tblUserMsg.setCreatrSn(tblUserMsg.getDsptchUserSn());
-                    tblUserMsgRepository.save(tblUserMsg);
+                if(tblUserMsg.getRcptnUserSns() != null){
+                    String[] rcptUserSns = tblUserMsg.getRcptnUserSns().split(",");
+                    for(String r : rcptUserSns){
+                        long recptUserSn = Long.parseLong(r);
+                        TblUser tblUser = tblUserRepository.findByUserSn(recptUserSn);
+                        TblUserMsg saveMsg = getTblUserMsg(tblUser, tblUserMsg);
+                        saveMsg.setMsgGroup(maxGroup);
+                        tblUserMsgRepository.save(saveMsg);
 
-                    String target = tblUserMsg.getRcptnUserSn().toString();
-                    WebSocketSession targetSession = users.get(target);
-                    if(targetSession != null) {
-                        TextMessage tmpMsg = new TextMessage(gson.toJson(tblUserMsg));
-                        targetSession.sendMessage(tmpMsg);
+                        String target = tblUser.getUserSn().toString();
+                        WebSocketSession targetSession = users.get(target);
+                        if(targetSession != null) {
+                            TextMessage tmpMsg = new TextMessage(gson.toJson(tblUserMsg));
+                            targetSession.sendMessage(tmpMsg);
+                        }
                     }
                 }
             }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "메시지가 성공적으로 전송되었습니다.");
+
+            String jsonResponse = gson.toJson(response);
+            session.sendMessage(new TextMessage(jsonResponse));
         }
+
     }
 
     private static TblUserMsg getTblUserMsg(TblUser tblUser, TblUserMsg tblUserMsg) {

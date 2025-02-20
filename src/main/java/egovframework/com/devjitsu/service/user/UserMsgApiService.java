@@ -2,6 +2,7 @@ package egovframework.com.devjitsu.service.user;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
@@ -23,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,7 +52,8 @@ public class UserMsgApiService {
                                 Projections.constructor(
                                         UserMsgDto.class,
                                         qTblUserMsg,
-                                        qTblUser
+                                        qTblUser,
+                                        Expressions.constant("")
                                 )
                         )
                         .from(qTblUserMsg)
@@ -125,7 +128,8 @@ public class UserMsgApiService {
                             Projections.constructor(
                                     UserMsgDto.class,
                                     qTblUserMsg,
-                                    qTblUser
+                                    qTblUser,
+                                    Expressions.constant("")
                             )
                     )
                     .from(qTblUserMsg)
@@ -187,6 +191,7 @@ public class UserMsgApiService {
             q.update(qTblUserMsg)
                     .set(qTblUserMsg.rcptnIdntyYn, "Y")
                     .set(qTblUserMsg.mdfrSn, tblUserMsg.getMdfrSn())
+                    .set(qTblUserMsg.mdfcnDt, LocalDateTime.now())
                     .where(qTblUserMsg.msgSn.eq(tblUserMsg.getMsgSn()))
                     .execute();
 

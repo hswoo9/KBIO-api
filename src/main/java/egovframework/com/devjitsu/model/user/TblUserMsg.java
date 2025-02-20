@@ -23,6 +23,10 @@ public class TblUserMsg {
   @Comment("메시지일련번호")
   private Long msgSn;
 
+  @Column(name = "MSG_GROUP", length = 22, nullable = false, updatable = false)
+  @Comment("메시지그룹")
+  private long msgGroup;
+
   @Column(name = "DSPTCH_USER_SN", length = 22, nullable = false, updatable = false)
   @Comment("발신사용자일련번호")
   private long dsptchUserSn;
@@ -68,11 +72,13 @@ public class TblUserMsg {
   @Comment("수정자일련번호")
   private Long mdfrSn;
 
-  @Column(name = "MDFCN_DT", columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP")
+  @Column(name = "MDFCN_DT", insertable = false)
   @Comment("수정일")
   private LocalDateTime mdfcnDt;
 
   @Transient
   private String sendType;
 
+  @Transient
+  private String rcptnUserSns;
 }

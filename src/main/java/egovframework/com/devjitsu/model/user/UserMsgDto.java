@@ -1,9 +1,9 @@
 package egovframework.com.devjitsu.model.user;
 
-import egovframework.com.devjitsu.model.common.TblComFile;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter
@@ -11,5 +11,7 @@ import lombok.Setter;
 public class UserMsgDto {
 
     TblUserMsg tblUserMsg;
-    TblUser tblUser;
+    TblUser dsptchUser;
+
+    Object rcptnUser;
 }

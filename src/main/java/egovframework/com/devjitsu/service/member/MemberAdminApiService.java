@@ -42,7 +42,13 @@ public class MemberAdminApiService {
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
                 paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
             }
-            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+
+            if (!StringUtils.isEmpty(dto.get("pageUnit"))) {
+                paginationInfo.setRecordCountPerPage(Integer.parseInt(dto.get("pageUnit").toString()));
+            }else{
+                paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            }
+
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             JPAQueryFactory q = new JPAQueryFactory(em);
