@@ -7,12 +7,11 @@ import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.user.MvnEntApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @CrossOrigin("*")
@@ -23,8 +22,12 @@ public class MvnEntApiController {
     private MvnEntApiService mvnEntApiService;
 
     @PostMapping("/mvnEntApi/setMvnEnt")
-    public ResultVO setMvnEnt(@RequestBody TblMvnEnt tblMvnEnt){
-        return mvnEntApiService.setMvnEnt(tblMvnEnt);
+    public ResultVO setMvnEnt(
+                /*@RequestBody TblMvnEnt tblMvnEnt*/
+                @ModelAttribute TblMvnEnt tblMvnEnt,
+                @RequestParam(value = "files", required = false) List<MultipartFile> files){
+
+        return mvnEntApiService.setMvnEnt(tblMvnEnt,files);
     }
 
     @PostMapping("/mvnEntApi/getMvnEntList.do")
