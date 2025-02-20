@@ -165,6 +165,10 @@ public class TblMvnEnt {
     @Comment("업체설명")
     private String bzentyExpln;
 
+    @Column(name = "MAIN_HSTRY", columnDefinition = "LONGTEXT")
+    @Comment("업체설명")
+    private String mainHstry;
+
     @Column(name = "RMRK_CN", length = 4000)
     @Comment("비고내용")
     private String rmrkCn;

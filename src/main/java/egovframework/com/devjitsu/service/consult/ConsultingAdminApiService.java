@@ -188,12 +188,12 @@ public class ConsultingAdminApiService {
                                   .where(qTblComCd.comCd.eq(qTblCnsltDtl.cnsltSttsCd)
                                           .and(qTblComCd.cdGroupSn.eq(14L))),
                          qTblCnsltDtl.cnsltSttsCd,
-//                         JPAExpressions
-//                                .select(
-//                                         qTblCnsltDgstfn.dgstfnArtcl.count().coalesce(0L)
-//                                )
-//                                .from(qTblCnsltDgstfn)
-//                                .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
+//                        JPAExpressions
+//                               .select(
+//                                        qTblCnsltDgstfn.dgstfnArtcl.count().coalesce(0L)
+//                               )
+//                               .from(qTblCnsltDgstfn)
+//                               .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
                          qTblCnsltDgstfn.dgstfnArtcl.countDistinct().coalesce(0L),
                          qTblCnsltAply.ttl,
                          fileCnt
