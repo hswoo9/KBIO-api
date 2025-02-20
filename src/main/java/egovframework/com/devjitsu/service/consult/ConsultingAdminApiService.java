@@ -188,12 +188,13 @@ public class ConsultingAdminApiService {
                                   .where(qTblComCd.comCd.eq(qTblCnsltDtl.cnsltSttsCd)
                                           .and(qTblComCd.cdGroupSn.eq(14L))),
                          qTblCnsltDtl.cnsltSttsCd,
-                         JPAExpressions
-                                .select(
-                                         qTblCnsltDgstfn.dgstfnArtcl.count().coalesce(0L)
-                                )
-                                .from(qTblCnsltDgstfn)
-                                .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
+//                        JPAExpressions
+//                               .select(
+//                                        qTblCnsltDgstfn.dgstfnArtcl.count().coalesce(0L)
+//                               )
+//                               .from(qTblCnsltDgstfn)
+//                               .where(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)),
+                         qTblCnsltDgstfn.dgstfnArtcl.countDistinct().coalesce(0L),
                          qTblCnsltAply.ttl,
                          fileCnt
                           )
@@ -217,15 +218,18 @@ public class ConsultingAdminApiService {
                   )
                   .join(qTblComCd)
                   .on(qTblComCd.comCdSn.eq(qTblCnsltAply.cnsltFld))
-                  /*.join(qTblCnsltDgstfn)
+                  //만족도 조인
+                  .leftJoin(qTblCnsltDgstfn)
                   .on(
                           qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)
-                  )*/
-                    .where(builder)
-                    .orderBy(qTblCnsltAply.frstCrtDt.desc())
-                    .offset(paginationInfo.getFirstRecordIndex())
-                    .limit(paginationInfo.getRecordCountPerPage())
-                    .fetch();
+                  )
+
+                  .where(builder)
+                  .orderBy(qTblCnsltAply.frstCrtDt.desc())
+                  .groupBy(qTblCnsltAply.cnsltAplySn)
+                  .offset(paginationInfo.getFirstRecordIndex())
+                  .limit(paginationInfo.getRecordCountPerPage())
+                  .fetch();
 
             /**
              private long cnsltAplySn;

@@ -49,4 +49,8 @@ public class TblCnslttMbr {
     @Column(name = "CNSLT_SLFINT", columnDefinition = "LONGTEXT")
     @Comment("컨설턴트소개")
     private String cnsltSlfint;
+
+    @Column(name = "RMRK_CN" , length = 2000)
+    @Comment("비고내용")
+    private String rmrkCn;
 }

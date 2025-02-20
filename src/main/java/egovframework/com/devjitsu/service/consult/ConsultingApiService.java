@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -164,34 +165,6 @@ public class ConsultingApiService {
                 );
             }
 
-            /*List<ConsultDto> consultantList = q
-                    .select(
-                            Projections.constructor(
-                                ConsultDto.class,
-                                qTblCnslttMbr,
-                                qTblUser,
- //                               qTblCnsltDtl,
-                                qTblComFile
-                            )
-                    ).from(qTblUser)
-                    .join(qTblCnslttMbr)
-                    .on(
-                            qTblUser.userSn.eq(qTblCnslttMbr.userSn)
-                    )
-                    .leftJoin(qTblComFile)
-                    .on(
-                            qTblComFile.psnTblSn.eq(
-                                    Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", qTblCnslttMbr.userSn) //사진
-                            )
-                    )
-*//*                    .leftJoin(qTblCnsltDtl)
-                    .on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))*//*
-                    .where(builder)
- //                   .groupBy(qTblCnslttMbr.userSn)
-                    .orderBy(qTblUser.frstCrtDt.desc())
-                    .offset(paginationInfo.getFirstRecordIndex())
-                    .limit(paginationInfo.getRecordCountPerPage())
-                    .fetch();*/
             List<ConsultDto> consultantList = q
                     .select(
                             Projections.constructor(
@@ -200,37 +173,16 @@ public class ConsultingApiService {
                                     qTblUser,
                                     qTblCnsltDtl,
                                     qTblComCd.comCdNm,
-                                    Expressions.numberTemplate(Long.class, "COALESCE(({0}), {1})",
-                                            JPAExpressions.select(qTblCnsltDtl.count())
-                                                    .from(qTblCnsltDtl)
-                                                    .join(qTblCnsltAply)
-                                                    .on(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltAply.cnsltAplySn)
-                                                            .and(qTblCnsltAply.cnsltSe.eq(26L)))  // cnsltSe = 26 개수(컨설팅)
-                                                    .where(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
-                                                    .groupBy(qTblCnsltDtl.cnslttUserSn),
-                                            0L  // NULL이면 0 반환
-                                    ),
-
-                                    Expressions.numberTemplate(Long.class, "COALESCE(({0}), {1})",
-                                            JPAExpressions.select(qTblCnsltDtl.count())
-                                                    .from(qTblCnsltDtl)
-                                                    .join(qTblCnsltAply)
-                                                    .on(qTblCnsltDtl.cnsltAplySn.eq(qTblCnsltAply.cnsltAplySn)
-                                                            .and(qTblCnsltAply.cnsltSe.eq(27L)))  // cnsltSe = 27 개수(간편)
-                                                    .where(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
-                                                    .groupBy(qTblCnsltDtl.cnslttUserSn),
-                                            0L  // NULL이면 0 반환
-                                    ),
-//                                    Expressions.numberTemplate(Long.class,
-//                                            "SUM(CASE WHEN {0} = 26 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
-//                                    Expressions.numberTemplate(Long.class,
-//                                            "SUM(CASE WHEN {0} = 27 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
+                                    Expressions.numberTemplate(Long.class,
+                                            "SUM(CASE WHEN {0} = 26 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
+                                    Expressions.numberTemplate(Long.class,
+                                            "SUM(CASE WHEN {0} = 27 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
                                     qTblComFile
                             )
                     ).from(qTblUser)
                     .join(qTblCnslttMbr)
                     .on(qTblUser.userSn.eq(qTblCnslttMbr.userSn))
-                    .leftJoin(qTblComFile)
+                    .leftJoin(qTblComFile)  //회원가입 시 사진 발리데이션 체크하고 join으로 바꾸기
                     .on(
                             qTblComFile.psnTblSn.eq(
                                     Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", qTblCnslttMbr.userSn) // 사진 조인
@@ -245,7 +197,7 @@ public class ConsultingApiService {
                     .on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
                     .where(builder)
                     .groupBy(qTblCnslttMbr.userSn)
-                    .orderBy(qTblUser.frstCrtDt.desc())
+                    .orderBy(qTblUser.userSn.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
@@ -294,17 +246,30 @@ public class ConsultingApiService {
             List<TblAcbg> tblAcbgList = tblAcbgRepository.findAllByUserSn(tblUser.getUserSn());
             List<TblCrr> tblCrrList = tblCrrRepository.findAllByUserSn(tblUser.getUserSn());
 
+            List<Long> qlfcLcnsSnList = tblQlfcLcnsList.stream()
+                    .map(TblQlfcLcns::getQlfcLcnsSn)
+                    .collect(Collectors.toList());
 
             TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
                     qTblComFile.psnTblSn.eq(
                             Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", tblCnslttMbr.getUserSn()) //사진
                     )
             ).fetchOne();
-            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
-                    qTblComFile.psnTblSn.eq(
-                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", tblCnslttMbr.getUserSn()) //자격증
-                    )
-            ).fetch();
+
+//            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+//                    qTblComFile.psnTblSn.eq(
+//                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", tblCnslttMbr.getUserSn()) //자격증
+//                    )
+//            ).fetch();
+
+            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile)
+                    .where(qTblComFile.psnTblSn.in(
+                            qlfcLcnsSnList.stream()
+                                    .map(sn -> "cnsltCertificate_" + sn)
+                                    .collect(Collectors.toList())
+                    ))
+                    .fetch();
+
 
 
 

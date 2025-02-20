@@ -4,11 +4,15 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
+import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 
+import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.user.*;
 
+import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
 
@@ -19,6 +23,7 @@ import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -38,18 +43,38 @@ public class MvnEntApiService {
     private final TblMvnEntRepository tblMvnEntRepository;
     private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
     private final TblUserRepository tblUserRepository;
+    private final TblComFileRepository tblComFileRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
 
-    public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt){
+    @Resource(name = "EgovFileMngUtil")
+    private EgovFileMngUtil fileUtil;
+
+    public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt, List<MultipartFile> files){
         ResultVO resultVO = new ResultVO();
 
         try{
             QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             tblMvnEntRepository.save(tblMvnEnt);
+
+
+
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("mvnEnt_" + tblMvnEnt.getMvnEntSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                files,
+                                "/mvnEnt/" + tblMvnEnt.getMvnEntSn(),
+                                "mvnEnt_" + tblMvnEnt.getMvnEntSn(),
+                                fileCnt
+                        )
+                );
+            }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
