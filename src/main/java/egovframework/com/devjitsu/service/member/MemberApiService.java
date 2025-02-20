@@ -310,6 +310,7 @@ public class MemberApiService {
             tblCnslttMbr.setCnsltFld(Long.parseLong((String) dto.get("cnsltFld")));
             tblCnslttMbr.setCnsltArtcl((String) dto.get("cnsltArtcl"));
             tblCnslttMbr.setCnsltSlfint((String) dto.get("cnsltSlfint"));
+            tblCnslttMbr.setRmrkCn((String) dto.get("rmrkCn"));
 
             TblCnslttMbr fileCnsrttMbr =
             tblCnslttMbrRepository.save(tblCnslttMbr);
