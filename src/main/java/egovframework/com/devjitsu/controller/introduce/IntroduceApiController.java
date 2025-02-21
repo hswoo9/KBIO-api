@@ -31,17 +31,6 @@ public class IntroduceApiController {
         return introduceApiService.getOperationalList(dto);
     }
 
-    /**
-     * 입주기업 페이징 없는 리스트
-     * @param request
-     * @return
-     */
-    @PostMapping("/introduceApi/getOperationalAllList.do")
-    public ResultVO getOperationalAllList(HttpServletRequest request){
-        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
-        return introduceApiService.getOperationalAllList(dto);
-    }
-
     @PostMapping("/introduceApi/getOperationalDetail")
     public ResultVO getOperationalDetail(@RequestBody TblMvnEnt tblMvnEnt) {
         return introduceApiService.getOperationalDetail(tblMvnEnt);
