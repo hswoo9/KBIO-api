@@ -857,6 +857,7 @@ public class MemberApiService {
             QTblUser qTblUser = QTblUser.tblUser;
             QTblDfclMttr qTblDfclMttr = QTblDfclMttr.tblDfclMttr;
             QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
@@ -910,6 +911,13 @@ public class MemberApiService {
                 );
             }
 
+            JPQLQuery<Long> fileCnt = JPAExpressions
+                    .select(qTblComFile.count())
+                    .from(qTblComFile)
+                    .innerJoin(qTblDfclMttr)
+                    .on(qTblComFile.psnTblSn.eq(Expressions.stringTemplate("CONCAT('dfclMttr_', {0})", qTblDfclMttr.dfclMttrSn)))
+                    .where(qTblDfclMttr.dfclMttrSn.eq(qTblDfclMttr.dfclMttrSn));
+
             List<DfclMttrDto> diffList = q
                     .select(
                             Projections.constructor(
@@ -921,6 +929,7 @@ public class MemberApiService {
                                     qTblDfclMttr.ttl,
                                     qTblUser.kornFlnm,
                                     qTblDfclMttr.frstCrtDt,
+                                    fileCnt,
                                     new CaseBuilder()
                                             .when(qTblDfclMttr.ansCn.isNotNull().and(qTblDfclMttr.ansCn.ne("")))
                                             .then("Y")
@@ -934,6 +943,7 @@ public class MemberApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
 
             Long totCnt = q.select(qTblDfclMttr.count())
                     .from(qTblDfclMttr)
