@@ -1155,7 +1155,7 @@ public class MemberApiService {
         return resultVO;
     }
 
-    public ResultVO getSimpleDetail(TblCnsltAply tblCnsltAply) {
+    public ResultVO getSimpleDetail(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
 
         try{
@@ -1165,8 +1165,12 @@ public class MemberApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
-            tblCnsltAply = tblCnsltAplyRepository.findByCnsltAplySn(tblCnsltAply.getCnsltAplySn());
-            System.out.println("조회된 tblCnsltAply: " + tblCnsltAply);
+            TblCnslttMbr consulttDtl = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
+            TblCnsltAply tblCnsltAply = tblCnsltAplyRepository.findByCnsltAplySn(Long.parseLong(dto.get("cnsltAplySn").toString()));
+
+            System.out.println("consulttUser : " + consulttDtl);
+            resultVO.putResult("consulttUser", consulttDtl);
+
             tblCnsltAply.setCnsltAplyFldNm(q.select(qTblComCd.comCdNm).from(qTblComCd).where(qTblComCd.comCdSn.eq(tblCnsltAply.getCnsltFld())).fetchOne());
 
             List<TblCnsltDsctn> tblCnsltDsctnList = q

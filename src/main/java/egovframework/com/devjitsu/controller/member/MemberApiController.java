@@ -321,9 +321,10 @@ public class MemberApiController {
             @ApiResponse(responseCode = "200", description = "간편상담 상세보기 조회 성공"),
             @ApiResponse(responseCode = "400", description = "간편상담 상세보기 조회 실패")
     })
-    @PostMapping("/memberApi/getSimpleDetail")
-    public ResultVO getSimpleDetail(@RequestBody TblCnsltAply tblCnsltAply) {
-        return memberApiService.getSimpleDetail(tblCnsltAply);
+    @PostMapping("/memberApi/getSimpleDetail.do")
+    public ResultVO getSimpleDetail(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return memberApiService.getSimpleDetail(dto);
     }
 
     @Operation(
