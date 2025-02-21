@@ -25,9 +25,10 @@ public class MvnEntApiController {
     public ResultVO setMvnEnt(
                 /*@RequestBody TblMvnEnt tblMvnEnt*/
                 @ModelAttribute TblMvnEnt tblMvnEnt,
-                @RequestParam(value = "files", required = false) List<MultipartFile> files){
+                @RequestParam(value = "files", required = false) List<MultipartFile> files,
+                @RequestParam(value= "mvnEntAtchFiles", required = false)List<MultipartFile> mvnEntAtchFiles){
 
-        return mvnEntApiService.setMvnEnt(tblMvnEnt,files);
+        return mvnEntApiService.setMvnEnt(tblMvnEnt,files, mvnEntAtchFiles);
     }
 
     @PostMapping("/mvnEntApi/getMvnEntList.do")

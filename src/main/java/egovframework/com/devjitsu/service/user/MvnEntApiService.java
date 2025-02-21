@@ -51,7 +51,7 @@ public class MvnEntApiService {
     @Resource(name = "EgovFileMngUtil")
     private EgovFileMngUtil fileUtil;
 
-    public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt, List<MultipartFile> files){
+    public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt, List<MultipartFile> files, List<MultipartFile> mvnEntAtchFiles){
         ResultVO resultVO = new ResultVO();
 
         try{
@@ -71,6 +71,18 @@ public class MvnEntApiService {
                                 files,
                                 "/mvnEnt/" + tblMvnEnt.getMvnEntSn(),
                                 "mvnEnt_" + tblMvnEnt.getMvnEntSn(),
+                                fileCnt
+                        )
+                );
+            }
+
+            if(mvnEntAtchFiles != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("mvnEntAtch_" + tblMvnEnt.getMvnEntSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                mvnEntAtchFiles,
+                                "/mvnEntAtch/" + tblMvnEnt.getMvnEntSn(),
+                                "mvnEntAtch_" + tblMvnEnt.getMvnEntSn(),
                                 fileCnt
                         )
                 );
@@ -149,8 +161,13 @@ public class MvnEntApiService {
                                     )
                             ).fetchOne();
 
+            List<TblComFile> mvnEntAtchFile = q.selectFrom(qTblComFile)
+                    .where(qTblComFile.psnTblSn.eq( Expressions.stringTemplate("CONCAT('mvnEntAtch_',{0})", tblMvnEnt.getMvnEntSn())))
+                    .fetch();
+
             resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn()));
             resultVO.putResult("logoFile",residentCompanyLogo);
+            resultVO.putResult("mvnEntAtchFile",mvnEntAtchFile);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();
