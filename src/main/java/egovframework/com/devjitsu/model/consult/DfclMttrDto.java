@@ -17,5 +17,6 @@ public class DfclMttrDto {
     private String ttl;
     private String kornFlnm;
     private LocalDateTime frstCrtDt;
+    private long fileCnt;
     private String answer;
 }

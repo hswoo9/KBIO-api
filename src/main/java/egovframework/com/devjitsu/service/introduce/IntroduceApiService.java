@@ -93,35 +93,6 @@ public class IntroduceApiService {
         return resultVO;
     }
 
-    public ResultVO getOperationalAllList(SearchDto dto){
-        ResultVO resultVO = new ResultVO();
-        try{
-            QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
-            JPAQueryFactory q = new JPAQueryFactory(em);
-
-            BooleanBuilder builder = new BooleanBuilder();
-
-            if(!StringUtils.isEmpty(dto.get("mvnEntNm"))){
-                builder.and(qTblMvnEnt.mvnEntNm.contains((String) dto.get("mvnEntNm")));
-            }
-            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
-                builder.and(qTblMvnEnt.actvtnYn.eq((String) dto.get("actvtnYn")));
-            }
-            List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
-                    .where(builder)
-                    .orderBy(qTblMvnEnt.frstCrtDt.desc())
-                    .fetch();
-            resultVO.putResult("operationalList",tblMvnEntList);
-            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch(Exception e){
-            e.printStackTrace();
-            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
-        }
-
-
-        return resultVO;
-    }
-
     public ResultVO getOperationalDetail(TblMvnEnt tblMvnEnt) {
         ResultVO resultVO = new ResultVO();
 

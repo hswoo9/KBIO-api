@@ -10,4 +10,6 @@ import java.util.List;
 public interface TblRelInstMbrRepository extends JpaRepository<TblRelInstMbr, String> {
 
     List<TblRelInstMbr> findUserSnByRelInstSn(long relInstSn);
+
+     List<TblRelInstMbr> findByUserSn(long userSn);
 }

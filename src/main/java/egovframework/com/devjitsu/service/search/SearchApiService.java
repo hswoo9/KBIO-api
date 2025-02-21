@@ -13,15 +13,17 @@ import egovframework.com.devjitsu.model.common.TblComCdGroup;
 import egovframework.com.devjitsu.model.menu.QTblMenu;
 import egovframework.com.devjitsu.model.menu.TblContent;
 import egovframework.com.devjitsu.model.menu.TblMenu;
+import egovframework.com.devjitsu.model.search.*;
 import egovframework.com.devjitsu.model.search.QTblIntgSrch;
-import egovframework.com.devjitsu.model.search.TblIntgSrch;
-import egovframework.com.devjitsu.model.search.TblIntgSrchDTO;
+import egovframework.com.devjitsu.model.search.QTblSrchKywd;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.repository.menu.TblContentRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
+import egovframework.com.devjitsu.repository.search.TblSrchKywdRepository;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -41,6 +43,9 @@ public class SearchApiService {
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
+
+    @Autowired
+    private TblSrchKywdRepository tblSrchKywdRepository;
 
     private final EntityManager em;
 
@@ -67,8 +72,8 @@ public class SearchApiService {
 
             QTblIntgSrch qTblIntgSrch = QTblIntgSrch.tblIntgSrch;
             QTblMenu qTblMenu = QTblMenu.tblMenu;
-            QTblMenu qTblMenu2 = QTblMenu.tblMenu;
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblSrchKywd qTblSrchKywd = QTblSrchKywd.tblSrchKywd;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             /** query DSL 조건 추가하는 방법 */
@@ -85,6 +90,16 @@ public class SearchApiService {
                 }
             }else{
                 builder.and(qTblIntgSrch.ttl.contains((String) dto.get("searchVal")).or(qTblIntgSrch.atchFileNm.contains((String) dto.get("searchVal"))).or(qTblIntgSrch.cn.contains((String) dto.get("searchVal"))));
+            }
+
+            if(!StringUtils.isEmpty(dto.get("searchVal"))){
+                TblSrchKywd tblSrchKywd = tblSrchKywdRepository.findByKywd((String) dto.get("searchVal"));
+                if(tblSrchKywd == null){
+                    tblSrchKywd = new TblSrchKywd();
+                    tblSrchKywd.setKywd((String) dto.get("searchVal"));
+                }
+                tblSrchKywd.incrementSrchNmtm();
+                tblSrchKywdRepository.save(tblSrchKywd);
             }
 
             if (!StringUtils.isEmpty(dto.get("searchStartDt")) && !StringUtils.isEmpty(dto.get("searchEndDt"))) {
@@ -144,8 +159,11 @@ public class SearchApiService {
                     .from(qTblIntgSrch)
                     .where(builder).orderBy(qTblIntgSrch.frstCrtDt.desc()).fetchOne();
 
+            List<TblSrchKywd> returnSrchKywd = q.selectFrom(qTblSrchKywd).orderBy(qTblSrchKywd.srchNmtm.desc()).limit(3).fetch();
+
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
+            resultVO.putResult("returnSrchKywd", returnSrchKywd);
             resultVO.putResult("searchList", searchList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());

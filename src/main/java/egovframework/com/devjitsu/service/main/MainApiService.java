@@ -142,8 +142,44 @@ public class MainApiService {
             builder.and(qTblPst.bbsSn.eq(Long.parseLong(dto.get("bbsSn").toString())));
             builder.and(qTblPst.upPstSn.isNull());
 
-            List<TblPst> pstList = q
-                    .selectFrom(qTblPst)
+            List<PstDto> pstList = q
+                    .select(
+                        Projections.constructor(
+                            PstDto.class,
+                            qTblPst.pstSn,
+                            new CaseBuilder()
+                                    .when(qTblPst.upendNtcYn.eq("Y")
+                                            .and(
+                                                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcBgngDt).loe(
+                                                            Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                                                    )
+                                            )
+                                            .and(
+                                                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.ntcEndDate).goe(
+                                                            Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                                                    )
+                                            )
+                                    )
+                                    .then("Y")
+                                    .otherwise("N").as("upendNtcYn"),
+                            qTblPst.bbsSn,
+                            Expressions.constant(""),
+                            qTblPst.pstTtl,
+                            qTblPst.pstCn,
+                            qTblPst.pstInqCnt,
+                            qTblPst.rlsYn,
+                            qTblPst.actvtnYn,
+                            qTblPst.upPstSn,
+                            qTblPst.creatrSn,
+                            Expressions.constant(""),
+                            qTblPst.prvtPswd,
+                            qTblPst.frstCrtDt,
+                            Expressions.constant(0L),
+                            Expressions.constant(""),
+                            Expressions.constant("")
+                        )
+                    )
+                    .from(qTblPst)
                     .where(builder)
                     .orderBy(
                         new CaseBuilder()
@@ -165,6 +201,8 @@ public class MainApiService {
                         qTblPst.pstGroup.desc(),
                         qTblPst.ansStp.asc(),
                         qTblPst.frstCrtDt.desc())
+                    .offset(0)
+                    .limit(2)
                     .fetch();
 
             resultVO.putResult("bbs", tblBbs);

@@ -69,6 +69,8 @@ public class MemberApiService {
     private final TblQlfcLcnsRepository tblQlfcLcnsRepository;
     private final TblCrrRepository tblCrrRepository;
     private final TblAcbgRepository tblAcbgRepository;
+    private final TblMvnEntRepository tblMvnEntRepository;
+    private final TblRelInstRepository tblRelInstRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -717,12 +719,13 @@ public class MemberApiService {
                     .map(TblQlfcLcns::getQlfcLcnsSn)
                     .collect(Collectors.toList());
 
-
             if (member != null) {
-                System.out.printf("회원 정보: %s\n", member);
+                System.out.println("회원 정보: " + member);
                 resultVO.putResult("member", member);
 
                 if (cnslttMbr != null) {
+                    System.out.println("컨설턴트 회원 정보: " + cnslttMbr);
+
                     TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
                             qTblComFile.psnTblSn.eq(
                                     Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", cnslttMbr.getUserSn()) //사진
@@ -753,17 +756,52 @@ public class MemberApiService {
                             .fetch();
 
                     resultVO.putResult("cnslttMbr", cnslttMbr);
-                    resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
-                    resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
-                    resultVO.putResult("cnsltCareerFile",cnsltCareerFile);
-                    resultVO.putResult("cnsltAcgbFile",cnsltAcgbFile);
-                    resultVO.putResult("tblQlfcLcnsList",tblQlfcLcnsList);
-                    resultVO.putResult("tblAcbgList",tblAcbgList);
-                    resultVO.putResult("tblCrrList",tblCrrList);
+                    resultVO.putResult("cnsltProfileFile", cnsltProfileFile);
+                    resultVO.putResult("cnsltCertificateFile", cnsltCertificateFile);
+                    resultVO.putResult("cnsltCareerFile", cnsltCareerFile);
+                    resultVO.putResult("cnsltAcgbFile", cnsltAcgbFile);
+                    resultVO.putResult("tblQlfcLcnsList", tblQlfcLcnsList);
+                    resultVO.putResult("tblAcbgList", tblAcbgList);
+                    resultVO.putResult("tblCrrList", tblCrrList);
+                }
+
+                long userSn = tblUser.getUserSn();
+
+                List<TblRelInstMbr> relInstMbrList = tblRelInstMbrRepository.findByUserSn(userSn);
+                List<TblMvnEntMbr> mvnEntMbrList = tblMvnEntMbrRepository.findByUserSn(userSn);
+
+                Long mvnEntSn = null;
+                Long relInstSn = null;
+                if (!mvnEntMbrList.isEmpty()) {
+                    TblMvnEntMbr mvnEntMbr1 = mvnEntMbrList.get(0);
+                    mvnEntSn = mvnEntMbr1.getMvnEntSn();
+
+                    if (mvnEntSn != null) {
+                        TblMvnEnt mvnEnt = tblMvnEntRepository.findByMvnEntSn(mvnEntSn);
+                        System.out.println("입주기과 정보: " + mvnEnt);
+                        if (mvnEnt != null) {
+                            resultVO.putResult("rc", mvnEnt);
+                        }
+                    }
+                } else if (!relInstMbrList.isEmpty()) {
+                    TblRelInstMbr relInstMbr1 = relInstMbrList.get(0);
+                    relInstSn = relInstMbr1.getRelInstSn();
+
+                    if (relInstSn != null) {
+                        TblRelInst relInst = tblRelInstRepository.findByRelInstSn(relInstSn);
+                        System.out.println("유관기관 정보: " + relInst);
+                        if (relInst != null) {
+                            resultVO.putResult("rc", relInst);
+                            System.out.printf("rc : " + relInst);
+                        }
+                    }
+                } else {
+                    System.out.println("기업 정보가 없습니다.");
                 }
 
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             } else {
+                System.out.println("회원 정보 없음.");
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
         } catch (Exception e) {
@@ -773,6 +811,7 @@ public class MemberApiService {
 
         return resultVO;
     }
+
 
     public ResultVO myPageCancelMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
@@ -818,6 +857,7 @@ public class MemberApiService {
             QTblUser qTblUser = QTblUser.tblUser;
             QTblDfclMttr qTblDfclMttr = QTblDfclMttr.tblDfclMttr;
             QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
@@ -871,6 +911,13 @@ public class MemberApiService {
                 );
             }
 
+            JPQLQuery<Long> fileCnt = JPAExpressions
+                    .select(qTblComFile.count())
+                    .from(qTblComFile)
+                    .innerJoin(qTblDfclMttr)
+                    .on(qTblComFile.psnTblSn.eq(Expressions.stringTemplate("CONCAT('dfclMttr_', {0})", qTblDfclMttr.dfclMttrSn)))
+                    .where(qTblDfclMttr.dfclMttrSn.eq(qTblDfclMttr.dfclMttrSn));
+
             List<DfclMttrDto> diffList = q
                     .select(
                             Projections.constructor(
@@ -882,6 +929,7 @@ public class MemberApiService {
                                     qTblDfclMttr.ttl,
                                     qTblUser.kornFlnm,
                                     qTblDfclMttr.frstCrtDt,
+                                    fileCnt,
                                     new CaseBuilder()
                                             .when(qTblDfclMttr.ansCn.isNotNull().and(qTblDfclMttr.ansCn.ne("")))
                                             .then("Y")
@@ -895,6 +943,7 @@ public class MemberApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
 
             Long totCnt = q.select(qTblDfclMttr.count())
                     .from(qTblDfclMttr)
