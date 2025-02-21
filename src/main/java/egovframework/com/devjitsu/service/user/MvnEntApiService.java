@@ -138,8 +138,19 @@ public class MvnEntApiService {
     public ResultVO getRc(TblMvnEnt tblMvnEnt) {
         ResultVO resultVO = new ResultVO();
 
+        QTblComFile qTblComFile = QTblComFile.tblComFile;
+        JPAQueryFactory q = new JPAQueryFactory(em);
+
         try{
+            TblComFile residentCompanyLogo = q.selectFrom(qTblComFile)
+                            .where(
+                                    qTblComFile.psnTblSn.eq(
+                                            Expressions.stringTemplate("CONCAT('mvnEnt_',{0})", tblMvnEnt.getMvnEntSn())
+                                    )
+                            ).fetchOne();
+
             resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn()));
+            resultVO.putResult("logoFile",residentCompanyLogo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();
@@ -157,10 +168,18 @@ public class MvnEntApiService {
         try {
         List<TblMvnEntMbr> entMbrList;
         QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+        QTblComFile qTblComFile = QTblComFile.tblComFile;
         BooleanBuilder builder = new BooleanBuilder();
         JPAQueryFactory q = new JPAQueryFactory(em);
 
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
+
+            TblComFile residentCompanyLogo = q.selectFrom(qTblComFile)
+                    .where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate("CONCAT('mvnEnt_',{0})", mvnEntSn)
+                            )
+                    ).fetchOne();
 
         if (!StringUtils.isEmpty(dto.get("sysMngrYn"))){
             //관리자설정에서 실행됨
@@ -176,7 +195,7 @@ public class MvnEntApiService {
             entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
         }
 
-        System.out.println("****entMbrList :*****"+entMbrList);
+        //System.out.println("****entMbrList :*****"+entMbrList);
 
         List<Long> userSnList = entMbrList.stream()
                 .map(TblMvnEntMbr::getUserSn)
@@ -208,7 +227,7 @@ public class MvnEntApiService {
         if(totCnt == null) totCnt = 0L;
         paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-
+        resultVO.putResult("logoFile",residentCompanyLogo);
         resultVO.putResult("getResidentMemberList",userList);
         resultVO.putPaginationInfo(paginationInfo);
 
