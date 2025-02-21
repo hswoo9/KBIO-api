@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,10 +91,10 @@ public class SearchApiService {
                 builder.and(qTblIntgSrch.frstCrtDt.between(
                         LocalDateTime.parse(
                                 dto.get("searchStartDt").toString()
-                        ),
+                        ).with(LocalTime.MIN),
                         LocalDateTime.parse(
                                 dto.get("searchEndDt").toString()
-                        )
+                        ).with(LocalTime.MAX)
                 ));
             }else if (!StringUtils.isEmpty(dto.get("searchStartDt"))){
                 builder.and(qTblIntgSrch.frstCrtDt.goe(
