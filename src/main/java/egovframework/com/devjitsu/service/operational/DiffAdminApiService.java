@@ -1,9 +1,12 @@
 package egovframework.com.devjitsu.service.operational;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
@@ -14,6 +17,7 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.*;
+import egovframework.com.devjitsu.model.consult.QTblDfclMttr;
 import egovframework.com.devjitsu.model.user.QTblCnslttMbr;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.TblUser;
@@ -78,7 +82,7 @@ public class DiffAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
             QTblDfclMttr qTblDfclMttr = QTblDfclMttr.tblDfclMttr;
             QTblComCd qTblComCd = QTblComCd.tblComCd;
-
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             /** query DSL 조건 추가하는 방법 */
@@ -126,6 +130,13 @@ public class DiffAdminApiService {
                 );
             }
 
+            JPQLQuery<Long> fileCnt = JPAExpressions
+                    .select(qTblComFile.count())
+                    .from(qTblComFile)
+                    .innerJoin(qTblDfclMttr)
+                    .on(qTblComFile.psnTblSn.eq(Expressions.stringTemplate("CONCAT('dfclMttr_', {0})", qTblDfclMttr.dfclMttrSn)))
+                    .where(qTblDfclMttr.dfclMttrSn.eq(qTblDfclMttr.dfclMttrSn));
+
             List<DfclMttrDto> diffList = q
                     .select(
                         Projections.constructor(
@@ -137,6 +148,7 @@ public class DiffAdminApiService {
                         qTblDfclMttr.ttl,
                         qTblUser.kornFlnm,
                         qTblDfclMttr.frstCrtDt,
+                        fileCnt,
                         new CaseBuilder()
                                 .when(qTblDfclMttr.ansCn.isNotNull().and(qTblDfclMttr.ansCn.ne("")))
                                 .then("Y")
