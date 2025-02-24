@@ -23,6 +23,7 @@ import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.user.QTblMvnEnt;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.TblMvnEnt;
+import egovframework.com.devjitsu.model.user.TblMvnEntDto;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.service.bbs.BbsAdminApiService;
 import lombok.RequiredArgsConstructor;
@@ -114,8 +115,21 @@ public class MainApiService {
         ResultVO resultVO = new ResultVO();
         try{
             QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
-            List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
+            List<TblMvnEntDto> tblMvnEntList = q
+                    .select(
+                        Projections.constructor(
+                            TblMvnEntDto.class,
+                                qTblMvnEnt,
+                                qTblComFile
+                        )
+                    ).from(qTblMvnEnt)
+                    .join(qTblComFile).on(
+                        qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('mvnEnt_', {0})", qTblMvnEnt.mvnEntSn)
+                        )
+                    )
                     .where(qTblMvnEnt.actvtnYn.eq("Y"))
                     .orderBy(qTblMvnEnt.frstCrtDt.desc()).fetch();
             resultVO.putResult("mvnEntList",tblMvnEntList);
