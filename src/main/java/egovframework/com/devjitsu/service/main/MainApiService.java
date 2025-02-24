@@ -75,13 +75,10 @@ public class MainApiService {
             QTblComFile qTblComFile = QTblComFile.tblComFile;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblBnrPopup.actvtnYn.eq("Y"));
+            builder.and(qTblBnrPopup.actvtnYn.eq("Y")).and(qTblBnrPopup.useYn.eq("Y"));
             if(!StringUtils.isEmpty(dto.get("bnrPopupKnd"))){
                 builder.and(qTblBnrPopup.bnrPopupKnd.eq((String) dto.get("bnrPopupKnd")));
-
-                if(dto.get("bnrPopupKnd").equals("popup")){
-                    builder.and(qTblBnrPopup.popupBgngDt.loe(LocalDateTime.now()).and(qTblBnrPopup.popupEndDt.goe(LocalDateTime.now())));
-                }
+                builder.and(qTblBnrPopup.popupBgngDt.loe(LocalDateTime.now()).and(qTblBnrPopup.popupEndDt.goe(LocalDateTime.now())));
             }
 
             List<BannerPopupDto> bnrPopupList = q

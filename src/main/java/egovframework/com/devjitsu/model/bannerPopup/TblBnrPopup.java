@@ -74,6 +74,10 @@ public class TblBnrPopup {
     @Comment("제목")
     private String bnrPopupTtl;
 
+    @Column(name = "BNR_CN", length = 256)
+    @Comment("배너내용")
+    private String bnrCn;
+
     @Column(name = "YOUTUBE_YN", columnDefinition = "CHAR(1) DEFAULT 'N'")
     @Comment("유튜브사용여부")
     private String youtubeYn;

@@ -68,6 +68,9 @@ public class BnrPopupApiService {
             if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
                 builder.and(qTblBnrPopup.actvtnYn.eq(dto.get("actvtnYn").toString()));
             }
+            if(!StringUtils.isEmpty(dto.get("useYn"))){
+                builder.and(qTblBnrPopup.useYn.eq(dto.get("useYn").toString()));
+            }
             if(!StringUtils.isEmpty(dto.get("searchType")) && !StringUtils.isEmpty(dto.get("searchVal"))){
                 if(dto.get("searchType").toString().equals("bnrPopupTtl")){
                     builder.and(qTblBnrPopup.bnrPopupTtl.contains(dto.get("searchVal").toString()));
