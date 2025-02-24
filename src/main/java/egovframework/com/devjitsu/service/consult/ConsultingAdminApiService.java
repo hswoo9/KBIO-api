@@ -168,12 +168,11 @@ public class ConsultingAdminApiService {
                          ConsultingDTO.class,
                          qTblCnsltAply.cnsltAplySn,
                          qTblCnsltAply.userSn,
+                         //컨설턴트유저sn
                          qTblCnsltDtl.cnslttUserSn,
+
                          qTblUser.kornFlnm,
-                         /*JPAExpressions
-                                 .select(qTblUser.kornFlnm)
-                                 .from(qTblUser)
-                                 .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),*/
+
                          //컨설턴트유저
                          qCnslttUser.kornFlnm,
 
@@ -209,13 +208,15 @@ public class ConsultingAdminApiService {
                   .on(
                           qTblCnsltAply.userSn.eq(qTblUser.userSn)
                   )
-                  //컨설턴트 유저
-                  .join(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
 
-                  .join(qTblCnslttMbr)
+                  //컨설턴트 유저
+                  .leftJoin(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
+
+                  .leftJoin(qTblCnslttMbr)
                   .on(
                           qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn)
                   )
+
                   .join(qTblComCd)
                   .on(qTblComCd.comCdSn.eq(qTblCnsltAply.cnsltFld))
                   //만족도 조인
@@ -261,8 +262,8 @@ public class ConsultingAdminApiService {
                     .from(qTblCnsltAply)
                     .join(qTblCnsltDtl).on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
                     .join(qTblUser).on(qTblCnsltAply.userSn.eq(qTblUser.userSn))
-                    .join(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
-                    .join(qTblCnslttMbr).on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
+                    .leftJoin(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
+                    .leftJoin(qTblCnslttMbr).on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
                     .where(builder)
                     .fetchOne();
 

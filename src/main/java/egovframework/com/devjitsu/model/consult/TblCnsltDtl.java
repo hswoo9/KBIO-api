@@ -28,7 +28,7 @@ public class TblCnsltDtl {
 
     @Column(name = "CNSLTT_USER_SN", length = 22)
     @Comment("컨설턴트사용자일련번호")
-    private long cnslttUserSn;
+    private Long cnslttUserSn;
 
     @Column(name = "CNSLTT_DSGN_DT")
     @Comment("컨설턴트지정일")
@@ -36,7 +36,7 @@ public class TblCnsltDtl {
 
     @Column(name = "CNSLT_STTS_CD", length = 4, nullable = false, columnDefinition = "VARCHAR(4) DEFAULT '0'")
     @Comment("컨설팅상태")
-    private String cnsltSttsCd = "101";
+    private String cnsltSttsCd = "10";
 
     @Column(name = "CNSLT_ACPT_DT")
     @Comment("컨설팅수락일")
