@@ -39,12 +39,21 @@ public class UtztnTrmsApiController {
     }
 
     /*
-     *  개인정보처리방침 조회
+     *  개인정보처리방침 조회 ( 페이징 )
      */
     @PostMapping("/utztnApi/getPrivacyPolicyList.do")
     public ResultVO getPrivacyPolicyList(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return UtztnTrmsApiService.getPrivacyPolicyList(dto);
+    }
+
+    /*
+     *  개인정보처리방침 조회
+     */
+    @PostMapping("/utztnApi/getPrivacyPolicyListNotPaging.do")
+    public ResultVO getPrivacyPolicyListNotPaging(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return UtztnTrmsApiService.getPrivacyPolicyListNotPaging(dto);
     }
 
     /*

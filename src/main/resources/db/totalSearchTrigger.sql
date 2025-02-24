@@ -1,3 +1,10 @@
+drop trigger `schm_bio_cms`.`pst_after_insert`;
+drop trigger `schm_bio_cms`.`pst_after_update`;
+drop trigger `schm_bio_cms`.`pst_after_delete`;
+
+drop trigger `schm_bio_com`.`file_after_insert`;
+drop trigger `schm_bio_com`.`file_after_delete`;
+
 /* 게시글 트리거 */
 create trigger `schm_bio_cms`.`pst_after_insert`
     after insert on `schm_bio_cms`.`tbl_pst`
@@ -78,9 +85,4 @@ begin
 END IF;
 end;
 
-drop trigger `schm_bio_cms`.`pst_after_insert`;
-drop trigger `schm_bio_cms`.`pst_after_update`;
-drop trigger `schm_bio_cms`.`pst_after_delete`;
 
-drop trigger `schm_bio_com`.`file_after_insert`;
-drop trigger `schm_bio_com`.`file_after_delete`;
