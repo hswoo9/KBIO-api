@@ -1,12 +1,14 @@
 package egovframework.com.devjitsu.service.user;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 
+import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
@@ -109,25 +111,61 @@ public class MvnEntApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+
+            QTblComCd qTpbiz = new QTblComCd("qTpbiz");
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             BooleanBuilder builder = new BooleanBuilder();
 
-            if(!StringUtils.isEmpty(dto.get("mvnEntNm"))){
-                builder.and(qTblMvnEnt.mvnEntNm.contains((String) dto.get("mvnEntNm")));
+            if(!StringUtils.isEmpty(dto.get("entClsf"))){
+                builder.and(qTblMvnEnt.entClsf.contains((String) dto.get("entClsf")));
             }
-            if(!StringUtils.isEmpty(dto.get("brno"))){
-                builder.and(qTblMvnEnt.brno.contains((String) dto.get("brno")));
-            }
-            if(!StringUtils.isEmpty(dto.get("rpsvNm"))){
-                builder.and(qTblMvnEnt.rpsvNm.contains((String) dto.get("rpsvNm")));
+            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
+                builder.and(qTblMvnEnt.actvtnYn.contains((String) dto.get("actvtnYn")));
             }
 
-            List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
+            if(!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("mvnEntNm")) { //기업명
+                    builder.and(qTblMvnEnt.mvnEntNm.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("rpsvNm")) { //대표자명
+                    builder.and(qTblMvnEnt.rpsvNm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblMvnEnt.mvnEntNm.contains((String)dto.get("searchVal"))
+                                .or(qTblMvnEnt.rpsvNm.contains((String)dto.get("searchVal")))
+                );
+            }
+
+            /*List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
                     .where(builder)
                     .orderBy(qTblMvnEnt.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
-                    .limit(paginationInfo.getRecordCountPerPage()).fetch();
+                    .limit(paginationInfo.getRecordCountPerPage()).fetch();*/
+
+            List<MvnEntDto> tblMvnEntList = q
+                    .select(
+                            Projections.constructor(
+                                    MvnEntDto.class,
+                                    qTblMvnEnt,
+                                    qTblComCd.comCdNm,
+                                    //업종
+                                    qTpbiz.comCdNm
+                            )
+                    ).from(qTblMvnEnt)
+                    .leftJoin(qTblComCd)
+                    .on(qTblComCd.comCd.eq(qTblMvnEnt.entClsf)
+                            .and(qTblComCd.cdGroupSn.eq(17L)))
+                    //업종
+                    .leftJoin(qTpbiz)
+                    .on(qTpbiz.comCd.eq(qTblMvnEnt.entTpbiz)
+                            .and(qTpbiz.cdGroupSn.eq(18L)))
+            .where(builder)
+            .groupBy(qTblMvnEnt.mvnEntSn)
+            .orderBy(qTblMvnEnt.frstCrtDt.desc())
+            .offset(paginationInfo.getFirstRecordIndex())
+            .limit(paginationInfo.getRecordCountPerPage()).fetch();
 
             Long totCnt = q.select(qTblMvnEnt.count()).from(qTblMvnEnt).where(builder).fetchOne();
 

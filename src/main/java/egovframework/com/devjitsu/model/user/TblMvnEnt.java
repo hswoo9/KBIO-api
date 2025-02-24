@@ -171,6 +171,14 @@ public class TblMvnEnt {
     @Comment("업체설명")
     private String mainHstry;
 
+    @Column(name = "ENT_CLSF", length = 20)
+    @Comment("기업분류")
+    private String entClsf;
+
+    @Column(name = "ENT_TPBIZ", length = 20)
+    @Comment("기업업종")
+    private String entTpbiz;
+
     @Column(name = "RMRK_CN", length = 4000)
     @Comment("비고내용")
     private String rmrkCn;
