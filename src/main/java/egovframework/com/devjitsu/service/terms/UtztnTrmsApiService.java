@@ -116,6 +116,34 @@ public class UtztnTrmsApiService {
         return resultVO;
     }
 
+    public ResultVO getPrivacyPolicyListNotPaging(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+
+            QTblUtztnTrms qTblUtztnTrms = QTblUtztnTrms.tblUtztnTrms;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qTblUtztnTrms.useYn.eq("Y"));
+
+            if (!StringUtils.isEmpty(dto.get("utztnTrmsKnd"))) {
+                builder.and(qTblUtztnTrms.utztnTrmsKnd.eq((String) dto.get("utztnTrmsKnd")));
+            }
+
+            List<TblUtztnTrms> dataList = q.selectFrom(qTblUtztnTrms)
+                    .where(builder)
+                    .orderBy(qTblUtztnTrms.frstCrtDt.desc())
+                    .fetch();
+            resultVO.putResult("dataList", dataList);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
     public ResultVO setPrivacyPolicyDel(TblUtztnTrms tblUtztnTrms) {
         ResultVO resultVO = new ResultVO();
         try {
