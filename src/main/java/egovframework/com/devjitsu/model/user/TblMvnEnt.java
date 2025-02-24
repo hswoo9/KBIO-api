@@ -168,7 +168,7 @@ public class TblMvnEnt {
     private String bzentyExpln;
 
     @Column(name = "MAIN_HSTRY", columnDefinition = "LONGTEXT")
-    @Comment("업체설명")
+    @Comment("주요이력")
     private String mainHstry;
 
     @Column(name = "ENT_CLSF", length = 20)
@@ -186,6 +186,14 @@ public class TblMvnEnt {
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
     private String actvtnYn;
+
+    @Column(name = "RLS_BGNG_YMD", columnDefinition = "CHAR(8)")
+    @Comment("공개시작일자")
+    private String rlsBgngYmd;
+
+    @Column(name = "RLS_END_YMD", columnDefinition = "CHAR(8)")
+    @Comment("공개종료일자")
+    private String rlsEndYmd;
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
