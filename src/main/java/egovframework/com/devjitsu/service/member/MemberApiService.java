@@ -1,5 +1,7 @@
 package egovframework.com.devjitsu.service.member;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -624,12 +626,15 @@ public class MemberApiService {
     }
 
     public ResultVO setMemberMyPageModfiy(TblUser tblUser, TblCnslttMbr tblCnslttMbr,
-                                        List<TblQlfcLcns> hasCertData,
-                                        List<TblCrr> hasCrrData,
-                                        List<TblAcbg> hasAcbgData) {
+                                        String hasCertData,
+                                        String hasCrrData,
+                                        String hasAcbgData) {
         ResultVO resultVO = new ResultVO();
 
         try {
+
+
+
             if (tblUser.getMblTelno() != null && !tblUser.getMblTelno().isEmpty()) {
                 String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
                 tblUser.setMblTelno(encryptedMblTelno);
@@ -646,16 +651,18 @@ public class MemberApiService {
                 tblCnslttMbrRepository.save(tblCnslttMbr);
             }
 
-            if (hasCertData != null) {
-                tblQlfcLcnsRepository.saveAll(hasCertData);
+            Gson gson = new Gson();
+
+            if (!StringUtils.isEmpty(hasCertData)) {
+                tblQlfcLcnsRepository.saveAll(gson.fromJson(hasCertData, new TypeToken<List<TblQlfcLcns>>() {}.getType()));
             }
 
-            if (hasCrrData != null) {
-                tblCrrRepository.saveAll(hasCrrData);
+            if (!StringUtils.isEmpty(hasCrrData)) {
+                tblCrrRepository.saveAll(gson.fromJson(hasCrrData, new TypeToken<List<TblCrr>>() {}.getType()));
             }
 
-            if (hasAcbgData != null) {
-                tblAcbgRepository.saveAll(hasAcbgData);
+            if (!StringUtils.isEmpty(hasAcbgData)) {
+                tblAcbgRepository.saveAll(gson.fromJson(hasAcbgData, new TypeToken<List<TblAcbg>>() {}.getType()));
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -1317,7 +1324,7 @@ public class MemberApiService {
 
             long updatedCount = new JPAQueryFactory(em)
                     .update(qTblCnsltDtl)
-                    .set(qTblCnsltDtl.cnsltSttsCd, "200")
+                    .set(qTblCnsltDtl.cnsltSttsCd, "201")
                     .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDtl.getCnsltAplySn()))
                     .execute();
 
@@ -1429,4 +1436,66 @@ public class MemberApiService {
 
         return resultVO;
     }
+
+    public ResultVO delCertificate(TblQlfcLcns tblQlfcLcns) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            TblQlfcLcns certificateToDelete = tblQlfcLcnsRepository.findByQlfcLcnsSn(tblQlfcLcns.getQlfcLcnsSn());
+
+            if (certificateToDelete != null) {
+                tblQlfcLcnsRepository.delete(certificateToDelete);
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            } else {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO delCareer(TblCrr tblCrr) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            TblCrr crrToDelete = tblCrrRepository.findByCrrSn(tblCrr.getCrrSn());
+
+            if (crrToDelete != null) {
+                tblCrrRepository.delete(crrToDelete);
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            } else {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO delAcbg(TblAcbg tblAcbg) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            TblAcbg acbgToDelete = tblAcbgRepository.findByAcbgSn(tblAcbg.getAcbgSn());
+
+            if (acbgToDelete != null) {
+                tblAcbgRepository.delete(acbgToDelete);
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            } else {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+
 }
