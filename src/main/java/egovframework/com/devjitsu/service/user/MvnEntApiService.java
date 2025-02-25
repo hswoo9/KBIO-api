@@ -258,8 +258,8 @@ public class MvnEntApiService {
 
 
 
-        if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
-            conditions.put("actvtnYn", dto.get("actvtnYn"));
+        if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
+            conditions.put("mbrStts", dto.get("mbrStts"));
         }
         if (!StringUtils.isEmpty(dto.get("kornFlnm"))){
             conditions.put("kornFlnm", dto.get("kornFlnm"));
@@ -347,8 +347,8 @@ public class MvnEntApiService {
         predicates.add(root.get("userSn").in(userSnList));
 
         // DTO에서 넘어온 조건 추가
-        if (conditions.containsKey("actvtnYn")) {
-            predicates.add(cb.equal(root.get("actvtnYn"), conditions.get("actvtnYn")));
+        if (conditions.containsKey("mbrStts")) {
+            predicates.add(cb.equal(root.get("mbrStts"), conditions.get("mbrStts")));
         }
         if (conditions.containsKey("kornFlnm")) {
             predicates.add(cb.equal(root.get("kornFlnm"), conditions.get("kornFlnm")));
