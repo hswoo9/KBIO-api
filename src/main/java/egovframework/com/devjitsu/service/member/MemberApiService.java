@@ -1168,8 +1168,25 @@ public class MemberApiService {
             TblCnslttMbr consulttDtl = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
             TblCnsltAply tblCnsltAply = tblCnsltAplyRepository.findByCnsltAplySn(Long.parseLong(dto.get("cnsltAplySn").toString()));
 
-            System.out.println("consulttUser : " + consulttDtl);
+            TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", consulttDtl.getUserSn()) //사진
+                    )
+            ).fetchOne();
+            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+                    qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", consulttDtl.getUserSn()) //자격증
+                    )
+            ).fetch();
+
+            TblUser tblUser = q.selectFrom(QTblUser.tblUser)
+                    .where(QTblUser.tblUser.userSn.eq(consulttDtl.getUserSn()))
+                    .fetchOne();
+
+            resultVO.putResult("consulttUserName", tblUser);
             resultVO.putResult("consulttUser", consulttDtl);
+            resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
+            resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
 
             tblCnsltAply.setCnsltAplyFldNm(q.select(qTblComCd.comCdNm).from(qTblComCd).where(qTblComCd.comCdSn.eq(tblCnsltAply.getCnsltFld())).fetchOne());
 

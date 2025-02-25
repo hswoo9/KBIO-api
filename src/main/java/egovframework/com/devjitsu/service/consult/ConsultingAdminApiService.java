@@ -168,12 +168,11 @@ public class ConsultingAdminApiService {
                          ConsultingDTO.class,
                          qTblCnsltAply.cnsltAplySn,
                          qTblCnsltAply.userSn,
+                         //컨설턴트유저sn
                          qTblCnsltDtl.cnslttUserSn,
+
                          qTblUser.kornFlnm,
-                         /*JPAExpressions
-                                 .select(qTblUser.kornFlnm)
-                                 .from(qTblUser)
-                                 .where(qTblUser.userSn.eq(qTblCnsltDtl.cnslttUserSn)),*/
+
                          //컨설턴트유저
                          qCnslttUser.kornFlnm,
 
@@ -209,13 +208,15 @@ public class ConsultingAdminApiService {
                   .on(
                           qTblCnsltAply.userSn.eq(qTblUser.userSn)
                   )
-                  //컨설턴트 유저
-                  .join(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
 
-                  .join(qTblCnslttMbr)
+                  //컨설턴트 유저
+                  .leftJoin(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
+
+                  .leftJoin(qTblCnslttMbr)
                   .on(
                           qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn)
                   )
+
                   .join(qTblComCd)
                   .on(qTblComCd.comCdSn.eq(qTblCnsltAply.cnsltFld))
                   //만족도 조인
@@ -261,8 +262,8 @@ public class ConsultingAdminApiService {
                     .from(qTblCnsltAply)
                     .join(qTblCnsltDtl).on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
                     .join(qTblUser).on(qTblCnsltAply.userSn.eq(qTblUser.userSn))
-                    .join(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
-                    .join(qTblCnslttMbr).on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
+                    .leftJoin(qCnslttUser).on(qTblCnsltDtl.cnslttUserSn.eq(qCnslttUser.userSn))
+                    .leftJoin(qTblCnslttMbr).on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
                     .where(builder)
                     .fetchOne();
 
@@ -299,24 +300,29 @@ public class ConsultingAdminApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             //컨설턴트 정보
-            TblUser consulttUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
-            TblCnslttMbr consulttDtl = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
+            //이 부분 if처리하기
+            Object cnslttUserSnObj = dto.get("cnslttUserSn");
+            String cnslttUserSnStr = cnslttUserSnObj != null ? cnslttUserSnObj.toString() : "";
+            if (!StringUtils.isEmpty(cnslttUserSnStr) && !"0".equals(cnslttUserSnStr)) {
+                TblUser consulttUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
+                TblCnslttMbr consulttDtl = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
 
-            TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
-                    qTblComFile.psnTblSn.eq(
-                            Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", consulttUser.getUserSn()) //사진
-                    )
-            ).fetchOne();
-            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
-                    qTblComFile.psnTblSn.eq(
-                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", consulttUser.getUserSn()) //자격증
-                    )
-            ).fetch();
+                TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
+                        qTblComFile.psnTblSn.eq(
+                                Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", consulttUser.getUserSn()) //사진
+                        )
+                ).fetchOne();
+                List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
+                        qTblComFile.psnTblSn.eq(
+                                Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", consulttUser.getUserSn()) //자격증
+                        )
+                ).fetch();
 
-            resultVO.putResult("consulttUser", consulttUser);
-            resultVO.putResult("consulttDtl", consulttDtl);
-            resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
-            resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
+                resultVO.putResult("consulttUser", consulttUser);
+                resultVO.putResult("consulttDtl", consulttDtl);
+                resultVO.putResult("cnsltProfileFile", cnsltProfileFile);
+                resultVO.putResult("cnsltCertificateFile", cnsltCertificateFile);
+            }
 
             //신청자 정보
             TblUser tblUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
