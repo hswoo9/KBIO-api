@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -71,6 +72,132 @@ public class ConsultingAdminApiService {
      * BooleanBuilder builder = new BooleanBuilder();
      * builder.and(qTblComCdGroup.actvtnYn.eq("Y"));
      */
+    public ResultVO getConsultantList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+        Map<String, Object> conditions = new HashMap<>();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblCnslttMbr qTblCnslttMbr = QTblCnslttMbr.tblCnslttMbr;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+            QTblCnsltAply qTblCnsltAply = QTblCnsltAply.tblCnsltAply;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+
+
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            /** query DSL 조건 추가하는 방법 */
+            BooleanBuilder builder = new BooleanBuilder();
+
+            if(!StringUtils.isEmpty(dto.get("cnsltFld"))){
+                builder.and(qTblCnslttMbr.cnsltFld.eq(Long.valueOf((String) dto.get("cnsltFld"))));
+            }
+
+            if(!StringUtils.isEmpty(dto.get("cnsltYn"))){
+                builder.and(qTblCnslttMbr.cnsltActv.eq((String) dto.get("cnsltYn")));
+            }
+
+            //사용자 페이지의 경우 비공개인 컨설턴트는 내보내지 않음
+            if(!StringUtils.isEmpty(dto.get("usedByGeneral"))){
+                builder.and(qTblCnslttMbr.cnsltActv.eq((String) dto.get("usedByGeneral")));
+            }
+
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("kornFlnm")) { //이름
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("ogdpNm")) { //소속
+                    builder.and(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("jbpsNm")) { //직위
+                    builder.and(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")));
+                }
+                else if (dto.get("searchType").equals("userId")) { //아이디
+                    builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                        qTblUser.kornFlnm.contains((String) dto.get("searchVal"))
+                                .or(qTblCnslttMbr.ogdpNm.contains((String) dto.get("searchVal")))
+                                .or(qTblCnslttMbr.jbpsNm.contains((String) dto.get("searchVal")))
+                                .or(qTblUser.userId.contains((String) dto.get("searchVal")))
+                );
+            }
+
+            List<ConsultDto> consultantList = q
+                    .select(
+                            Projections.constructor(
+                                    ConsultDto.class,
+                                    qTblCnslttMbr,
+                                    qTblUser,
+                                    qTblCnsltDtl,
+                                    qTblComCd.comCdNm,
+                                    Expressions.numberTemplate(Long.class,
+                                            "SUM(CASE WHEN {0} = 26 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
+                                    Expressions.numberTemplate(Long.class,
+                                            "SUM(CASE WHEN {0} = 27 THEN 1 ELSE 0 END)", qTblCnsltAply.cnsltSe),
+                                    qTblComFile
+                            )
+                    ).from(qTblUser)
+                    .join(qTblCnslttMbr)
+                    .on(qTblUser.userSn.eq(qTblCnslttMbr.userSn))
+                    .leftJoin(qTblComFile)  //회원가입 시 사진 발리데이션 체크하고 join으로 바꾸기
+                    .on(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", qTblCnslttMbr.userSn) // 사진 조인
+                            )
+                    )
+                    .leftJoin(qTblCnsltDtl)
+                    .on(qTblCnsltDtl.cnslttUserSn.eq(qTblCnslttMbr.userSn))
+                    .leftJoin(qTblComCd)
+                    .on(qTblComCd.comCd.eq(Expressions.stringTemplate("{0}", qTblCnslttMbr.cnsltFld))
+                            .and(qTblComCd.cdGroupSn.eq(10L)))
+                    .leftJoin(qTblCnsltAply)
+                    .on(qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDtl.cnsltAplySn))
+                    .where(builder)
+                    .groupBy(qTblCnslttMbr.userSn)
+                    .orderBy(qTblUser.userSn.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+
+
+            /*Long totCnt = q.select(qTblUser.count())
+                    .join(qTblCnslttMbr).on(qTblUser.userSn.eq(qTblCnslttMbr.userSn)) //컨설턴트
+//                    .join().on() 컨설턴트 사진
+                    .from(qTblUser)
+                    .where(builder)
+                    .fetchOne();*/
+
+            Long totCnt = q.select(qTblUser.count())
+                    .from(qTblUser)
+                    .join(qTblCnslttMbr).on(qTblUser.userSn.eq(qTblCnslttMbr.userSn))
+                    .where(builder)
+                    .fetchOne();
+
+
+
+            if(totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            resultVO.putResult("consultantList", consultantList);
+            resultVO.putPaginationInfo(paginationInfo);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+        return resultVO;
+    }
+
     public ResultVO getConsultingList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
         PaginationInfo paginationInfo = new PaginationInfo();
@@ -400,7 +527,6 @@ public class ConsultingAdminApiService {
         long userSn = tblCnslttMbr.getUserSn();
 
         try{
-            System.out.println("tblCnslttMbr"+tblCnslttMbr);
             Optional<TblCnslttMbr> tblCnslttMbrOptional = Optional.ofNullable(tblCnslttMbrRepository.findByUserSn(userSn));
             if(tblCnslttMbrOptional.isPresent()) {
                 TblCnslttMbr cnslttMbr = tblCnslttMbrOptional.get();
@@ -411,6 +537,80 @@ public class ConsultingAdminApiService {
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
             }
         } catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setCnsltDtlSttsCd (TblCnsltDtl tblCnsltDtl){
+        ResultVO resultVO = new ResultVO();
+        long cnsltAplySn = tblCnsltDtl.getCnsltAplySn();
+
+        try{
+            Optional<TblCnsltDtl> cnsltDtl = Optional.ofNullable(tblCnsltDtlRepository.findByCnsltAplySn(cnsltAplySn));
+
+            if (cnsltDtl.isPresent()) {
+                TblCnsltDtl detail = cnsltDtl.get();
+                if (detail.getCnslttUserSn() != null) {
+                    detail.setCnsltSttsCd("13");
+                    resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                } else {
+                    detail.setCnsltSttsCd("12");
+                    resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                }
+            }else{
+                resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
+            }
+
+
+        }catch(Exception e){
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+        return resultVO;
+    }
+
+    public ResultVO cancleCnsltDtlSttsCd (TblCnsltDtl tblCnsltDtl){
+        ResultVO resultVO = new ResultVO();
+        long cnsltAplySn = tblCnsltDtl.getCnsltAplySn();
+
+        try{
+            Optional<TblCnsltDtl> cnsltDtl = Optional.ofNullable(tblCnsltDtlRepository.findByCnsltAplySn(cnsltAplySn));
+
+            if (cnsltDtl.isPresent()) {
+                TblCnsltDtl detail = cnsltDtl.get();
+                detail.setCnsltSttsCd("999");
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+
+            }else{
+                resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
+            }
+
+
+        }catch(Exception e){
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+        return resultVO;
+    }
+
+    public ResultVO updateCnsltt(TblCnsltDtl tblCnsltDtl){
+        ResultVO resultVO = new ResultVO();
+        long cnsltAplySn = tblCnsltDtl.getCnsltAplySn();
+
+        try {
+            Optional<TblCnsltDtl> cnsltDtl = Optional.ofNullable(tblCnsltDtlRepository.findByCnsltAplySn(cnsltAplySn));
+
+            if (cnsltDtl.isPresent()) {
+                TblCnsltDtl detail = cnsltDtl.get();
+                detail.setCnsltSttsCd("13");
+                detail.setCnslttUserSn(tblCnsltDtl.getCnslttUserSn());
+                detail.setCnslttDsgnDt(LocalDateTime.now());
+
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            }
+
+
+        }catch(Exception e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

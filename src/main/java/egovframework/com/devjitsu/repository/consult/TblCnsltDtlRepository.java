@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TblCnsltDtlRepository extends JpaRepository<TblCnsltDtl, String> {
 
+    TblCnsltDtl findByCnsltAplySn(long cnsltAplySn);
+
 }

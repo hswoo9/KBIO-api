@@ -25,6 +25,14 @@ public class ConsultingAdminApiController {
 
 
     /**
+     * 전문가관리(컨설턴트조회)
+     * **/
+    @PostMapping("/consultingApi/getConsultantAdminList.do")
+    public ResultVO getConsultantList(HttpServletRequest request) {
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return consultingAdminApiService.getConsultantList(dto);
+    }
+    /**
      * 컨설팅 리스트 조회
      * @return
      */
@@ -43,5 +51,20 @@ public class ConsultingAdminApiController {
     @PostMapping("/consultingApi/setCnslttMbrActv")
     public ResultVO setCnslttMbrActv(@RequestBody TblCnslttMbr tblCnslttMbr){
         return consultingAdminApiService.setCnslttMbrActv(tblCnslttMbr);
+    }
+
+    @PostMapping("/consultingApi/setCnsltDtlSttsCd")
+    public ResultVO setCnsltDtlSttsCd(@RequestBody TblCnsltDtl tblCnsltDtl){
+        return consultingAdminApiService.setCnsltDtlSttsCd(tblCnsltDtl);
+    }
+
+    @PostMapping("/consultingApi/cancleCnsltDtlSttsCd")
+    public ResultVO cancleCnsltDtlSttsCd(@RequestBody TblCnsltDtl tblCnsltDtl){
+        return consultingAdminApiService.cancleCnsltDtlSttsCd(tblCnsltDtl);
+    }
+
+    @PostMapping("/consultingApi/updateCnsltt")
+    public ResultVO updateCnsltt(@RequestBody TblCnsltDtl tblCnsltDtl){
+        return consultingAdminApiService.updateCnsltt(tblCnsltDtl);
     }
 }
