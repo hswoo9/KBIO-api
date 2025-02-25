@@ -1,10 +1,16 @@
 package egovframework.com.devjitsu.service.introduce;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 
+import egovframework.com.devjitsu.model.common.QTblComCd;
+import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.user.*;
 
@@ -52,9 +58,23 @@ public class IntroduceApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
+            JPQLQuery<String> entClsfNm = JPAExpressions
+                    .select(qTblComCd.comCdNm)
+                    .from(qTblComCd)
+                    .where(
+                            qTblComCd.cdGroupSn.eq(17L).and(qTblComCd.comCd.eq(qTblMvnEnt.entClsf))
+                    );
+
             BooleanBuilder builder = new BooleanBuilder();
+            qTblMvnEnt.actvtnYn.eq("Y")
+                    .and(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMvnEnt.rlsBgngYmd).loe(
+                            Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")))
+                    .and(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMvnEnt.rlsEndYmd).goe(
+                            Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")));
 
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 if(dto.get("searchType").equals("mvnEntNm")){
@@ -69,7 +89,20 @@ public class IntroduceApiService {
                 );
             }
 
-            List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
+            List<TblMvnEntDto> tblMvnEntList = q
+                    .select(
+                            Projections.constructor(
+                                    TblMvnEntDto.class,
+                                    qTblMvnEnt,
+                                    qTblComFile,
+                                    entClsfNm
+                            )
+                    ).from(qTblMvnEnt)
+                    .leftJoin(qTblComFile).on(
+                        qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('mvnEnt_', {0})", qTblMvnEnt.mvnEntSn)
+                        )
+                    )
                     .where(builder)
                     .orderBy(qTblMvnEnt.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())

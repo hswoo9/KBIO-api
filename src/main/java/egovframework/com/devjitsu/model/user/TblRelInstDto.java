@@ -1,18 +1,16 @@
 package egovframework.com.devjitsu.model.user;
 
 import egovframework.com.devjitsu.model.common.TblComFile;
-import lombok.*;
-import org.hibernate.annotations.Comment;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class TblMvnEntDto {
+public class TblRelInstDto {
 
-    TblMvnEnt tblMvnEnt;
+    TblRelInst tblRelInst;
     TblComFile tblComFile;
     String entClsfNm;
 }

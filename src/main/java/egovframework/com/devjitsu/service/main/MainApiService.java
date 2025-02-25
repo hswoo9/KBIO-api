@@ -89,7 +89,7 @@ public class MainApiService {
                             qTblComFile
                         )
                     ).from(qTblBnrPopup)
-                    .join(qTblComFile)
+                    .leftJoin(qTblComFile)
                     .on(
                         qTblComFile.psnTblSn.eq(
                             Expressions.stringTemplate("CONCAT('bnrPopup_', {0})", qTblBnrPopup.bnrPopupSn)
@@ -114,12 +114,14 @@ public class MainApiService {
             QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
             QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
+
             List<TblMvnEntDto> tblMvnEntList = q
                     .select(
                         Projections.constructor(
                             TblMvnEntDto.class,
                                 qTblMvnEnt,
-                                qTblComFile
+                                qTblComFile,
+                                Expressions.constant("")
                         )
                     ).from(qTblMvnEnt)
                     .join(qTblComFile).on(
@@ -127,7 +129,13 @@ public class MainApiService {
                             Expressions.stringTemplate("CONCAT('mvnEnt_', {0})", qTblMvnEnt.mvnEntSn)
                         )
                     )
-                    .where(qTblMvnEnt.actvtnYn.eq("Y"))
+                    .where(
+                        qTblMvnEnt.actvtnYn.eq("Y")
+                            .and(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMvnEnt.rlsBgngYmd).loe(
+                                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")))
+                            .and(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMvnEnt.rlsEndYmd).goe(
+                                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")))
+                    )
                     .orderBy(qTblMvnEnt.frstCrtDt.desc()).fetch();
             resultVO.putResult("mvnEntList",tblMvnEntList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
