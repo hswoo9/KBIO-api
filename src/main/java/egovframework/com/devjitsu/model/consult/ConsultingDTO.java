@@ -24,6 +24,7 @@ public class ConsultingDTO {
     private String ogdpNm;
     private long cnsltSttsCdSn;
     private String cnsltSttsCd;
+    private String cnsltSttsCdNm;
     private long dgstfnCnt;
     private String ttl;
     private Long fileCnt;

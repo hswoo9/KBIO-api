@@ -220,6 +220,7 @@ public class ConsultingAdminApiService {
             QTblComCd qTblComCd = QTblComCd.tblComCd; //공통코드
 
             QTblUser qCnslttUser = new QTblUser("qCnslttUser");
+            QTblComCd qCnsltSttsCd = new QTblComCd("qCnsltSttsCd");
 
             JPAQueryFactory q = new JPAQueryFactory(em);
 
@@ -314,6 +315,7 @@ public class ConsultingAdminApiService {
                                   .where(qTblComCd.comCd.eq(qTblCnsltDtl.cnsltSttsCd)
                                           .and(qTblComCd.cdGroupSn.eq(14L))),
                          qTblCnsltDtl.cnsltSttsCd,
+                         qCnsltSttsCd.comCdNm,
 //                        JPAExpressions
 //                               .select(
 //                                        qTblCnsltDgstfn.dgstfnArtcl.count().coalesce(0L)
@@ -347,6 +349,11 @@ public class ConsultingAdminApiService {
                   .join(qTblComCd)
                   .on(qTblComCd.comCdSn.eq(qTblCnsltAply.cnsltFld))
                   //만족도 조인
+
+                  .join(qCnsltSttsCd)
+                  .on(qCnsltSttsCd.comCd.eq(qTblCnsltDtl.cnsltSttsCd)
+                          .and(qCnsltSttsCd.cdGroupSn.eq(14L)))
+
                   .leftJoin(qTblCnsltDgstfn)
                   .on(
                           qTblCnsltAply.cnsltAplySn.eq(qTblCnsltDgstfn.cnsltAplySn)
