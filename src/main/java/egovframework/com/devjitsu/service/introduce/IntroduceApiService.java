@@ -12,9 +12,11 @@ import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.user.*;
 
 import egovframework.com.devjitsu.model.user.QTblMvnEnt;
+import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
 
@@ -42,6 +44,7 @@ public class IntroduceApiService {
     private final TblMvnEntMbrRepository tblMvnEntMbrRepository;
     private final TblUserRepository tblUserRepository;
     private final TblRelInstRepository tblRelInstRepository;
+    private final TblComFileRepository tblComFileRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -130,7 +133,9 @@ public class IntroduceApiService {
         ResultVO resultVO = new ResultVO();
 
         try{
-            resultVO.putResult("operational",tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn()));
+            tblMvnEnt = tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn());
+            tblMvnEnt.setTblComFile(tblComFileRepository.findByPsnTblSn("mvnEnt_" + tblMvnEnt.getMvnEntSn()));
+            resultVO.putResult("operational", tblMvnEnt);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();

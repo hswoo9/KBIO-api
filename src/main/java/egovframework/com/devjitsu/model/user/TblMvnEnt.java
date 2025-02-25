@@ -1,5 +1,6 @@
 package egovframework.com.devjitsu.model.user;
 
+import egovframework.com.devjitsu.model.common.TblComFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -213,4 +214,6 @@ public class TblMvnEnt {
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
 
+    @Transient
+    private TblComFile tblComFile;
 }
