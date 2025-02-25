@@ -216,4 +216,8 @@ public class TblMvnEnt {
 
     @Transient
     private TblComFile tblComFile;
+
+    @Transient
+    private String entTpbizNm;
+
 }

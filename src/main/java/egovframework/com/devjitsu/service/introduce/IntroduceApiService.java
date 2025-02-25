@@ -16,6 +16,7 @@ import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.user.*;
 
 import egovframework.com.devjitsu.model.user.QTblMvnEnt;
+import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
@@ -25,6 +26,7 @@ import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -45,6 +47,7 @@ public class IntroduceApiService {
     private final TblUserRepository tblUserRepository;
     private final TblRelInstRepository tblRelInstRepository;
     private final TblComFileRepository tblComFileRepository;
+    private final TblComCdRepository tblComCdRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -135,6 +138,7 @@ public class IntroduceApiService {
         try{
             tblMvnEnt = tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn());
             tblMvnEnt.setTblComFile(tblComFileRepository.findByPsnTblSn("mvnEnt_" + tblMvnEnt.getMvnEntSn()));
+            tblMvnEnt.setEntTpbizNm(tblComCdRepository.findComCdNm(17L, tblMvnEnt.getEntTpbiz()));
             resultVO.putResult("operational", tblMvnEnt);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
