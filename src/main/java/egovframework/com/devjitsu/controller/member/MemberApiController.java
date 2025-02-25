@@ -3,11 +3,14 @@ package egovframework.com.devjitsu.controller.member;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.*;
+import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroupUser;
 import egovframework.com.devjitsu.model.terms.TblUtztnTrms;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.service.common.CommonApiService;
@@ -188,23 +191,11 @@ public class MemberApiController {
     public ResultVO setMemberMyPageModfiy(
             @ModelAttribute TblUser tblUser,
             @ModelAttribute TblCnslttMbr tblCnslttMbr,
-            @RequestParam(value = "hasCertData", required = false) List<String> hasCertData,
-            @RequestParam(value = "hasCrrData", required = false) List<String> hasCrrData,
-            @RequestParam(value = "hasAcbgData", required = false) List<String> hasAcbgData) {
+            @RequestParam(value = "hasCertData", required = false) String hasCertData,
+            @RequestParam(value = "hasCrrData", required = false) String hasCrrData,
+            @RequestParam(value = "hasAcbgData", required = false) String hasAcbgData) {
 
-        List<TblQlfcLcns> certList = hasCertData != null ? hasCertData.stream()
-                .map(data -> new Gson().fromJson(data, TblQlfcLcns.class))
-                .collect(Collectors.toList()) : null;
-
-        List<TblCrr> crrList = hasCrrData != null ? hasCrrData.stream()
-                .map(data -> new Gson().fromJson(data, TblCrr.class))
-                .collect(Collectors.toList()) : null;
-
-        List<TblAcbg> acbgList = hasAcbgData != null ? hasAcbgData.stream()
-                .map(data -> new Gson().fromJson(data, TblAcbg.class))
-                .collect(Collectors.toList()) : null;
-
-        return memberApiService.setMemberMyPageModfiy(tblUser, tblCnslttMbr, certList, crrList, acbgList);
+        return memberApiService.setMemberMyPageModfiy(tblUser, tblCnslttMbr, hasCertData, hasCrrData, hasAcbgData);
     }
 
     @Operation(
@@ -397,5 +388,20 @@ public class MemberApiController {
     public ResultVO checkPassword(HttpServletRequest request) throws Exception {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberApiService.checkPassword(dto);
+    }
+
+    @PostMapping("/memberApi/delCertificate")
+    public ResultVO delCertificate(@RequestBody TblQlfcLcns tblQlfcLcns) {
+        return memberApiService.delCertificate(tblQlfcLcns);
+    }
+
+    @PostMapping("/memberApi/delCareer")
+    public ResultVO delCareer(@RequestBody TblCrr tblCrr) {
+        return memberApiService.delCareer(tblCrr);
+    }
+
+    @PostMapping("/memberApi/delAcbg")
+    public ResultVO delAcbg(@RequestBody TblAcbg tblAcbg) {
+        return memberApiService.delAcbg(tblAcbg);
     }
 }
