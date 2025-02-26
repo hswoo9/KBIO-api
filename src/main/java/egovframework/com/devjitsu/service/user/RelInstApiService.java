@@ -332,10 +332,49 @@ public class RelInstApiService {
             resultVO.putResult("rc",tblRelInstRepository.findByRelInstSn(relInstSn));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
+            e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
 
         }
 
         return resultVO;
     }
+
+    public ResultVO updateRelInstMbrToMng(List<TblRelInstMbr> tblRelInstMbrList){
+        ResultVO resultVO = new ResultVO();
+
+        try{
+
+            for(TblRelInstMbr member : tblRelInstMbrList){
+                member.setRelInstSn(member.getRelInstSn());
+                member.setSysMngrYn("Y");
+            }
+            tblRelInstMbrRepository.saveAll(tblRelInstMbrList);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO cancleMng(TblRelInstMbr tblRelInstMbr){
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            tblRelInstMbr.setSysMngrYn("N");
+            tblRelInstMbr.setRelInstSn(tblRelInstMbr.getRelInstSn());
+            tblRelInstMbrRepository.save(tblRelInstMbr);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 }
