@@ -187,15 +187,18 @@ public class MemberApiController {
             @ApiResponse(responseCode = "200", description = "회원 수정 완료"),
             @ApiResponse(responseCode = "400", description = "회원 수정 실패")
     })
-    @PostMapping(value = "/memberApi/setMemberMyPageModfiy")
-    public ResultVO setMemberMyPageModfiy(
+    @PostMapping(value = "/memberApi/setMemberMyPageModify")
+    public ResultVO setMemberMyPageModify(
             @ModelAttribute TblUser tblUser,
             @ModelAttribute TblCnslttMbr tblCnslttMbr,
             @RequestParam(value = "hasCertData", required = false) String hasCertData,
             @RequestParam(value = "hasCrrData", required = false) String hasCrrData,
-            @RequestParam(value = "hasAcbgData", required = false) String hasAcbgData) {
+            @RequestParam(value = "hasAcbgData", required = false) String hasAcbgData,
+            @RequestParam(value = "certFiles", required = false)List<MultipartFile> certFiles,
+            @RequestParam(value = "careerFiles", required = false)List<MultipartFile> careerFiles,
+            @RequestParam(value = "acbgFiles", required = false)List<MultipartFile> acbgFiles) {
 
-        return memberApiService.setMemberMyPageModfiy(tblUser, tblCnslttMbr, hasCertData, hasCrrData, hasAcbgData);
+        return memberApiService.setMemberMyPageModify(tblUser, tblCnslttMbr, hasCertData, hasCrrData, hasAcbgData, certFiles, careerFiles, acbgFiles);
     }
 
     @Operation(
