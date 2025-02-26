@@ -625,10 +625,13 @@ public class MemberApiService {
         }
     }
 
-    public ResultVO setMemberMyPageModfiy(TblUser tblUser, TblCnslttMbr tblCnslttMbr,
+    public ResultVO setMemberMyPageModify(TblUser tblUser, TblCnslttMbr tblCnslttMbr,
                                         String hasCertData,
                                         String hasCrrData,
-                                        String hasAcbgData) {
+                                        String hasAcbgData,
+                                        List<MultipartFile> certFiles,
+                                        List<MultipartFile> careerFiles,
+                                        List<MultipartFile> acbgFiles) {
         ResultVO resultVO = new ResultVO();
 
         try {
@@ -663,6 +666,42 @@ public class MemberApiService {
 
             if (!StringUtils.isEmpty(hasAcbgData)) {
                 tblAcbgRepository.saveAll(gson.fromJson(hasAcbgData, new TypeToken<List<TblAcbg>>() {}.getType()));
+            }
+
+            if (certFiles != null) {
+                long certFileCnt = tblComFileRepository.count();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                certFiles,
+                                "/certificates/" + tblUser.getUserId(),
+                                "cert_" + tblUser.getUserId(),
+                                certFileCnt
+                        )
+                );
+            }
+
+            if (careerFiles != null) {
+                long careerFileCnt = tblComFileRepository.count();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                careerFiles,
+                                "/careers/" + tblUser.getUserId(),
+                                "career_" + tblUser.getUserId(),
+                                careerFileCnt
+                        )
+                );
+            }
+
+            if (acbgFiles != null) {
+                long acbgFileCnt = tblComFileRepository.count();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                acbgFiles,
+                                "/acbg/" + tblUser.getUserId(),
+                                "acbg_" + tblUser.getUserId(),
+                                acbgFileCnt
+                        )
+                );
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
