@@ -28,7 +28,7 @@ public class TblMvnEntMbr {
 
     @Column(name = "SYS_MNGR_YN" , columnDefinition = "CHAR(1)")
     @Comment("시스템관리자여부")
-    private String sysMngrYn;
+    private String sysMngrYn = "N";
 
 
 }

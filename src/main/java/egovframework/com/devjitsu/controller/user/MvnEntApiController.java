@@ -3,6 +3,7 @@ package egovframework.com.devjitsu.controller.user;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.user.TblMvnEnt;
+import egovframework.com.devjitsu.model.user.TblMvnEntMbr;
 import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.user.MvnEntApiService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -60,6 +62,19 @@ public class MvnEntApiController {
     @PostMapping("/mvnEntApi/setMemberMbrStts")
     public ResultVO setMemberMbrStts(@RequestBody TblUser request){
         return mvnEntApiService.setMemberMbrStts(request);
+    }
+
+    @PostMapping("/mvnEntApi/updateMvnEntMbrToMng")
+    public ResultVO updateMvnEntMbrToMng(@RequestBody List<TblMvnEntMbr> tblMvnEntMbrList){
+
+        return mvnEntApiService.updateMvnEntMbrToMng(tblMvnEntMbrList);
+    }
+
+    //cancleMng
+    @PostMapping("/mvnEntApi/cancleMng")
+    public ResultVO cancleMng(@RequestBody TblMvnEntMbr tblMvnEntMbrList){
+
+        return mvnEntApiService.cancleMng(tblMvnEntMbrList);
     }
 
 }

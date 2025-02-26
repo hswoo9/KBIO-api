@@ -356,6 +356,44 @@ public class MvnEntApiService {
         return resultVO;
     }
 
+    public ResultVO updateMvnEntMbrToMng(List<TblMvnEntMbr> tblMvnEntMbrList){
+        ResultVO resultVO = new ResultVO();
+
+        try{
+
+            for (TblMvnEntMbr member : tblMvnEntMbrList) {
+                member.setMvnEntSn(member.getMvnEntSn());
+                member.setSysMngrYn("Y");
+            }
+            tblMvnEntMbrRepository.saveAll(tblMvnEntMbrList);
+
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO cancleMng(TblMvnEntMbr tblMvnEntMbr){
+        ResultVO resultVO = new ResultVO();
+
+        try {
+
+            tblMvnEntMbr.setSysMngrYn("N");
+            tblMvnEntMbr.setMvnEntSn(tblMvnEntMbr.getMvnEntSn());
+            tblMvnEntMbrRepository.save(tblMvnEntMbr);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 
 
 
