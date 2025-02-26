@@ -12,6 +12,7 @@ import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.consult.ConsultingDTO;
 import egovframework.com.devjitsu.model.user.*;
 
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -223,12 +224,20 @@ public class MvnEntApiService {
         try {
         List<TblMvnEntMbr> entMbrList;
         QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+        QTblUser qTblUser = QTblUser.tblUser;
         QTblComFile qTblComFile = QTblComFile.tblComFile;
         BooleanBuilder builder = new BooleanBuilder();
         JPAQueryFactory q = new JPAQueryFactory(em);
 
+        if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+            paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+        }
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
 
+        //로고파일
             TblComFile residentCompanyLogo = q.selectFrom(qTblComFile)
                     .where(
                             qTblComFile.psnTblSn.eq(
@@ -236,48 +245,48 @@ public class MvnEntApiService {
                             )
                     ).fetchOne();
 
+        builder.and(qTblMvnEntMbr.mvnEntSn.eq(((Number) dto.get("mvnEntSn")).longValue()));
+
         if (!StringUtils.isEmpty(dto.get("sysMngrYn"))){
             //관리자설정에서 실행됨
-            builder.and(qTblMvnEntMbr.sysMngrYn.contains((String) dto.get("sysMngrYn")));
-            builder.and(qTblMvnEntMbr.mvnEntSn.eq(mvnEntSn));
-
-            entMbrList = q.selectFrom(qTblMvnEntMbr)
-                    .where(builder)
-                    .orderBy(qTblMvnEntMbr.userSn.desc()).fetch();
-
-        } else {
-            //직원목록일 경우 실행됨
-            entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
+            builder.and(qTblMvnEntMbr.sysMngrYn.eq((String) dto.get("sysMngrYn")));
         }
 
-        //System.out.println("****entMbrList :*****"+entMbrList);
-
-        List<Long> userSnList = entMbrList.stream()
-                .map(TblMvnEntMbr::getUserSn)
-                .collect(Collectors.toList());
-
-
-
+        //회원상태
         if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
-            conditions.put("mbrStts", dto.get("mbrStts"));
-        }
-        if (!StringUtils.isEmpty(dto.get("kornFlnm"))){
-            conditions.put("kornFlnm", dto.get("kornFlnm"));
-        }
-        if (!StringUtils.isEmpty(dto.get("userId"))){
-            conditions.put("userId", dto.get("userId"));
+            builder.and(qTblUser.mbrStts.eq((String) dto.get("mbrStts")));
         }
 
-        List<TblUser> userList = getFilteredUsers(userSnList, conditions);
-        Long totCnt = Long.valueOf(userList.size());
+
+            List<MvnEntMbrDto> userList = q.
+                    select(
+                            Projections.constructor(
+                                    MvnEntMbrDto.class,
+                                    qTblUser,
+                                    qTblMvnEntMbr
+                            )
+                    ).from(qTblMvnEntMbr)
+                    .join(qTblUser)
+                    .on(
+                            qTblUser.userSn.eq(qTblMvnEntMbr.userSn)
+                    )
+                    .where(builder)
+                    .orderBy(qTblUser.frstCrtDt.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+            Long totCnt = q
+                    .select(qTblMvnEntMbr.count())
+                            .from(qTblMvnEntMbr)
+                                    .join(qTblUser)
+                                            .on(qTblUser.userSn.eq(qTblMvnEntMbr.userSn))
+                                                    .where(builder)
+                                                            .fetchOne();
 
 
 
-        if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
-                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
-        }
-        paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
-        paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
 
         if(totCnt == null) totCnt = 0L;
         paginationInfo.setTotalRecordCount(totCnt.intValue());
