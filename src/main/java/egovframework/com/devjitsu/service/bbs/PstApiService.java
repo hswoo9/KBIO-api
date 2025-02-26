@@ -19,10 +19,7 @@ import egovframework.com.devjitsu.model.bbs.*;
 import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.QTblPstCmnt;
 import egovframework.com.devjitsu.model.bbs.QTblPstEvl;
-import egovframework.com.devjitsu.model.common.QTblComCd;
-import egovframework.com.devjitsu.model.common.QTblComFile;
-import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.common.*;
 import egovframework.com.devjitsu.model.menu.AuthrtDto;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
@@ -31,6 +28,7 @@ import egovframework.com.devjitsu.repository.bbs.TblPstEvlRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
+import egovframework.com.devjitsu.service.common.CommonApiService;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
@@ -63,6 +61,9 @@ public class PstApiService {
 
     @Autowired
     private BbsAdminApiService bbsAdminApiService;
+
+    @Autowired
+    private CommonApiService commonApiService;
 
     /**
      * jpa 부등호
@@ -288,6 +289,7 @@ public class PstApiService {
                         .where(qTblComCd.comCdSn.eq(tblPst.getPstClsf())).fetchOne());
             }
 
+            commonApiService.setPstCntnHstry(tblPst.getBbsSn(), "tbl_bbs");
             q.update(qTblPst).set(qTblPst.pstInqCnt, qTblPst.pstInqCnt.add(1)).where(qTblPst.pstSn.eq(tblPst.getPstSn())).execute();
 
             resultVO.putResult("pst", tblPst);

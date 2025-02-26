@@ -133,7 +133,7 @@ public class CommonApiController {
     }
 
     /**
-     * 첨부파일 다운로드 (공통)
+     * 첨부파일 zip 다운로드 (공통)
      * {
      *     atchFileSn : 첨부파일 키
      * }
