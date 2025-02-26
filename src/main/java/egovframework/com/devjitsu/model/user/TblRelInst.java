@@ -207,6 +207,9 @@ public class TblRelInst {
     private LocalDateTime mdfcnDt;
 
     @Transient
+    private String tpbizNm;
+
+    @Transient
     private TblComFile logoFile;
 
     @Transient

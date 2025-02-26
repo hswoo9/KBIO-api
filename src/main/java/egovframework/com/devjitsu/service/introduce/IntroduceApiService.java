@@ -138,7 +138,7 @@ public class IntroduceApiService {
         try{
             tblMvnEnt = tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn());
             tblMvnEnt.setTblComFile(tblComFileRepository.findByPsnTblSn("mvnEnt_" + tblMvnEnt.getMvnEntSn()));
-            tblMvnEnt.setEntTpbizNm(tblComCdRepository.findComCdNm(17L, tblMvnEnt.getEntTpbiz()));
+            tblMvnEnt.setEntTpbizNm(tblComCdRepository.findComCdNm(18L, tblMvnEnt.getEntTpbiz()));
             resultVO.putResult("operational", tblMvnEnt);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
@@ -160,10 +160,26 @@ public class IntroduceApiService {
             paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
+
             QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
+            JPQLQuery<String> clsfNm = JPAExpressions
+                    .select(qTblComCd.comCdNm)
+                    .from(qTblComCd)
+                    .where(
+                            qTblComCd.cdGroupSn.eq(17L).and(qTblComCd.comCd.eq(qTblRelInst.clsf))
+                    );
+
             BooleanBuilder builder = new BooleanBuilder();
+            qTblRelInst.actvtnYn.eq("Y")
+                .and(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblRelInst.rlsBgngYmd).loe(
+                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")))
+                .and(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblRelInst.rlsEndYmd).goe(
+                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")));
+
 
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 if(dto.get("searchType").equals("relInstNm")){
@@ -178,7 +194,20 @@ public class IntroduceApiService {
                 );
             }
 
-            List<TblRelInst> tblRelInstList = q.selectFrom(qTblRelInst)
+            List<TblRelInstDto> tblRelInstList = q
+                    .select(
+                        Projections.constructor(
+                            TblRelInstDto.class,
+                            qTblRelInst,
+                            qTblComFile,
+                            clsfNm
+                        )
+                    ).from(qTblRelInst)
+                    .leftJoin(qTblComFile).on(
+                        qTblComFile.psnTblSn.eq(
+                            Expressions.stringTemplate("CONCAT('relInst_', {0})", qTblRelInst.relInstSn)
+                        )
+                    )
                     .where(builder)
                     .orderBy(qTblRelInst.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
@@ -207,7 +236,11 @@ public class IntroduceApiService {
         ResultVO resultVO = new ResultVO();
 
         try{
-            resultVO.putResult("related",tblRelInstRepository.findByRelInstSn(tblRelInst.getRelInstSn()));
+            tblRelInst = tblRelInstRepository.findByRelInstSn(tblRelInst.getRelInstSn());
+            tblRelInst.setLogoFile(tblComFileRepository.findByPsnTblSn("relInst_" + tblRelInst.getRelInstSn()));
+            tblRelInst.setTpbizNm(tblComCdRepository.findComCdNm(18L, tblRelInst.getTpbiz()));
+
+            resultVO.putResult("related", tblRelInst);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();

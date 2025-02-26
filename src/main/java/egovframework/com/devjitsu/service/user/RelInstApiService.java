@@ -1,12 +1,14 @@
 package egovframework.com.devjitsu.service.user;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 
+import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
@@ -107,21 +109,52 @@ public class RelInstApiService {
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
             QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+            QTblComCd qTblComCd = QTblComCd.tblComCd;
+            QTblComCd qTpbiz = new QTblComCd("qTpbiz");
+
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             BooleanBuilder builder = new BooleanBuilder();
 
-            if(!StringUtils.isEmpty(dto.get("relInstNm"))){
-                builder.and(qTblRelInst.relInstNm.contains((String) dto.get("relInstNm")));
-            }
-            if(!StringUtils.isEmpty(dto.get("brno"))){
-                builder.and(qTblRelInst.brno.contains((String) dto.get("brno")));
-            }
-            if(!StringUtils.isEmpty(dto.get("rpsvNm"))){
-                builder.and(qTblRelInst.rpsvNm.contains((String) dto.get("rpsvNm")));
+            if(!StringUtils.isEmpty(dto.get("clsf"))){
+                builder.and(qTblRelInst.clsf.eq((String) dto.get("clsf")));
             }
 
-            List<TblRelInst> tblRelInstList = q.selectFrom(qTblRelInst)
+            if(!StringUtils.isEmpty(dto.get("tpbiz"))){
+                builder.and(qTblRelInst.tpbiz.eq((String) dto.get("tpbiz")));
+            }
+
+            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
+                builder.and(qTblRelInst.actvtnYn.eq((String) dto.get("actvtnYn")));
+            }
+
+            if(!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("relInstNm")) {
+                    builder.and(qTblRelInst.relInstNm.contains((String) dto.get("searchVal")));
+                } else if (dto.get("searchType").equals("rpsvNm")) {
+                    builder.and(qTblRelInst.rpsvNm.contains((String) dto.get("searchVal")));
+                }
+            }else{
+                builder.and(
+                    qTblRelInst.relInstNm.contains((String)dto.get("searchVal"))
+                        .or(qTblRelInst.rpsvNm.contains((String)dto.get("searchVal")))
+                );
+            }
+
+
+            List<RelInstDto> tblRelInstList = q
+                    .select(
+                        Projections.constructor(
+                            RelInstDto.class,
+                            qTblRelInst,
+                            qTblComCd.comCdNm,
+                            qTpbiz.comCdNm
+                        )
+                    ).from(qTblRelInst)
+                    .leftJoin(qTblComCd)
+                    .on(qTblComCd.comCd.eq(qTblRelInst.clsf).and(qTblComCd.cdGroupSn.eq(17L)))
+                    .leftJoin(qTpbiz)
+                    .on(qTpbiz.comCd.eq(qTblRelInst.tpbiz).and(qTpbiz.cdGroupSn.eq(18L)))
                     .where(builder)
                     .orderBy(qTblRelInst.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())

@@ -113,17 +113,21 @@ public class MvnEntApiService {
 
             QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
             QTblComCd qTblComCd = QTblComCd.tblComCd;
-
             QTblComCd qTpbiz = new QTblComCd("qTpbiz");
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             BooleanBuilder builder = new BooleanBuilder();
 
             if(!StringUtils.isEmpty(dto.get("entClsf"))){
-                builder.and(qTblMvnEnt.entClsf.contains((String) dto.get("entClsf")));
+                builder.and(qTblMvnEnt.entClsf.eq((String) dto.get("entClsf")));
             }
+
+            if(!StringUtils.isEmpty(dto.get("entTpbiz"))){
+                builder.and(qTblMvnEnt.entTpbiz.eq((String) dto.get("entTpbiz")));
+            }
+
             if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
-                builder.and(qTblMvnEnt.actvtnYn.contains((String) dto.get("actvtnYn")));
+                builder.and(qTblMvnEnt.actvtnYn.eq((String) dto.get("actvtnYn")));
             }
 
             if(!StringUtils.isEmpty(dto.get("searchType"))) {
