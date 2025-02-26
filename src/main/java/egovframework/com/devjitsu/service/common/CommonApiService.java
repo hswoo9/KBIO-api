@@ -20,6 +20,7 @@ import egovframework.com.devjitsu.repository.code.TblComCdGroupRepository;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblAtchFileDwnldCntRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
+import egovframework.com.devjitsu.repository.common.TblPstCntnHstryRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuRepository;
 import egovframework.com.devjitsu.repository.user.TblUserMsgRepository;
@@ -104,6 +105,7 @@ public class CommonApiService {
     private final TblComCdGroupRepository tblComCdGroupRepository;
     private final TblComFileRepository tblComFileRepository;
     private final TblAtchFileDwnldCntRepository tblAtchFileDwnldCntRepository;
+    private final TblPstCntnHstryRepository tblPstCntnHstryRepository;
     private final TblUserMsgRepository tblUserMsgRepository;
 
     private final TblMenuAuthrtGroupRepository tblMenuAuthrtGroupRepository;
@@ -507,4 +509,32 @@ public class CommonApiService {
 
         return resultVO;
     }
+
+    public void setPstCntnHstry(Long trgtSn, String trgtTblNm){
+        QTblPstCntnHstry qTblPstCntnHstry = QTblPstCntnHstry.tblPstCntnHstry;
+        JPAQueryFactory q = new JPAQueryFactory(em);
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(
+            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPstCntnHstry.frstCrtDt).eq(
+                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+            ).and(qTblPstCntnHstry.trgtTblNm.eq(trgtTblNm))
+            .and(qTblPstCntnHstry.trgtSn.eq(trgtSn))
+        );
+
+        TblPstCntnHstry tblPstCntnHstry = q
+                .selectFrom(qTblPstCntnHstry)
+                .where(builder).fetchFirst();
+
+        if(tblPstCntnHstry != null){
+            tblPstCntnHstry.setCntnNmtm(tblPstCntnHstry.getCntnNmtm() + 1);
+        }else{
+            tblPstCntnHstry = new TblPstCntnHstry();
+            tblPstCntnHstry.setTrgtTblNm(trgtTblNm);
+            tblPstCntnHstry.setTrgtSn(trgtSn);
+            tblPstCntnHstry.setCntnNmtm(1);
+        }
+        tblPstCntnHstryRepository.save(tblPstCntnHstry);
+    }
+
 }

@@ -14,6 +14,7 @@ import com.google.analytics.data.v1beta.*;
 import egovframework.com.devjitsu.model.bbs.QTblBbs;
 import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.common.QTblAtchFileDwnldCnt;
+import egovframework.com.devjitsu.model.common.QTblPstCntnHstry;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserAccessDto;
@@ -368,27 +369,35 @@ public class StatisticsAdminApiService {
 
         try {
             JPAQueryFactory q = new JPAQueryFactory(em);
-            QTblPst qTblPst = QTblPst.tblPst;
+            QTblPstCntnHstry qTblPstCntnHstry = QTblPstCntnHstry.tblPstCntnHstry;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblPst.bbsSn.eq(Long.valueOf(dto.get("bbsSn").toString()))).and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblPst.frstCrtDt).eq(
+            if(!StringUtils.isEmpty(dto.get("trgtTblNm"))){
+                builder.and(qTblPstCntnHstry.trgtTblNm.eq(dto.get("trgtTblNm").toString()));
+            }
+
+            if(!StringUtils.isEmpty(dto.get("trgtSn"))){
+                builder.and(qTblPstCntnHstry.trgtSn.eq(Long.valueOf(dto.get("trgtSn").toString())));
+            }
+
+            builder.and(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblPstCntnHstry.frstCrtDt).eq(
                     Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
                 )
             );
 
-            StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPst.frstCrtDt);
+            StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPstCntnHstry.frstCrtDt);
             List<StatisticsDto> statisticsPstAccess = q
                     .select(
                         Projections.constructor(
                             StatisticsDto.class,
                             dayFormat,
-                            qTblPst.pstInqCnt.sum().nullif(0L)
+                            qTblPstCntnHstry.cntnNmtm.sum().nullif(0L)
                         )
                     )
-                    .from(qTblPst)
+                    .from(qTblPstCntnHstry)
                     .where(builder)
-                    .groupBy(dayFormat)
+                    .groupBy(dayFormat, qTblPstCntnHstry.trgtTblNm, qTblPstCntnHstry.trgtSn)
                     .orderBy(dayFormat.asc())
                     .fetch();
 

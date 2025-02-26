@@ -108,9 +108,17 @@ public class MvnEntApiService {
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
                 paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
             }
-            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
-            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+            if (!StringUtils.isEmpty(dto.get("pageSize"))) {
+                paginationInfo.setPageSize(Integer.parseInt(dto.get("pageIndex").toString()));
+            }else{
+                paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+            }
 
+            if (!StringUtils.isEmpty(dto.get("pageUnit"))) {
+                paginationInfo.setRecordCountPerPage(Integer.parseInt(dto.get("pageUnit").toString()));
+            }else{
+                paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            }
             QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
             QTblComCd qTblComCd = QTblComCd.tblComCd;
             QTblComCd qTpbiz = new QTblComCd("qTpbiz");
