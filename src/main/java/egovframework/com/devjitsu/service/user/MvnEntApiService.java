@@ -222,7 +222,6 @@ public class MvnEntApiService {
         Map<String, Object> conditions = new HashMap<>();
 
         try {
-        List<TblMvnEntMbr> entMbrList;
         QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
         QTblUser qTblUser = QTblUser.tblUser;
         QTblComFile qTblComFile = QTblComFile.tblComFile;
@@ -238,12 +237,12 @@ public class MvnEntApiService {
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
 
         //로고파일
-            TblComFile residentCompanyLogo = q.selectFrom(qTblComFile)
-                    .where(
-                            qTblComFile.psnTblSn.eq(
-                                    Expressions.stringTemplate("CONCAT('mvnEnt_',{0})", mvnEntSn)
-                            )
-                    ).fetchOne();
+        TblComFile residentCompanyLogo = q.selectFrom(qTblComFile)
+                .where(
+                        qTblComFile.psnTblSn.eq(
+                                Expressions.stringTemplate("CONCAT('mvnEnt_',{0})", mvnEntSn)
+                        )
+               ).fetchOne();
 
         builder.and(qTblMvnEntMbr.mvnEntSn.eq(((Number) dto.get("mvnEntSn")).longValue()));
 
@@ -255,6 +254,19 @@ public class MvnEntApiService {
         //회원상태
         if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
             builder.and(qTblUser.mbrStts.eq((String) dto.get("mbrStts")));
+        }
+        //검색어
+        if (!StringUtils.isEmpty(dto.get("searchType"))) {
+            if(dto.get("searchType").equals("kornFlnm")){ //성명
+                builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+            }else if(dto.get("searchType").equals("userId")){ //아이디
+                builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+            }
+        }else {
+            builder.and(
+                    qTblUser.kornFlnm.contains((String) dto.get("searchVal"))
+                            .or(qTblUser.userId.contains((String) dto.get("searchVal")))
+            );
         }
 
 
@@ -342,33 +354,6 @@ public class MvnEntApiService {
         }
 
         return resultVO;
-    }
-
-
-    public List<TblUser> getFilteredUsers(List<Long> userSnList, Map<String, Object> conditions) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<TblUser> query = cb.createQuery(TblUser.class);
-        Root<TblUser> root = query.from(TblUser.class);
-
-        List<Predicate> predicates = new ArrayList<>();
-
-        // userSn IN 조건
-        predicates.add(root.get("userSn").in(userSnList));
-
-        // DTO에서 넘어온 조건 추가
-        if (conditions.containsKey("mbrStts")) {
-            predicates.add(cb.equal(root.get("mbrStts"), conditions.get("mbrStts")));
-        }
-        if (conditions.containsKey("kornFlnm")) {
-            predicates.add(cb.equal(root.get("kornFlnm"), conditions.get("kornFlnm")));
-        }
-        if (conditions.containsKey("userId")) {
-            predicates.add(cb.equal(root.get("userId"), conditions.get("userId")));
-        }
-
-        query.where(predicates.toArray(new Predicate[0]));
-
-        return em.createQuery(query).getResultList();
     }
 
 
