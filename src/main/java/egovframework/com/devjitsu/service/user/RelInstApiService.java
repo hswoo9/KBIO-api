@@ -4,11 +4,15 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
+import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.ResultVO;
 
+import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.user.*;
 
+import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblRelInstMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblRelInstRepository;
@@ -20,6 +24,7 @@ import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -39,17 +44,47 @@ public class RelInstApiService {
     private final TblUserRepository tblUserRepository;
     private final TblRelInstRepository tblRelInstRepository;
     private final TblRelInstMbrRepository tblRelInstMbrRepository;
+    private final TblComFileRepository tblComFileRepository;
+
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
 
-    public ResultVO setRelInst(TblRelInst tblRelInst){
+    @Resource(name = "EgovFileMngUtil")
+    private EgovFileMngUtil fileUtil;
+
+    public ResultVO setRelInst(TblRelInst tblRelInst, List<MultipartFile> files, List<MultipartFile> relInstAtchFiles){
         ResultVO resultVO = new ResultVO();
 
         try{
-            QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             tblRelInstRepository.save(tblRelInst);
+
+            if(files != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("relInst_" + tblRelInst.getRelInstSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                    fileUtil.devFileInf(
+                        files,
+                        "/relInst/" + tblRelInst.getRelInstSn(),
+                        "relInst_" + tblRelInst.getRelInstSn(),
+                        fileCnt
+                    )
+                );
+            }
+
+            if(relInstAtchFiles != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("relInstAtch_" + tblRelInst.getRelInstSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                    fileUtil.devFileInf(
+                        relInstAtchFiles,
+                        "/relInstAtch/" + tblRelInst.getRelInstSn(),
+                        "relInstAtch_" + tblRelInst.getRelInstSn(),
+                        fileCnt
+                    )
+                );
+            }
+
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
@@ -114,7 +149,11 @@ public class RelInstApiService {
         ResultVO resultVO = new ResultVO();
 
         try{
-            resultVO.putResult("rc",tblRelInstRepository.findByRelInstSn(tblRelInst.getRelInstSn()));
+            tblRelInst = tblRelInstRepository.findByRelInstSn(tblRelInst.getRelInstSn());
+            tblRelInst.setLogoFile(tblComFileRepository.findByPsnTblSn("relInst_" + tblRelInst.getRelInstSn()));
+            tblRelInst.setRelInstAtchFiles(tblComFileRepository.findAllByPsnTblSn("relInstAtch_" + tblRelInst.getRelInstSn()));
+
+            resultVO.putResult("rc", tblRelInst);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();

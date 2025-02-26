@@ -9,12 +9,11 @@ import egovframework.com.devjitsu.service.user.MvnEntApiService;
 import egovframework.com.devjitsu.service.user.RelInstApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @CrossOrigin("*")
@@ -25,8 +24,11 @@ public class RelInstApiController {
     private RelInstApiService relInstApiService;
 
     @PostMapping("/relatedApi/setRelInst")
-    public ResultVO setRelInst(@RequestBody TblRelInst tblRelInst){
-        return relInstApiService.setRelInst(tblRelInst);
+    public ResultVO setRelInst(
+            @ModelAttribute TblRelInst tblRelInst,
+            @RequestParam(value = "file", required = false) List<MultipartFile> files,
+            @RequestParam(value= "files", required = false) List<MultipartFile> relInstAtchFiles){
+        return relInstApiService.setRelInst(tblRelInst,files, relInstAtchFiles);
     }
 
     @PostMapping("/relatedApi/getRelInstList.do")

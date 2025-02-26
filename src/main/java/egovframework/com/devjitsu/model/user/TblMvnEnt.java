@@ -64,14 +64,6 @@ public class TblMvnEnt {
     @Comment("기업상세주소")
     private String entDaddr;
 
-    @Column(name = "BZSTAT_NM", length = 100)
-    @Comment("업태명")
-    private String bzstatNm;
-
-    @Column(name = "CLS_NM", length = 100)
-    @Comment("종목명")
-    private String clsNm;
-
     @Column(name = "ENT_TELNO", length = 11)
     @Comment("기업전화번호")
     private String entTelno;

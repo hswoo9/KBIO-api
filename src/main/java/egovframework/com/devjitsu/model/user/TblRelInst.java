@@ -1,12 +1,15 @@
 package egovframework.com.devjitsu.model.user;
 
+import egovframework.com.devjitsu.model.common.TblComFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "TBL_REL_INST", catalog = "SCHM_BIO_MBR")
@@ -61,13 +64,13 @@ public class TblRelInst {
     @Comment("기업상세주소")
     private String entDaddr;
 
-    @Column(name = "BZSTAT_NM", length = 100)
-    @Comment("업태명")
-    private String bzstatNm;
+    @Column(name = "CLSF", length = 20)
+    @Comment("분류")
+    private String clsf;
 
-    @Column(name = "CLS_NM", length = 100)
-    @Comment("종목명")
-    private String clsNm;
+    @Column(name = "TPBIZ", length = 20)
+    @Comment("업종")
+    private String tpbiz;
 
     @Column(name = "ENT_TELNO", length = 11)
     @Comment("기업전화번호")
@@ -165,9 +168,21 @@ public class TblRelInst {
     @Comment("업체설명")
     private String bzentyExpln;
 
+    @Column(name = "MAIN_HSTRY", columnDefinition = "LONGTEXT")
+    @Comment("주요이력")
+    private String mainHstry;
+
     @Column(name = "RMRK_CN", length = 4000)
     @Comment("비고내용")
     private String rmrkCn;
+
+    @Column(name = "RLS_BGNG_YMD", columnDefinition = "CHAR(8)")
+    @Comment("공개시작일자")
+    private String rlsBgngYmd;
+
+    @Column(name = "RLS_END_YMD", columnDefinition = "CHAR(8)")
+    @Comment("공개종료일자")
+    private String rlsEndYmd;
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
@@ -177,7 +192,8 @@ public class TblRelInst {
     @Comment("생성자일련번호")
     private long creatrSn;
 
-    @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "FRST_CRT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", updatable = false)
     @Comment("최초생성일시")
     private LocalDateTime frstCrtDt = LocalDateTime.now();
 
@@ -185,8 +201,15 @@ public class TblRelInst {
     @Comment("수정자일련번호")
     private Long mdfrSn;
 
-    @Column(name = "MDFCN_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "MDFCN_DT", columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP", insertable = false)
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
+
+    @Transient
+    private TblComFile logoFile;
+
+    @Transient
+    private List<TblComFile> relInstAtchFiles;
 
 }
