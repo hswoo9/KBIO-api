@@ -12,6 +12,7 @@ import egovframework.com.devjitsu.model.common.QTblComCd;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
+import egovframework.com.devjitsu.model.consult.ConsultingDTO;
 import egovframework.com.devjitsu.model.user.*;
 
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -221,63 +222,83 @@ public class MvnEntApiService {
         Map<String, Object> conditions = new HashMap<>();
 
         try {
-        List<TblMvnEntMbr> entMbrList;
         QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+        QTblUser qTblUser = QTblUser.tblUser;
         QTblComFile qTblComFile = QTblComFile.tblComFile;
         BooleanBuilder builder = new BooleanBuilder();
         JPAQueryFactory q = new JPAQueryFactory(em);
 
+        if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+            paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+        }
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
 
-            TblComFile residentCompanyLogo = q.selectFrom(qTblComFile)
-                    .where(
-                            qTblComFile.psnTblSn.eq(
-                                    Expressions.stringTemplate("CONCAT('mvnEnt_',{0})", mvnEntSn)
-                            )
-                    ).fetchOne();
+        //로고파일
+        TblComFile residentCompanyLogo = q.selectFrom(qTblComFile)
+                .where(
+                        qTblComFile.psnTblSn.eq(
+                                Expressions.stringTemplate("CONCAT('mvnEnt_',{0})", mvnEntSn)
+                        )
+               ).fetchOne();
+
+        builder.and(qTblMvnEntMbr.mvnEntSn.eq(((Number) dto.get("mvnEntSn")).longValue()));
 
         if (!StringUtils.isEmpty(dto.get("sysMngrYn"))){
             //관리자설정에서 실행됨
-            builder.and(qTblMvnEntMbr.sysMngrYn.contains((String) dto.get("sysMngrYn")));
-            builder.and(qTblMvnEntMbr.mvnEntSn.eq(mvnEntSn));
-
-            entMbrList = q.selectFrom(qTblMvnEntMbr)
-                    .where(builder)
-                    .orderBy(qTblMvnEntMbr.userSn.desc()).fetch();
-
-        } else {
-            //직원목록일 경우 실행됨
-            entMbrList = tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
+            builder.and(qTblMvnEntMbr.sysMngrYn.eq((String) dto.get("sysMngrYn")));
         }
 
-        //System.out.println("****entMbrList :*****"+entMbrList);
-
-        List<Long> userSnList = entMbrList.stream()
-                .map(TblMvnEntMbr::getUserSn)
-                .collect(Collectors.toList());
-
-
-
+        //회원상태
         if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
-            conditions.put("mbrStts", dto.get("mbrStts"));
+            builder.and(qTblUser.mbrStts.eq((String) dto.get("mbrStts")));
         }
-        if (!StringUtils.isEmpty(dto.get("kornFlnm"))){
-            conditions.put("kornFlnm", dto.get("kornFlnm"));
-        }
-        if (!StringUtils.isEmpty(dto.get("userId"))){
-            conditions.put("userId", dto.get("userId"));
+        //검색어
+        if (!StringUtils.isEmpty(dto.get("searchType"))) {
+            if(dto.get("searchType").equals("kornFlnm")){ //성명
+                builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+            }else if(dto.get("searchType").equals("userId")){ //아이디
+                builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+            }
+        }else {
+            builder.and(
+                    qTblUser.kornFlnm.contains((String) dto.get("searchVal"))
+                            .or(qTblUser.userId.contains((String) dto.get("searchVal")))
+            );
         }
 
-        List<TblUser> userList = getFilteredUsers(userSnList, conditions);
-        Long totCnt = Long.valueOf(userList.size());
+
+            List<MvnEntMbrDto> userList = q.
+                    select(
+                            Projections.constructor(
+                                    MvnEntMbrDto.class,
+                                    qTblUser,
+                                    qTblMvnEntMbr
+                            )
+                    ).from(qTblMvnEntMbr)
+                    .join(qTblUser)
+                    .on(
+                            qTblUser.userSn.eq(qTblMvnEntMbr.userSn)
+                    )
+                    .where(builder)
+                    .orderBy(qTblUser.frstCrtDt.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+            Long totCnt = q
+                    .select(qTblMvnEntMbr.count())
+                            .from(qTblMvnEntMbr)
+                                    .join(qTblUser)
+                                            .on(qTblUser.userSn.eq(qTblMvnEntMbr.userSn))
+                                                    .where(builder)
+                                                            .fetchOne();
 
 
 
-        if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
-                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
-        }
-        paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
-        paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
 
         if(totCnt == null) totCnt = 0L;
         paginationInfo.setTotalRecordCount(totCnt.intValue());
@@ -335,31 +356,42 @@ public class MvnEntApiService {
         return resultVO;
     }
 
+    public ResultVO updateMvnEntMbrToMng(List<TblMvnEntMbr> tblMvnEntMbrList){
+        ResultVO resultVO = new ResultVO();
 
-    public List<TblUser> getFilteredUsers(List<Long> userSnList, Map<String, Object> conditions) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<TblUser> query = cb.createQuery(TblUser.class);
-        Root<TblUser> root = query.from(TblUser.class);
+        try{
 
-        List<Predicate> predicates = new ArrayList<>();
+            for (TblMvnEntMbr member : tblMvnEntMbrList) {
+                member.setMvnEntSn(member.getMvnEntSn());
+                member.setSysMngrYn("Y");
+            }
+            tblMvnEntMbrRepository.saveAll(tblMvnEntMbrList);
 
-        // userSn IN 조건
-        predicates.add(root.get("userSn").in(userSnList));
 
-        // DTO에서 넘어온 조건 추가
-        if (conditions.containsKey("mbrStts")) {
-            predicates.add(cb.equal(root.get("mbrStts"), conditions.get("mbrStts")));
-        }
-        if (conditions.containsKey("kornFlnm")) {
-            predicates.add(cb.equal(root.get("kornFlnm"), conditions.get("kornFlnm")));
-        }
-        if (conditions.containsKey("userId")) {
-            predicates.add(cb.equal(root.get("userId"), conditions.get("userId")));
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
-        query.where(predicates.toArray(new Predicate[0]));
+        return resultVO;
+    }
 
-        return em.createQuery(query).getResultList();
+    public ResultVO cancleMng(TblMvnEntMbr tblMvnEntMbr){
+        ResultVO resultVO = new ResultVO();
+
+        try {
+
+            tblMvnEntMbr.setSysMngrYn("N");
+            tblMvnEntMbr.setMvnEntSn(tblMvnEntMbr.getMvnEntSn());
+            tblMvnEntMbrRepository.save(tblMvnEntMbr);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
     }
 
 
