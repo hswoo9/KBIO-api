@@ -151,13 +151,21 @@ public class LoginApiService {
              */
 //            String duplicateChk = redisApiService.getRedis(0, String.valueOf(tblUser.getUserSn())) == null ? "" : (String) redisApiService.getRedis(0, String.valueOf(tblUser.getUserSn()));
 //            if(!StringUtils.isEmpty(duplicateChk)){
-//                if(dto.getConfirmPass().equals("N")){
-//                    resultVO.setResultCode(ResponseCode.DUPLICATE_LOGIN.getCode());
-//                    resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGIN.getMessage());
-//                    return resultVO;
-//                }else{
-//                    redisApiService.delRedis(0, String.valueOf(tblUser.getUserSn()));
-//                }
+                /** 미사용
+
+                if(dto.getConfirmPass().equals("N")){
+                    resultVO.setResultCode(ResponseCode.DUPLICATE_LOGIN.getCode());
+                    resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGIN.getMessage());
+                    return resultVO;
+                }else{
+                    redisApiService.delRedis(0, String.valueOf(tblUser.getUserSn()));
+                }
+
+                 */
+
+//                resultVO.setResultCode(ResponseCode.DUPLICATE_LOGIN.getCode());
+//                resultVO.setResultMessage(ResponseCode.DUPLICATE_LOGIN.getMessage());
+//                return resultVO;
 //            }
 
             String jwtToken = jwtTokenUtil.generateTokenJpa(tblUser);

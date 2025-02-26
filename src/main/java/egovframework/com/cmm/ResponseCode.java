@@ -6,7 +6,7 @@ public enum ResponseCode {
 	AUTH_IP_ERROR(401, "접근이 허용되지 않은 아이피입니다."),
 	AUTH_ERROR(403, "인가된 사용자가 아닙니다."),
 	NOT_EQ_PASSWORD(500, "비밀번호가 일치하지 않습니다."),
-	DUPLICATE_LOGIN(502, "이미 로그인된 사용자 입니다.\n다른 기기의 접속을 끊고 로그인 하시겠습니까?"),
+	DUPLICATE_LOGIN(502, "해당 계정은 현재 접속중인 계정입니다."),
 	DUPLICATE_LOGOUT(503, "다른 기기에서 로그인하여, 로그아웃되었습니다."),
 	NOT_USER(404, "일치하는 사용자가 없습니다."),
 	SELECT_ERROR(600, "조회시 내부 오류가 발생했습니다."),
