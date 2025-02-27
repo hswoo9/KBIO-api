@@ -273,7 +273,7 @@ public class StatisticsAdminApiService {
                 qTblUser.joinYmd.isNotNull()
             )
             .and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUser.joinYmd).goe(
+                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUser.joinYmd).loe(
                     Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
                 )
             );
