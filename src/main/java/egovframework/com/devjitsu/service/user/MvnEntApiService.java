@@ -1,5 +1,7 @@
 package egovframework.com.devjitsu.service.user;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -13,6 +15,7 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.ConsultingDTO;
+import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroupUser;
 import egovframework.com.devjitsu.model.user.*;
 
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -53,6 +56,23 @@ public class MvnEntApiService {
 
     @Resource(name = "EgovFileMngUtil")
     private EgovFileMngUtil fileUtil;
+
+    public ResultVO setMvnEntList(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            Gson gson = new Gson();
+            List<TblMvnEnt> tblMvnEntList = gson.fromJson(dto.get("tblMvnEntList").toString(), new TypeToken<List<TblMvnEnt>>() {}.getType());
+            if(tblMvnEntList.size() > 0){
+                tblMvnEntRepository.saveAll(tblMvnEntList);
+            }
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+        return resultVO;
+    }
 
     public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt, List<MultipartFile> files, List<MultipartFile> mvnEntAtchFiles){
         ResultVO resultVO = new ResultVO();

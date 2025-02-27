@@ -29,6 +29,12 @@ public class RelInstApiController {
         return relInstApiService.setRelInst(tblRelInst,files, relInstAtchFiles);
     }
 
+    @PostMapping("/relatedApi/setRelInstList.do")
+    public ResultVO setRelInstList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return relInstApiService.setRelInstList(dto);
+    }
+
     @PostMapping("/relatedApi/getRelInstList.do")
     public ResultVO getRelInstList(HttpServletRequest request){
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");

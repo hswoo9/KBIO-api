@@ -1,5 +1,7 @@
 package egovframework.com.devjitsu.service.user;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -53,6 +55,22 @@ public class RelInstApiService {
 
     @Resource(name = "EgovFileMngUtil")
     private EgovFileMngUtil fileUtil;
+
+    public ResultVO setRelInstList(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+        try{
+            Gson gson = new Gson();
+            List<TblRelInst> tblRelInstList = gson.fromJson(dto.get("tblRelInstList").toString(), new TypeToken<List<TblRelInst>>() {}.getType());
+            if(tblRelInstList.size() > 0){
+                tblRelInstRepository.saveAll(tblRelInstList);
+            }
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+        return resultVO;
+    }
 
     public ResultVO setRelInst(TblRelInst tblRelInst, List<MultipartFile> files, List<MultipartFile> relInstAtchFiles){
         ResultVO resultVO = new ResultVO();
