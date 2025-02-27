@@ -25,8 +25,9 @@ public class RelInstApiController {
     public ResultVO setRelInst(
             @ModelAttribute TblRelInst tblRelInst,
             @RequestParam(value = "file", required = false) List<MultipartFile> files,
+            @RequestParam(value = "biFile", required = false) List<MultipartFile> biFile,
             @RequestParam(value= "files", required = false) List<MultipartFile> relInstAtchFiles){
-        return relInstApiService.setRelInst(tblRelInst,files, relInstAtchFiles);
+        return relInstApiService.setRelInst(tblRelInst,files, biFile, relInstAtchFiles);
     }
 
     @PostMapping("/relatedApi/setRelInstList.do")

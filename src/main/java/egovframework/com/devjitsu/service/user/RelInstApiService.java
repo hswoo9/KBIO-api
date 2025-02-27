@@ -72,7 +72,7 @@ public class RelInstApiService {
         return resultVO;
     }
 
-    public ResultVO setRelInst(TblRelInst tblRelInst, List<MultipartFile> files, List<MultipartFile> relInstAtchFiles){
+    public ResultVO setRelInst(TblRelInst tblRelInst, List<MultipartFile> files, List<MultipartFile> biFile, List<MultipartFile> relInstAtchFiles){
         ResultVO resultVO = new ResultVO();
 
         try{
@@ -90,6 +90,18 @@ public class RelInstApiService {
                         "relInst_" + tblRelInst.getRelInstSn(),
                         fileCnt
                     )
+                );
+            }
+
+            if(biFile != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("relInstBi_" + tblRelInst.getRelInstSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                biFile,
+                                "/relInst/" + tblRelInst.getRelInstSn(),
+                                "relInstBi_" + tblRelInst.getRelInstSn(),
+                                fileCnt
+                        )
                 );
             }
 
@@ -202,6 +214,7 @@ public class RelInstApiService {
         try{
             tblRelInst = tblRelInstRepository.findByRelInstSn(tblRelInst.getRelInstSn());
             tblRelInst.setLogoFile(tblComFileRepository.findByPsnTblSn("relInst_" + tblRelInst.getRelInstSn()));
+            tblRelInst.setBiLogoFile(tblComFileRepository.findByPsnTblSn("relInstBi_" + tblRelInst.getRelInstSn()));
             tblRelInst.setRelInstAtchFiles(tblComFileRepository.findAllByPsnTblSn("relInstAtch_" + tblRelInst.getRelInstSn()));
 
             resultVO.putResult("rc", tblRelInst);

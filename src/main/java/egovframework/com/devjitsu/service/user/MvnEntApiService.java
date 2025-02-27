@@ -74,7 +74,7 @@ public class MvnEntApiService {
         return resultVO;
     }
 
-    public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt, List<MultipartFile> files, List<MultipartFile> mvnEntAtchFiles){
+    public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt, List<MultipartFile> files, List<MultipartFile> biFile, List<MultipartFile> mvnEntAtchFiles){
         ResultVO resultVO = new ResultVO();
 
         try{
@@ -99,12 +99,24 @@ public class MvnEntApiService {
                 );
             }
 
+            if(biFile != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("mvnEntBi_" + tblMvnEnt.getMvnEntSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                biFile,
+                                "/mvnEnt/" + tblMvnEnt.getMvnEntSn(),
+                                "mvnEntBi_" + tblMvnEnt.getMvnEntSn(),
+                                fileCnt
+                        )
+                );
+            }
+
             if(mvnEntAtchFiles != null){
                 long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("mvnEntAtch_" + tblMvnEnt.getMvnEntSn())).fetchCount();
                 tblComFileRepository.saveAll(
                         fileUtil.devFileInf(
                                 mvnEntAtchFiles,
-                                "/mvnEntAtch/" + tblMvnEnt.getMvnEntSn(),
+                                "/mvnEnt/" + tblMvnEnt.getMvnEntSn(),
                                 "mvnEntAtch_" + tblMvnEnt.getMvnEntSn(),
                                 fileCnt
                         )
@@ -232,12 +244,20 @@ public class MvnEntApiService {
                                     )
                             ).fetchOne();
 
+            TblComFile biLogoFile = q.selectFrom(qTblComFile)
+                    .where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate("CONCAT('mvnEntBi_',{0})", tblMvnEnt.getMvnEntSn())
+                            )
+                    ).fetchOne();
+
             List<TblComFile> mvnEntAtchFile = q.selectFrom(qTblComFile)
                     .where(qTblComFile.psnTblSn.eq( Expressions.stringTemplate("CONCAT('mvnEntAtch_',{0})", tblMvnEnt.getMvnEntSn())))
                     .fetch();
 
             resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn()));
             resultVO.putResult("logoFile",residentCompanyLogo);
+            resultVO.putResult("biLogoFile",biLogoFile);
             resultVO.putResult("mvnEntAtchFile",mvnEntAtchFile);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
