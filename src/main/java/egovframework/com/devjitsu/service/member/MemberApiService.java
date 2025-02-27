@@ -17,11 +17,13 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.*;
+import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroupUser;
 import egovframework.com.devjitsu.model.user.TblCnslttMbr;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.*;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
+import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupUserRepository;
 import egovframework.com.devjitsu.repository.user.*;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
@@ -73,6 +75,7 @@ public class MemberApiService {
     private final TblAcbgRepository tblAcbgRepository;
     private final TblMvnEntRepository tblMvnEntRepository;
     private final TblRelInstRepository tblRelInstRepository;
+    private final TblMenuAuthrtGroupUserRepository tblMenuAuthrtGroupUserRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -265,6 +268,23 @@ public class MemberApiService {
 
         TblUser savedMember = TblUserRepository.save(member);
         Long userSn = savedMember.getUserSn();
+
+        if (Integer.valueOf(2).equals(member.getMbrType())) {
+            TblMenuAuthrtGroupUser authrtGroupUser = new TblMenuAuthrtGroupUser();
+            authrtGroupUser.setUserSn(userSn);
+            authrtGroupUser.setAuthrtGroupSn(6); // mbrType이 2일 때 authrtGroupSn은 6
+            authrtGroupUser.setActvtnYn("Y"); // 활성 여부
+            authrtGroupUser.setCreatrSn(1); // 생성자 일련번호
+            tblMenuAuthrtGroupUserRepository.save(authrtGroupUser);
+        } else {
+            TblMenuAuthrtGroupUser authrtGroupUser = new TblMenuAuthrtGroupUser();
+            authrtGroupUser.setUserSn(userSn);
+            authrtGroupUser.setAuthrtGroupSn(5); // 나머지 경우 authrtGroupSn은 5
+            authrtGroupUser.setActvtnYn("Y"); // 활성 여부
+            authrtGroupUser.setCreatrSn(1); // 생성자 일련번호
+            tblMenuAuthrtGroupUserRepository.save(authrtGroupUser);
+        }
+
         if(!StringUtils.isEmpty(dto.get("snsType"))){
             if(dto.get("snsType").toString().equals("naver")){
                 TblUserSnsCertInfo tblUserSnsCertInfo = new TblUserSnsCertInfo();
