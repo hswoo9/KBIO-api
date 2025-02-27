@@ -134,8 +134,8 @@ public class MvnEntApiService {
                 builder.and(qTblMvnEnt.entTpbiz.eq((String) dto.get("entTpbiz")));
             }
 
-            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
-                builder.and(qTblMvnEnt.actvtnYn.eq((String) dto.get("actvtnYn")));
+            if(!StringUtils.isEmpty(dto.get("rlsYn"))){
+                builder.and(qTblMvnEnt.actvtnYn.eq((String) dto.get("rlsYn")));
             }
 
             if(!StringUtils.isEmpty(dto.get("searchType"))) {
