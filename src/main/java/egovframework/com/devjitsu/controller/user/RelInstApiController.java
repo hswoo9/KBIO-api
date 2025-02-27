@@ -2,9 +2,7 @@ package egovframework.com.devjitsu.controller.user;
 
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.user.TblMvnEnt;
-import egovframework.com.devjitsu.model.user.TblRelInst;
-import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.service.user.MvnEntApiService;
 import egovframework.com.devjitsu.service.user.RelInstApiService;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +58,16 @@ public class RelInstApiController {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
 
         return relInstApiService.getRelatedMemberOne(dto);
+    }
+
+    @PostMapping("/relatedApi/updateRelInstMbrToMng")
+    public ResultVO updateRelInstMbrToMng(@RequestBody List<TblRelInstMbr> tblRelInstMbrList){
+        return relInstApiService.updateRelInstMbrToMng(tblRelInstMbrList);
+    }
+
+    @PostMapping("/relatedApi/cancleMng")
+    public ResultVO cancleMng(@RequestBody TblRelInstMbr tblRelInstMbr){
+        return relInstApiService.cancleMng(tblRelInstMbr);
     }
 
 }

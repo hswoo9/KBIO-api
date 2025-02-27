@@ -626,18 +626,18 @@ public class MemberApiService {
     }
 
     public ResultVO setMemberMyPageModify(TblUser tblUser, TblCnslttMbr tblCnslttMbr,
-                                        String hasCertData,
-                                        String hasCrrData,
-                                        String hasAcbgData,
-                                        List<MultipartFile> certFiles,
-                                        List<MultipartFile> careerFiles,
-                                        List<MultipartFile> acbgFiles) {
+                                          String hasCertData,
+                                          String hasCrrData,
+                                          String hasAcbgData,
+                                          List<MultipartFile> certFiles,
+                                          List<MultipartFile> careerFiles,
+                                          List<MultipartFile> acbgFiles) {
         ResultVO resultVO = new ResultVO();
+        QTblComFile qTblComFile = QTblComFile.tblComFile;
+
+        JPAQueryFactory q = new JPAQueryFactory(em);
 
         try {
-
-
-
             if (tblUser.getMblTelno() != null && !tblUser.getMblTelno().isEmpty()) {
                 String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
                 tblUser.setMblTelno(encryptedMblTelno);
@@ -657,51 +657,109 @@ public class MemberApiService {
             Gson gson = new Gson();
 
             if (!StringUtils.isEmpty(hasCertData)) {
-                tblQlfcLcnsRepository.saveAll(gson.fromJson(hasCertData, new TypeToken<List<TblQlfcLcns>>() {}.getType()));
+                List<TblQlfcLcns> certList = gson.fromJson(hasCertData, new TypeToken<List<TblQlfcLcns>>() {}.getType());
+
+                int certFileIndex = 0;
+
+                for (int i = 0; i < certList.size(); i++) {
+                    TblQlfcLcns cert = certList.get(i);
+
+                    if (cert.getQlfcLcnsSn() == null) {
+                        tblQlfcLcnsRepository.save(cert);
+                        Long qlfcLcnsSn = cert.getQlfcLcnsSn();
+
+                        if (certFiles != null && certFileIndex < certFiles.size()) {
+                            MultipartFile certFile = certFiles.get(certFileIndex);
+                            long fileCnt = tblComFileRepository.count();
+                            List<TblComFile> fileList = fileUtil.devFileInf(
+                                    Collections.singletonList(certFile),
+                                    "/cnsltCertificate/" + qlfcLcnsSn,
+                                    "cnsltCertificate_" + qlfcLcnsSn,
+                                    fileCnt
+                            );
+
+                            for (TblComFile file : fileList) {
+                                tblComFileRepository.save(file);
+                            }
+
+                            certFileIndex++;
+                        }
+                    } else {
+                        tblQlfcLcnsRepository.save(cert);
+                    }
+                }
             }
 
             if (!StringUtils.isEmpty(hasCrrData)) {
-                tblCrrRepository.saveAll(gson.fromJson(hasCrrData, new TypeToken<List<TblCrr>>() {}.getType()));
+                List<TblCrr> crrList = gson.fromJson(hasCrrData, new TypeToken<List<TblCrr>>() {}.getType());
+
+                int crrFileIndex = 0;
+
+                for (int i = 0; i < crrList.size(); i++) {
+                    TblCrr crr = crrList.get(i);
+
+                    if (crr.getCrrSn() == null) {
+                        tblCrrRepository.save(crr);
+                        Long qCrrSn = crr.getCrrSn();
+
+                        tblCrrRepository.save(crr);
+
+                        if (careerFiles != null && crrFileIndex < careerFiles.size()) {
+                            MultipartFile careerFile = careerFiles.get(crrFileIndex);
+                            long fileCnt = tblComFileRepository.count();
+                            List<TblComFile> fileList = fileUtil.devFileInf(
+                                    Collections.singletonList(careerFile),
+                                    "/cnsltCareer/" + qCrrSn,
+                                    "cnsltCareer_" + qCrrSn,
+                                    fileCnt
+                            );
+
+                            for (TblComFile file : fileList) {
+                                tblComFileRepository.save(file);
+                            }
+
+                            crrFileIndex++;
+                        }
+                    } else {
+                        tblCrrRepository.save(crr);
+                    }
+                }
             }
 
             if (!StringUtils.isEmpty(hasAcbgData)) {
-                tblAcbgRepository.saveAll(gson.fromJson(hasAcbgData, new TypeToken<List<TblAcbg>>() {}.getType()));
-            }
+                List<TblAcbg> acbgList = gson.fromJson(hasAcbgData, new TypeToken<List<TblAcbg>>() {}.getType());
 
-            if (certFiles != null) {
-                long certFileCnt = tblComFileRepository.count();
-                tblComFileRepository.saveAll(
-                        fileUtil.devFileInf(
-                                certFiles,
-                                "/certificates/" + tblUser.getUserId(),
-                                "cert_" + tblUser.getUserId(),
-                                certFileCnt
-                        )
-                );
-            }
+                int acbgFileIndex = 0;
 
-            if (careerFiles != null) {
-                long careerFileCnt = tblComFileRepository.count();
-                tblComFileRepository.saveAll(
-                        fileUtil.devFileInf(
-                                careerFiles,
-                                "/careers/" + tblUser.getUserId(),
-                                "career_" + tblUser.getUserId(),
-                                careerFileCnt
-                        )
-                );
-            }
+                for (int i = 0; i < acbgList.size(); i++) {
+                    TblAcbg acbg = acbgList.get(i);
 
-            if (acbgFiles != null) {
-                long acbgFileCnt = tblComFileRepository.count();
-                tblComFileRepository.saveAll(
-                        fileUtil.devFileInf(
-                                acbgFiles,
-                                "/acbg/" + tblUser.getUserId(),
-                                "acbg_" + tblUser.getUserId(),
-                                acbgFileCnt
-                        )
-                );
+                    if (acbg.getAcbgSn() == null) {
+                        tblAcbgRepository.save(acbg);
+                        Long qAcbgSn = acbg.getAcbgSn();
+
+                        tblAcbgRepository.save(acbg);
+
+                        if (acbgFiles != null && acbgFileIndex < acbgFiles.size()) {
+                            MultipartFile acbgFile = acbgFiles.get(acbgFileIndex);
+                            long fileCnt = tblComFileRepository.count();
+                            List<TblComFile> fileList = fileUtil.devFileInf(
+                                    Collections.singletonList(acbgFile),
+                                    "/cnsltAcbg/" + qAcbgSn,
+                                    "cnsltAcbg_" + qAcbgSn,
+                                    fileCnt
+                            );
+
+                            for (TblComFile file : fileList) {
+                                tblComFileRepository.save(file);
+                            }
+
+                            acbgFileIndex++;
+                        }
+                    } else {
+                        tblAcbgRepository.save(acbg);
+                    }
+                }
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -714,6 +772,8 @@ public class MemberApiService {
 
         return resultVO;
     }
+
+
 
 
 
@@ -765,8 +825,19 @@ public class MemberApiService {
                     .map(TblQlfcLcns::getQlfcLcnsSn)
                     .collect(Collectors.toList());
 
+            List<Long> qCareerSnList = tblCrrList.stream()
+                    .map(TblCrr::getCrrSn)
+                    .collect(Collectors.toList());
+
+            List<Long> qAcbgSnList = tblAcbgList.stream()
+                    .map(TblAcbg::getAcbgSn)
+                    .collect(Collectors.toList());
+
+            System.out.println("3333"+qlfcLcnsSnList);
+            System.out.println(qCareerSnList);
+            System.out.println(qAcbgSnList);
+
             if (member != null) {
-                System.out.println("회원 정보: " + member);
                 resultVO.putResult("member", member);
 
                 if (cnslttMbr != null) {
@@ -787,16 +858,16 @@ public class MemberApiService {
 
                     List<TblComFile> cnsltCareerFile = q.selectFrom(qTblComFile)
                             .where(qTblComFile.psnTblSn.in(
-                                    qlfcLcnsSnList.stream()
-                                            .map(sn -> "cnsltCareer" + sn)
+                                    qCareerSnList.stream()
+                                            .map(sn -> "cnsltCareer_" + sn)
                                             .collect(Collectors.toList())
                             ))
                             .fetch();
 
-                    List<TblComFile> cnsltAcgbFile = q.selectFrom(qTblComFile)
+                    List<TblComFile> cnsltAcbgFile = q.selectFrom(qTblComFile)
                             .where(qTblComFile.psnTblSn.in(
-                                    qlfcLcnsSnList.stream()
-                                            .map(sn -> "cnsltAcgnFile" + sn)
+                                    qAcbgSnList.stream()
+                                            .map(sn -> "cnsltAcbg_" + sn)
                                             .collect(Collectors.toList())
                             ))
                             .fetch();
@@ -805,7 +876,7 @@ public class MemberApiService {
                     resultVO.putResult("cnsltProfileFile", cnsltProfileFile);
                     resultVO.putResult("cnsltCertificateFile", cnsltCertificateFile);
                     resultVO.putResult("cnsltCareerFile", cnsltCareerFile);
-                    resultVO.putResult("cnsltAcgbFile", cnsltAcgbFile);
+                    resultVO.putResult("cnsltAcbgFile", cnsltAcbgFile);
                     resultVO.putResult("tblQlfcLcnsList", tblQlfcLcnsList);
                     resultVO.putResult("tblAcbgList", tblAcbgList);
                     resultVO.putResult("tblCrrList", tblCrrList);
@@ -824,7 +895,6 @@ public class MemberApiService {
 
                     if (mvnEntSn != null) {
                         TblMvnEnt mvnEnt = tblMvnEntRepository.findByMvnEntSn(mvnEntSn);
-                        System.out.println("입주기과 정보: " + mvnEnt);
                         if (mvnEnt != null) {
                             resultVO.putResult("rc", mvnEnt);
                         }
@@ -835,7 +905,6 @@ public class MemberApiService {
 
                     if (relInstSn != null) {
                         TblRelInst relInst = tblRelInstRepository.findByRelInstSn(relInstSn);
-                        System.out.println("유관기관 정보: " + relInst);
                         if (relInst != null) {
                             resultVO.putResult("rc", relInst);
                             System.out.printf("rc : " + relInst);
@@ -1325,7 +1394,6 @@ public class MemberApiService {
             System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
             tblCnsltDsctnRepository.save(tblCnsltDsctn);
 
-            System.out.println("숫자가뭘까 : " + tblCnsltDsctn.getCnsltAplySn());
 
             if (tblCnsltDsctn.getCnsltAplySn() > 0L) {
                 q.update(qTblCnsltDtl)

@@ -204,50 +204,10 @@ public class RelInstApiService {
         try {
             List<TblRelInstMbr> relInstList;
             QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblComFile qTblComFile = QTblComFile.tblComFile;
             BooleanBuilder builder = new BooleanBuilder();
             JPAQueryFactory q = new JPAQueryFactory(em);
-
-            long relInstSn = ((Number)dto.get("relInstSn")).longValue();
-
-
-            System.out.println("****relInstSn :*****"+relInstSn);
-
-            if (!StringUtils.isEmpty(dto.get("sysMngrYn"))){
-                //관리자설정에서 실행됨
-                builder.and(qTblRelInstMbr.sysMngrYn.contains((String) dto.get("sysMngrYn")));
-                builder.and(qTblRelInstMbr.relInstSn.eq(relInstSn));
-
-                relInstList = q.selectFrom(qTblRelInstMbr)
-                        .where(builder)
-                        .orderBy(qTblRelInstMbr.userSn.desc()).fetch();
-
-            } else {
-                //직원목록일 경우 실행됨
-                relInstList = tblRelInstMbrRepository.findUserSnByRelInstSn(relInstSn);
-            }
-
-            System.out.println("****entMbrList :*****"+relInstList);
-
-            List<Long> userSnList = relInstList.stream()
-                    .map(TblRelInstMbr::getUserSn)
-                    .collect(Collectors.toList());
-
-
-
-            if (!StringUtils.isEmpty(dto.get("actvtnYn"))) {
-                conditions.put("actvtnYn", dto.get("actvtnYn"));
-            }
-            if (!StringUtils.isEmpty(dto.get("kornFlnm"))){
-                conditions.put("kornFlnm", dto.get("kornFlnm"));
-            }
-            if (!StringUtils.isEmpty(dto.get("userId"))){
-                conditions.put("userId", dto.get("userId"));
-            }
-
-            List<TblUser> userList = getFilteredUsers(userSnList, conditions);
-            Long totCnt = Long.valueOf(userList.size());
-
-
 
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
                 paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
@@ -255,10 +215,77 @@ public class RelInstApiService {
             paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
+
+            long relInstSn = ((Number)dto.get("relInstSn")).longValue();
+
+            //로고파일
+            TblComFile relInstLogo = q.selectFrom(qTblComFile)
+                    .where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate("CONCAT('relInst_',{0})",relInstSn)
+                            )
+                    ).fetchOne();
+
+            builder.and(qTblRelInstMbr.relInstSn.eq(((Number)dto.get("relInstSn")).longValue()));
+
+            if (!StringUtils.isEmpty(dto.get("sysMngrYn"))){
+                //관리자설정에서 실행됨
+                builder.and(qTblRelInstMbr.sysMngrYn.contains((String) dto.get("sysMngrYn")));
+
+            }
+            //회원상태
+            if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
+                builder.and(qTblUser.mbrStts.eq((String) dto.get("mbrStts")));
+            }
+
+            //검색어
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if(dto.get("searchType").equals("kornFlnm")){ //성명
+                    builder.and(qTblUser.kornFlnm.contains((String) dto.get("searchVal")));
+                }else if(dto.get("searchType").equals("userId")){ //아이디
+                    builder.and(qTblUser.userId.contains((String) dto.get("searchVal")));
+                }
+            }else {
+                builder.and(
+                        qTblUser.kornFlnm.contains((String) dto.get("searchVal"))
+                                .or(qTblUser.userId.contains((String) dto.get("searchVal")))
+                );
+            }
+
+            List<TblRelInstMbrDto> userList = q.
+                    select(
+                            Projections.constructor(
+                                    TblRelInstMbrDto.class,
+                                    qTblUser,
+                                    qTblRelInstMbr
+                            )
+                    ).from(qTblRelInstMbr)
+                    .join(qTblUser)
+                    .on(
+                            qTblUser.userSn.eq(qTblRelInstMbr.userSn)
+                    )
+                    .where(builder)
+                    .orderBy(qTblUser.frstCrtDt.desc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+            Long totCnt = q
+                    .select(qTblRelInstMbr.count())
+                    .from(qTblRelInstMbr)
+                    .join(qTblUser)
+                    .on(qTblUser.userSn.eq(qTblRelInstMbr.userSn))
+                    .where(builder)
+                    .fetchOne();
+
+
+
+
+
             if(totCnt == null) totCnt = 0L;
             paginationInfo.setTotalRecordCount(totCnt.intValue());
 
-
+            resultVO.putResult("logoFile",relInstLogo);
             resultVO.putResult("getRelatedMemberList",userList);
             resultVO.putPaginationInfo(paginationInfo);
 
@@ -273,31 +300,6 @@ public class RelInstApiService {
         return resultVO;
     }
 
-    public List<TblUser> getFilteredUsers(List<Long> userSnList, Map<String, Object> conditions) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<TblUser> query = cb.createQuery(TblUser.class);
-        Root<TblUser> root = query.from(TblUser.class);
-
-        List<Predicate> predicates = new ArrayList<>();
-
-        // userSn IN 조건
-        predicates.add(root.get("userSn").in(userSnList));
-
-        // DTO에서 넘어온 조건 추가
-        if (conditions.containsKey("actvtnYn")) {
-            predicates.add(cb.equal(root.get("actvtnYn"), conditions.get("actvtnYn")));
-        }
-        if (conditions.containsKey("kornFlnm")) {
-            predicates.add(cb.equal(root.get("kornFlnm"), conditions.get("kornFlnm")));
-        }
-        if (conditions.containsKey("userId")) {
-            predicates.add(cb.equal(root.get("userId"), conditions.get("userId")));
-        }
-
-        query.where(predicates.toArray(new Predicate[0]));
-
-        return em.createQuery(query).getResultList();
-    }
 
 
     public ResultVO setMemberMbrStts(TblUser tblUser){
@@ -330,10 +332,49 @@ public class RelInstApiService {
             resultVO.putResult("rc",tblRelInstRepository.findByRelInstSn(relInstSn));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e) {
+            e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
 
         }
 
         return resultVO;
     }
+
+    public ResultVO updateRelInstMbrToMng(List<TblRelInstMbr> tblRelInstMbrList){
+        ResultVO resultVO = new ResultVO();
+
+        try{
+
+            for(TblRelInstMbr member : tblRelInstMbrList){
+                member.setRelInstSn(member.getRelInstSn());
+                member.setSysMngrYn("Y");
+            }
+            tblRelInstMbrRepository.saveAll(tblRelInstMbrList);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO cancleMng(TblRelInstMbr tblRelInstMbr){
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            tblRelInstMbr.setSysMngrYn("N");
+            tblRelInstMbr.setRelInstSn(tblRelInstMbr.getRelInstSn());
+            tblRelInstMbrRepository.save(tblRelInstMbr);
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 }
