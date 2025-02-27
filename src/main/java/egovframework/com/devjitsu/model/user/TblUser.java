@@ -79,6 +79,10 @@ public class TblUser {
   @Comment("정보공개여부")
   private String infoRlsYn;
 
+  @Column(name = "LGN_FAIL_NMTM", columnDefinition = "INT(10) DEFAULT 0", insertable = false, nullable = false)
+  @Comment("로그인실패횟수")
+  private long lgnFailNmtm = 0;
+
   @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1)")
   @Comment("활성여부")
   private String actvtnYn;

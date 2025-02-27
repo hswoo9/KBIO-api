@@ -20,6 +20,7 @@ import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.model.user.TblUserLgnHstry;
 import egovframework.com.devjitsu.repository.login.LettnemplyrinfoRepository;
 import egovframework.com.devjitsu.repository.user.TblUserLgnHstryRepository;
+import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
 import egovframework.let.utl.sim.service.EgovFileScrty;
@@ -84,6 +85,7 @@ public class LoginApiService {
     private RedisApiService redisApiService;
 
     private final EntityManager em;
+    private final TblUserRepository tblUserRepository;
     private final TblUserLgnHstryRepository tblUserLgnHstryRepository;
     /**
      * jpa 부등호
@@ -138,10 +140,23 @@ public class LoginApiService {
             return resultVO;
         }else {
             if(dto.getLoginType().equals("base")){
-                if(!tblUser.getUserPw().equals(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId()))){
-                    resultVO.setResultCode(ResponseCode.NOT_EQ_PASSWORD.getCode());
-                    resultVO.setResultMessage(ResponseCode.NOT_EQ_PASSWORD.getMessage());
+                if(tblUser.getMbrStts().equals("C")){
+                    resultVO.setResultCode(ResponseCode.SUSPENSION_OF_USE.getCode());
+                    resultVO.setResultMessage(ResponseCode.SUSPENSION_OF_USE.getMessage());
                     return resultVO;
+                }else{
+                    if(!tblUser.getUserPw().equals(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId()))){
+                        long lgnFailNmtm = tblUser.getLgnFailNmtm() + 1;
+                        tblUserRepository.setLgnFailNmtmUpd(tblUser.getUserSn(), lgnFailNmtm);
+
+                        if(lgnFailNmtm == 5L){
+                            tblUserRepository.setSuspensionOfUseUpd(tblUser.getUserSn());
+                        }
+
+                        resultVO.setResultCode(ResponseCode.NOT_EQ_PASSWORD.getCode());
+                        resultVO.setResultMessage(ResponseCode.NOT_EQ_PASSWORD.getMessage());
+                        return resultVO;
+                    }
                 }
             }
 
