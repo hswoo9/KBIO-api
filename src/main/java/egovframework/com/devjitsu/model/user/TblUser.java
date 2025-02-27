@@ -65,6 +65,10 @@ public class TblUser {
   @Comment("가입일시")
   private String joinYmd;
 
+  @Column(name = "WHDWL_DT", columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP")
+  @Comment("탈퇴일시")
+  private LocalDateTime whdwlDt;
+
   @Column(name = "SWTC_YMD", columnDefinition = "CHAR(8)")
   @Comment("전환일")
   private String swtcYmd;
