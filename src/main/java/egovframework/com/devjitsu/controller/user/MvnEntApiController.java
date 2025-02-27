@@ -59,9 +59,9 @@ public class MvnEntApiController {
         return mvnEntApiService.getResidentMemberOne(dto);
     }
 
-    @PostMapping("/mvnEntApi/setMemberMbrStts")
-    public ResultVO setMemberMbrStts(@RequestBody TblUser request){
-        return mvnEntApiService.setMemberMbrStts(request);
+    @PostMapping("/mvnEntApi/setAprvYn")
+    public ResultVO setAprvYn(@RequestBody TblMvnEntMbr request){
+        return mvnEntApiService.setAprvYn(request);
     }
 
     @PostMapping("/mvnEntApi/updateMvnEntMbrToMng")

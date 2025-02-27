@@ -48,9 +48,9 @@ public class RelInstApiController {
         return relInstApiService.getRelatedtMemberList(dto);
     }
 
-    @PostMapping("/relatedApi/setMemberMbrStts")
-    public ResultVO setMemberMbrStts(@RequestBody TblUser request){
-        return relInstApiService.setMemberMbrStts(request);
+    @PostMapping("/relatedApi/setAprvYn")
+    public ResultVO setAprvYn(@RequestBody TblRelInstMbr request){
+        return relInstApiService.setAprvYn(request);
     }
 
     @PostMapping("/relatedApi/getRelatedMemberOne.do")

@@ -302,16 +302,16 @@ public class RelInstApiService {
 
 
 
-    public ResultVO setMemberMbrStts(TblUser tblUser){
+    public ResultVO setAprvYn(TblRelInstMbr tblRelInstMbr){
         ResultVO resultVO = new ResultVO();
-        long userSn = tblUser.getUserSn();
-        String mbrStts = tblUser.getMbrStts();
+        long userSn = tblRelInstMbr.getUserSn();
+        String aprvYn = tblRelInstMbr.getAprvYn();
 
         try {
-            Optional<TblUser> optionalTblUser = Optional.ofNullable(tblUserRepository.findByUserSn(userSn));
-            if (optionalTblUser.isPresent()) {
-                TblUser user = optionalTblUser.get();
-                user.setActvtnYn(mbrStts); // 상태 변경
+            Optional<TblRelInstMbr> optionalTblRelInstMbr = Optional.ofNullable(tblRelInstMbrRepository.findByUserSn(userSn));
+            if (optionalTblRelInstMbr.isPresent()) {
+                TblRelInstMbr member = optionalTblRelInstMbr.get();
+                member.setAprvYn(aprvYn); // 상태 변경
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             }else{
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
@@ -328,6 +328,7 @@ public class RelInstApiService {
         long userSn = ((Number)dto.get("userSn")).longValue();
         long relInstSn = ((Number)dto.get("relInstSn")).longValue();
         try {
+            resultVO.putResult("relInstMbr", tblRelInstMbrRepository.findByUserSn(userSn));
             resultVO.putResult("member", tblUserRepository.findByUserSn(userSn));
             resultVO.putResult("rc",tblRelInstRepository.findByRelInstSn(relInstSn));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());

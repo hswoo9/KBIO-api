@@ -336,6 +336,7 @@ public class MvnEntApiService {
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
 
         try {
+            resultVO.putResult("mvnEntMbr", tblMvnEntMbrRepository.findByUserSn(userSn));
             resultVO.putResult("member", tblUserRepository.findByUserSn(userSn));
             resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(mvnEntSn));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -347,16 +348,16 @@ public class MvnEntApiService {
         return resultVO;
     }
 
-    public ResultVO setMemberMbrStts(TblUser tblUser){
+    public ResultVO setAprvYn(TblMvnEntMbr tblMvnEntMbr){
         ResultVO resultVO = new ResultVO();
-        long userSn = tblUser.getUserSn();
-        String mbrStts = tblUser.getMbrStts();
+        long userSn = tblMvnEntMbr.getUserSn();
+        String aprvYn = tblMvnEntMbr.getAprvYn();
 
         try {
-            Optional<TblUser> optionalTblUser = Optional.ofNullable(tblUserRepository.findByUserSn(userSn));
-            if (optionalTblUser.isPresent()) {
-                TblUser user = optionalTblUser.get();
-                user.setActvtnYn(mbrStts); // 상태 변경
+            Optional<TblMvnEntMbr> optionalTblMvnEntMbr = Optional.ofNullable(tblMvnEntMbrRepository.findByUserSn(userSn));
+            if (optionalTblMvnEntMbr.isPresent()) {
+                TblMvnEntMbr member = optionalTblMvnEntMbr.get();
+                member.setAprvYn(aprvYn); // 상태 변경
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             }else{
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
