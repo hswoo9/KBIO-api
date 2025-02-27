@@ -11,6 +11,7 @@ import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.repository.user.TblUserLgnHstryRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
+import egovframework.com.devjitsu.repository.user.TblUserSnsCertInfoRepository;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
@@ -37,6 +38,7 @@ public class MemberAdminApiService {
 
     private final TblUserRepository tblUserRepository;
     private final TblUserLgnHstryRepository tblUserLgnHstryRepository;
+    private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
 
     public ResultVO getNormalMemberList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
@@ -166,11 +168,16 @@ public class MemberAdminApiService {
         try {
             TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
 
-
             TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
 
             if (latestLogin != null) {
                 member.setLastLoginDate(latestLogin.getLgnDt());
+            }
+
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
             }
 
             resultVO.putResult("member", member);
@@ -381,6 +388,12 @@ public class MemberAdminApiService {
                 member.setLastLoginDate(latestLogin.getLgnDt());
             }
 
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
+            }
+
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
@@ -573,6 +586,12 @@ public class MemberAdminApiService {
                 member.setLastLoginDate(latestLogin.getLgnDt());
             }
 
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
+            }
+
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
@@ -738,6 +757,12 @@ public class MemberAdminApiService {
                 member.setLastLoginDate(latestLogin.getLgnDt());
             }
 
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
+            }
+
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
@@ -901,6 +926,12 @@ public class MemberAdminApiService {
 
             if (latestLogin != null) {
                 member.setLastLoginDate(latestLogin.getLgnDt());
+            }
+
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
             }
 
             resultVO.putResult("member", member);
