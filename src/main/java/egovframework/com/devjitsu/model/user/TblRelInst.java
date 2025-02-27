@@ -221,6 +221,9 @@ public class TblRelInst {
     private TblComFile logoFile;
 
     @Transient
+    private TblComFile biLogoFile;
+
+    @Transient
     private List<TblComFile> relInstAtchFiles;
 
 }
