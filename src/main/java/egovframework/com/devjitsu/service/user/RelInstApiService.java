@@ -145,6 +145,9 @@ public class RelInstApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             BooleanBuilder builder = new BooleanBuilder();
+            
+            //활성여부
+            builder.and(qTblRelInst.actvtnYn.eq("Y"));
 
             if(!StringUtils.isEmpty(dto.get("clsf"))){
                 builder.and(qTblRelInst.clsf.eq((String) dto.get("clsf")));
@@ -154,8 +157,8 @@ public class RelInstApiService {
                 builder.and(qTblRelInst.tpbiz.eq((String) dto.get("tpbiz")));
             }
 
-            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
-                builder.and(qTblRelInst.actvtnYn.eq((String) dto.get("actvtnYn")));
+            if(!StringUtils.isEmpty(dto.get("rlsYn"))){
+                builder.and(qTblRelInst.rlsYn.eq((String) dto.get("rlsYn")));
             }
 
             if(!StringUtils.isEmpty(dto.get("searchType"))) {

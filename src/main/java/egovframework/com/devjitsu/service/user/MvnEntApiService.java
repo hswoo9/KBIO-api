@@ -158,6 +158,9 @@ public class MvnEntApiService {
 
             BooleanBuilder builder = new BooleanBuilder();
 
+            //활성여부
+            builder.and(qTblMvnEnt.actvtnYn.eq("Y"));
+
             if(!StringUtils.isEmpty(dto.get("entClsf"))){
                 builder.and(qTblMvnEnt.entClsf.eq((String) dto.get("entClsf")));
             }
@@ -167,7 +170,7 @@ public class MvnEntApiService {
             }
 
             if(!StringUtils.isEmpty(dto.get("rlsYn"))){
-                builder.and(qTblMvnEnt.actvtnYn.eq((String) dto.get("rlsYn")));
+                builder.and(qTblMvnEnt.rlsYn.eq((String) dto.get("rlsYn")));
             }
 
             if(!StringUtils.isEmpty(dto.get("searchType"))) {
