@@ -124,5 +124,5 @@ public class TblUser {
   private String snsClsf;
 
   @Transient
-  private String mvnEntNm;
+  private String companyNm;
 }
