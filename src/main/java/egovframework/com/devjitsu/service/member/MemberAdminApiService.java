@@ -8,10 +8,8 @@ import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
-import egovframework.com.devjitsu.model.user.QTblMvnEnt;
-import egovframework.com.devjitsu.model.user.QTblUser;
-import egovframework.com.devjitsu.model.user.TblMvnEnt;
-import egovframework.com.devjitsu.model.user.TblUser;
+import egovframework.com.devjitsu.model.user.*;
+import egovframework.com.devjitsu.repository.user.TblUserLgnHstryRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +36,7 @@ public class MemberAdminApiService {
     private final EntityManager em;
 
     private final TblUserRepository tblUserRepository;
+    private final TblUserLgnHstryRepository tblUserLgnHstryRepository;
 
     public ResultVO getNormalMemberList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
@@ -112,7 +111,16 @@ public class MemberAdminApiService {
         ResultVO resultVO = new ResultVO();
 
         try {
-            resultVO.putResult("member", tblUserRepository.findByUserSn(tblUser.getUserSn()));
+            TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
+
+
+            TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+
+            if (latestLogin != null) {
+                member.setLastLoginDate(latestLogin.getLgnDt());
+            }
+
+            resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
             e.printStackTrace();

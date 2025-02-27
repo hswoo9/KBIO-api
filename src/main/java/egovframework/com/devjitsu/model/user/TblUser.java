@@ -111,4 +111,6 @@ public class TblUser {
   @Transient
   private String userPwdRe;
 
+  @Transient
+  private LocalDateTime lastLoginDate;
 }
