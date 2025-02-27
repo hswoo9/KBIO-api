@@ -108,6 +108,7 @@ public class LoginApiService {
 
         JPAQueryFactory q = new JPAQueryFactory(em);
         BooleanBuilder builder = new BooleanBuilder();
+        builder.and(qTblUser.actvtnYn.eq("Y"));
 
         /**ID확인*/
         if(dto.getLoginType().equals("base")){
@@ -140,9 +141,21 @@ public class LoginApiService {
             return resultVO;
         }else {
             if(dto.getLoginType().equals("base")){
-                if(tblUser.getMbrStts().equals("C")){
+                if(tblUser.getMbrStts().equals("W")){
+                    resultVO.setResultCode(ResponseCode.WAITING_FOR_APPROVAL.getCode());
+                    resultVO.setResultMessage(ResponseCode.WAITING_FOR_APPROVAL.getMessage());
+                    return resultVO;
+                }else if(tblUser.getMbrStts().equals("R")){
+                    resultVO.setResultCode(ResponseCode.REJECT_FOR_APPROVAL.getCode());
+                    resultVO.setResultMessage(ResponseCode.REJECT_FOR_APPROVAL.getMessage());
+                    return resultVO;
+                }else if(tblUser.getMbrStts().equals("C")){
                     resultVO.setResultCode(ResponseCode.SUSPENSION_OF_USE.getCode());
                     resultVO.setResultMessage(ResponseCode.SUSPENSION_OF_USE.getMessage());
+                    return resultVO;
+                }if(tblUser.getMbrStts().equals("S")){
+                    resultVO.setResultCode(ResponseCode.WITHDRAWN_USER.getCode());
+                    resultVO.setResultMessage(ResponseCode.WITHDRAWN_USER.getMessage());
                     return resultVO;
                 }else{
                     if(!tblUser.getUserPw().equals(EgovFileScrty.encryptPassword(dto.getPassword(), dto.getId()))){
