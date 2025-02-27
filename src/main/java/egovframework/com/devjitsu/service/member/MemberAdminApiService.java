@@ -57,6 +57,7 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry = QTblUserLgnHstry.tblUserLgnHstry;
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y"));
@@ -88,6 +89,17 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+            for (TblUser member : getNormalMemberList) {
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
@@ -214,6 +226,7 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry  = QTblUserLgnHstry.tblUserLgnHstry;
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("Y")));
@@ -243,6 +256,18 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+
+            for (TblUser member : getApprovalMemberList) {
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
@@ -298,6 +323,7 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry = QTblUserLgnHstry.tblUserLgnHstry;
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("W")));
@@ -324,6 +350,17 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+            for (TblUser member : getWaitMemberList) {
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
@@ -437,6 +474,7 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry  = QTblUserLgnHstry.tblUserLgnHstry;
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("R")));
@@ -466,6 +504,17 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+            for (TblUser member : getRejectMemberList) {
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
@@ -550,6 +599,7 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry  = QTblUserLgnHstry.tblUserLgnHstry;
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("S")));
@@ -579,6 +629,17 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+            for (TblUser member : getStopMemberList) {
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
@@ -663,6 +724,7 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry  = QTblUserLgnHstry.tblUserLgnHstry;
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("C")));
@@ -692,6 +754,17 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+            for (TblUser member : getCancelMemberList) {
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
