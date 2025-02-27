@@ -122,4 +122,7 @@ public class TblUser {
 
   @Transient
   private String snsClsf;
+
+  @Transient
+  private String mvnEntNm;
 }
