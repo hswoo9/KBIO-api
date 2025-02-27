@@ -405,7 +405,16 @@ public class MemberAdminApiService {
         ResultVO resultVO = new ResultVO();
 
         try {
-            resultVO.putResult("member", tblUserRepository.findByUserSn(tblUser.getUserSn()));
+            TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
+
+
+            TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+
+            if (latestLogin != null) {
+                member.setLastLoginDate(latestLogin.getLgnDt());
+            }
+
+            resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
             e.printStackTrace();
