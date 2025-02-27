@@ -119,4 +119,7 @@ public class TblUser {
 
   @Transient
   private LocalDateTime lastLoginDate;
+
+  @Transient
+  private String snsClsf;
 }
