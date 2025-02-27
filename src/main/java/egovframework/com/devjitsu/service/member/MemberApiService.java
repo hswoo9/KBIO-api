@@ -937,6 +937,7 @@ public class MemberApiService {
             long updatedCount = new JPAQueryFactory(em)
                     .update(qTblUser)
                     .set(qTblUser.mbrStts, "C")
+                    .set(qTblUser.whdwlDt, LocalDateTime.now())
                     .where(qTblUser.userSn.eq(tblUser.getUserSn()))
                     .execute();
 
