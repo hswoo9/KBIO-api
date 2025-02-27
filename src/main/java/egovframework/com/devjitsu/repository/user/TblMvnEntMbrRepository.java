@@ -12,5 +12,5 @@ public interface TblMvnEntMbrRepository extends JpaRepository<TblMvnEntMbr, Stri
 
     List<TblMvnEntMbr> findUserSnByMvnEntSn(long mvnEntSn);
 
-    List<TblMvnEntMbr> findByUserSn(long userSn);
+    TblMvnEntMbr findByUserSn(long userSn);
 }

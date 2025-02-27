@@ -29,6 +29,12 @@ public class RelInstApiController {
         return relInstApiService.setRelInst(tblRelInst,files, relInstAtchFiles);
     }
 
+    @PostMapping("/relatedApi/setRelInstList.do")
+    public ResultVO setRelInstList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return relInstApiService.setRelInstList(dto);
+    }
+
     @PostMapping("/relatedApi/getRelInstList.do")
     public ResultVO getRelInstList(HttpServletRequest request){
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
@@ -48,9 +54,9 @@ public class RelInstApiController {
         return relInstApiService.getRelatedtMemberList(dto);
     }
 
-    @PostMapping("/relatedApi/setMemberMbrStts")
-    public ResultVO setMemberMbrStts(@RequestBody TblUser request){
-        return relInstApiService.setMemberMbrStts(request);
+    @PostMapping("/relatedApi/setAprvYn")
+    public ResultVO setAprvYn(@RequestBody TblRelInstMbr request){
+        return relInstApiService.setAprvYn(request);
     }
 
     @PostMapping("/relatedApi/getRelatedMemberOne.do")

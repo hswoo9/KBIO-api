@@ -11,5 +11,5 @@ public interface TblRelInstMbrRepository extends JpaRepository<TblRelInstMbr, St
 
     List<TblRelInstMbr> findUserSnByRelInstSn(long relInstSn);
 
-     List<TblRelInstMbr> findByUserSn(long userSn);
+     TblRelInstMbr findByUserSn(long userSn);
 }

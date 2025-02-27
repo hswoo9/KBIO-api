@@ -1,5 +1,7 @@
 package egovframework.com.devjitsu.model.user;
 
+import egovframework.com.cmm.ResponseCode;
+import egovframework.com.cmm.service.ResultVO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -111,4 +113,6 @@ public class TblUser {
   @Transient
   private String userPwdRe;
 
+  @Transient
+  private LocalDateTime lastLoginDate;
 }

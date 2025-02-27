@@ -1,5 +1,7 @@
 package egovframework.com.devjitsu.service.user;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -13,6 +15,7 @@ import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.common.TblComFile;
 import egovframework.com.devjitsu.model.consult.ConsultingDTO;
+import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroupUser;
 import egovframework.com.devjitsu.model.user.*;
 
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
@@ -53,6 +56,23 @@ public class MvnEntApiService {
 
     @Resource(name = "EgovFileMngUtil")
     private EgovFileMngUtil fileUtil;
+
+    public ResultVO setMvnEntList(SearchDto dto){
+        ResultVO resultVO = new ResultVO();
+
+        try{
+            Gson gson = new Gson();
+            List<TblMvnEnt> tblMvnEntList = gson.fromJson(dto.get("tblMvnEntList").toString(), new TypeToken<List<TblMvnEnt>>() {}.getType());
+            if(tblMvnEntList.size() > 0){
+                tblMvnEntRepository.saveAll(tblMvnEntList);
+            }
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }
+        return resultVO;
+    }
 
     public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt, List<MultipartFile> files, List<MultipartFile> mvnEntAtchFiles){
         ResultVO resultVO = new ResultVO();
@@ -134,8 +154,8 @@ public class MvnEntApiService {
                 builder.and(qTblMvnEnt.entTpbiz.eq((String) dto.get("entTpbiz")));
             }
 
-            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
-                builder.and(qTblMvnEnt.actvtnYn.eq((String) dto.get("actvtnYn")));
+            if(!StringUtils.isEmpty(dto.get("rlsYn"))){
+                builder.and(qTblMvnEnt.actvtnYn.eq((String) dto.get("rlsYn")));
             }
 
             if(!StringUtils.isEmpty(dto.get("searchType"))) {
@@ -336,6 +356,7 @@ public class MvnEntApiService {
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
 
         try {
+            resultVO.putResult("mvnEntMbr", tblMvnEntMbrRepository.findByUserSn(userSn));
             resultVO.putResult("member", tblUserRepository.findByUserSn(userSn));
             resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(mvnEntSn));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -347,16 +368,16 @@ public class MvnEntApiService {
         return resultVO;
     }
 
-    public ResultVO setMemberMbrStts(TblUser tblUser){
+    public ResultVO setAprvYn(TblMvnEntMbr tblMvnEntMbr){
         ResultVO resultVO = new ResultVO();
-        long userSn = tblUser.getUserSn();
-        String mbrStts = tblUser.getMbrStts();
+        long userSn = tblMvnEntMbr.getUserSn();
+        String aprvYn = tblMvnEntMbr.getAprvYn();
 
         try {
-            Optional<TblUser> optionalTblUser = Optional.ofNullable(tblUserRepository.findByUserSn(userSn));
-            if (optionalTblUser.isPresent()) {
-                TblUser user = optionalTblUser.get();
-                user.setActvtnYn(mbrStts); // 상태 변경
+            Optional<TblMvnEntMbr> optionalTblMvnEntMbr = Optional.ofNullable(tblMvnEntMbrRepository.findByUserSn(userSn));
+            if (optionalTblMvnEntMbr.isPresent()) {
+                TblMvnEntMbr member = optionalTblMvnEntMbr.get();
+                member.setAprvYn(aprvYn); // 상태 변경
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             }else{
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());

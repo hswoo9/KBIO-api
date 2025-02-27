@@ -30,5 +30,9 @@ public class TblRelInstMbr {
     @Comment("시스템관리자여부")
     private String sysMngrYn = "N";
 
+    @Column(name = "APRV_YN" , columnDefinition = "CHAR(1)")
+    @Comment("승인여부")
+    private String aprvYn = "N";
+
 
 }

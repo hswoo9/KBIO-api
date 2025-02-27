@@ -33,6 +33,12 @@ public class MvnEntApiController {
         return mvnEntApiService.setMvnEnt(tblMvnEnt,files, mvnEntAtchFiles);
     }
 
+    @PostMapping("/mvnEntApi/setMvnEntList.do")
+    public ResultVO setMvnEntList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+        return mvnEntApiService.setMvnEntList(dto);
+    }
+
     @PostMapping("/mvnEntApi/getMvnEntList.do")
     public ResultVO getMvnEntList(HttpServletRequest request){
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
@@ -59,9 +65,9 @@ public class MvnEntApiController {
         return mvnEntApiService.getResidentMemberOne(dto);
     }
 
-    @PostMapping("/mvnEntApi/setMemberMbrStts")
-    public ResultVO setMemberMbrStts(@RequestBody TblUser request){
-        return mvnEntApiService.setMemberMbrStts(request);
+    @PostMapping("/mvnEntApi/setAprvYn")
+    public ResultVO setAprvYn(@RequestBody TblMvnEntMbr request){
+        return mvnEntApiService.setAprvYn(request);
     }
 
     @PostMapping("/mvnEntApi/updateMvnEntMbrToMng")

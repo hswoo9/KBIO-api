@@ -3,6 +3,7 @@ package egovframework.com.devjitsu.controller.member;
 import egovframework.com.cmm.service.ResultVO;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.user.TblMvnEnt;
 import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.bbs.BbsAdminApiService;
 import egovframework.com.devjitsu.service.member.MemberAdminApiService;
@@ -13,12 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -206,6 +206,11 @@ public class MemberAdminApiController {
     public ResultVO getCancelMemberList(HttpServletRequest request) {
         SearchDto dto = (SearchDto) request.getAttribute("searchDto");
         return memberAdminApiService.getCancelMemberList(dto);
+    }
+
+    @PostMapping("/memberApi/managerMemberInsert")
+    public ResultVO managerMemberInsert(@ModelAttribute TblUser tblUser){
+        return memberAdminApiService.managerMemberInsert(tblUser);
     }
 
 }

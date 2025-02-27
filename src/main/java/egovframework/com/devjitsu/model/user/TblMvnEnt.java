@@ -178,7 +178,7 @@ public class TblMvnEnt {
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")
-    private String actvtnYn;
+    private String actvtnYn = "Y";
 
     @Column(name = "RLS_BGNG_YMD", columnDefinition = "CHAR(8)")
     @Comment("공개시작일자")
@@ -187,6 +187,14 @@ public class TblMvnEnt {
     @Column(name = "RLS_END_YMD", columnDefinition = "CHAR(8)")
     @Comment("공개종료일자")
     private String rlsEndYmd;
+
+    @Column(name = "RLS_YN" , columnDefinition = "CHAR(1)")
+    @Comment("공개여부")
+    private String rlsYn;
+
+    @Column(name = "EMP_JOIN_YN" , columnDefinition = "CHAR(1)")
+    @Comment("산하직원가입여부")
+    private String empJoinYn;
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")

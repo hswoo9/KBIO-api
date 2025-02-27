@@ -884,14 +884,14 @@ public class MemberApiService {
 
                 long userSn = tblUser.getUserSn();
 
-                List<TblRelInstMbr> relInstMbrList = tblRelInstMbrRepository.findByUserSn(userSn);
-                List<TblMvnEntMbr> mvnEntMbrList = tblMvnEntMbrRepository.findByUserSn(userSn);
+                TblRelInstMbr relInstMbr = tblRelInstMbrRepository.findByUserSn(userSn);
+                TblMvnEntMbr mvnEntMbr = tblMvnEntMbrRepository.findByUserSn(userSn);
 
                 Long mvnEntSn = null;
                 Long relInstSn = null;
-                if (!mvnEntMbrList.isEmpty()) {
-                    TblMvnEntMbr mvnEntMbr1 = mvnEntMbrList.get(0);
-                    mvnEntSn = mvnEntMbr1.getMvnEntSn();
+
+                if (mvnEntMbr != null) { // Optional이 아니라 객체라면 null 체크
+                    mvnEntSn = mvnEntMbr.getMvnEntSn();
 
                     if (mvnEntSn != null) {
                         TblMvnEnt mvnEnt = tblMvnEntRepository.findByMvnEntSn(mvnEntSn);
@@ -899,20 +899,20 @@ public class MemberApiService {
                             resultVO.putResult("rc", mvnEnt);
                         }
                     }
-                } else if (!relInstMbrList.isEmpty()) {
-                    TblRelInstMbr relInstMbr1 = relInstMbrList.get(0);
-                    relInstSn = relInstMbr1.getRelInstSn();
+                } else if (relInstMbr != null) { // 마찬가지로 null 체크
+                    relInstSn = relInstMbr.getRelInstSn();
 
                     if (relInstSn != null) {
                         TblRelInst relInst = tblRelInstRepository.findByRelInstSn(relInstSn);
                         if (relInst != null) {
                             resultVO.putResult("rc", relInst);
-                            System.out.printf("rc : " + relInst);
+                            System.out.println("rc : " + relInst);
                         }
                     }
                 } else {
                     System.out.println("기업 정보가 없습니다.");
                 }
+
 
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             } else {
