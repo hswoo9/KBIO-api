@@ -8,7 +8,10 @@ import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroupUser;
+import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroupUser;
 import egovframework.com.devjitsu.model.user.*;
+import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupUserRepository;
 import egovframework.com.devjitsu.repository.user.TblUserLgnHstryRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.repository.user.TblUserSnsCertInfoRepository;
@@ -39,6 +42,7 @@ public class MemberAdminApiService {
     private final TblUserRepository tblUserRepository;
     private final TblUserLgnHstryRepository tblUserLgnHstryRepository;
     private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
+    private final TblMenuAuthrtGroupUserRepository tblMenuAuthrtGroupUserRepository;
 
     public ResultVO getNormalMemberList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
@@ -1057,26 +1061,50 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO managerMemberInsert(TblUser tblUser){
+    public ResultVO managerMemberInsert(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
-        try{
+        try {
+            // 비밀번호 암호화
             String hashedPswd = EgovFileScrty.encryptPassword(tblUser.getUserPw(), tblUser.getUserId());
             tblUser.setUserPw(hashedPswd);
-            System.out.println("Pwd" + hashedPswd);
+
+            // 휴대폰 번호 암호화
             String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
             tblUser.setMblTelno(encryptedMblTelno);
-            System.out.println("mblTel" + encryptedMblTelno);
-            System.out.println(tblUser);
-            tblUserRepository.save(tblUser);
 
+            // 사용자 저장
+            TblUser savedUser = tblUserRepository.save(tblUser);
+            Long userSn = savedUser.getUserSn();
+
+            Integer mbrType = (int) tblUser.getMbrType();
+            TblMenuAuthrtGroupUser menuAuthrtGroupUser = new TblMenuAuthrtGroupUser();
+            menuAuthrtGroupUser.setUserSn(userSn);
+
+            if (Integer.valueOf(2).equals(mbrType)) {
+                menuAuthrtGroupUser.setAuthrtGroupSn(6);
+            } else if (Integer.valueOf(9).equals(mbrType)) {
+                menuAuthrtGroupUser.setAuthrtGroupSn(2);
+            } else {
+                menuAuthrtGroupUser.setAuthrtGroupSn(5);
+            }
+
+            menuAuthrtGroupUser.setActvtnYn("Y");
+            menuAuthrtGroupUser.setCreatrSn(1);
+            tblMenuAuthrtGroupUserRepository.save(menuAuthrtGroupUser);
+            System.out.println("menu" + menuAuthrtGroupUser);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("관리자 회원 등록 중 오류 발생");
         }
 
         return resultVO;
     }
+
+
+
+
 }
