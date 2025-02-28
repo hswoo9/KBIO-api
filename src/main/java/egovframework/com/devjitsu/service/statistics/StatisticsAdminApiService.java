@@ -1,23 +1,22 @@
 package egovframework.com.devjitsu.service.statistics;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.Tuple;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.querydsl.core.BooleanBuilder;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
 import com.google.analytics.data.v1beta.*;
-import egovframework.com.devjitsu.model.bbs.QTblBbs;
-import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.common.QTblAtchFileDwnldCnt;
 import egovframework.com.devjitsu.model.common.QTblPstCntnHstry;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsDto;
-import egovframework.com.devjitsu.model.statistics.StatisticsUserAccessDto;
 import egovframework.com.devjitsu.model.statistics.StatisticsUserDto;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.QTblUserLgnHstry;
@@ -34,6 +33,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -161,9 +162,9 @@ public class StatisticsAdminApiService {
                         searchDto.put("searchDate", map.get("date"));
                     }
 
-                    StatisticsUserAccessDto statisticsUserAccessDto = q.select(
+                    StatisticsUserDto statisticsUserDto = q.select(
                         Projections.constructor(
-                            StatisticsUserAccessDto.class,
+                            StatisticsUserDto.class,
                             Expressions.numberTemplate(Long.class,
                                     "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
                             Expressions.numberTemplate(Long.class,
@@ -180,7 +181,7 @@ public class StatisticsAdminApiService {
                         Expressions.stringTemplate("DATE_FORMAT({0}, '%Y%m%d')", qTblUser.joinYmd).like(searchDto.get("searchDate").toString()+ "%")
                     ).fetchFirst();
 
-                    map.put("newUserCnt", statisticsUserAccessDto);
+                    map.put("newUserCnt", statisticsUserDto);
                 }
 
                 for(int i = 0; i < metrics.length; i++){
@@ -267,38 +268,58 @@ public class StatisticsAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(
-                qTblUser.mbrType.eq(1L).or(qTblUser.mbrType.eq(2L)).or(qTblUser.mbrType.eq(3L)).or(qTblUser.mbrType.eq(4L))
-            ).and(
-                qTblUser.joinYmd.isNotNull()
-            )
-            .and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUser.joinYmd).loe(
-                    Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
-                )
-            );
+            builder.and(qTblUser.mbrType.in(1, 2, 3, 4)).and(qTblUser.joinYmd.isNotNull())
+                .and(
+                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUser.joinYmd).loe(
+                        Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
+                    )
+                );
 
-            List<StatisticsUserDto> statisticsUser = q
+            StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblUser.joinYmd);
+
+            List<Tuple> subQueryResults = q
                     .select(
-                        Projections.constructor(
-                            StatisticsUserDto.class,
-                            qTblUser.mbrType,
-                            qTblUser.count()
-                        )
+                            dayFormat.as("joinDate"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 3 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType3Count"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 4 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType4Count"),
+                            Expressions.numberTemplate(Long.class,
+                                    "SUM(CASE WHEN {0} = 2 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType2Count")
                     )
                     .from(qTblUser)
                     .where(builder)
-                    .groupBy(qTblUser.mbrType)
-                    .orderBy(
-                        new CaseBuilder()
-                            .when(qTblUser.mbrType.eq(1L)).then(0)
-                            .when(qTblUser.mbrType.eq(3L)).then(1)
-                            .when(qTblUser.mbrType.eq(4L)).then(2)
-                            .when(qTblUser.mbrType.eq(2L)).then(3)
-                            .otherwise(4)
-                            .asc()
-                    )
+                    .groupBy(dayFormat)
+                    .orderBy(dayFormat.asc())
                     .fetch();
+
+            AtomicLong cumulativeMbrType1 = new AtomicLong(0);
+            AtomicLong cumulativeMbrType3 = new AtomicLong(0);
+            AtomicLong cumulativeMbrType4 = new AtomicLong(0);
+            AtomicLong cumulativeMbrType2 = new AtomicLong(0);
+
+            List<StatisticsUserDto> statisticsUser = subQueryResults.stream().map(tuple -> {
+                Long mbrType1Count = tuple.get(1, Long.class);
+                Long mbrType3Count = tuple.get(2, Long.class);
+                Long mbrType4Count = tuple.get(3, Long.class);
+                Long mbrType2Count = tuple.get(4, Long.class);
+
+                Long cumulative1 = cumulativeMbrType1.addAndGet(mbrType1Count);
+                Long cumulative3 = cumulativeMbrType3.addAndGet(mbrType3Count);
+                Long cumulative4 = cumulativeMbrType4.addAndGet(mbrType4Count);
+                Long cumulative2 = cumulativeMbrType2.addAndGet(mbrType2Count);
+
+                StatisticsUserDto statisticsUserDto = new StatisticsUserDto(
+                        cumulative1,
+                        cumulative3,
+                        cumulative4,
+                        cumulative2,
+                        tuple.get(0, String.class)
+                );
+                return statisticsUserDto;
+            }).collect(Collectors.toList());
 
             resultVO.putResult("statisticsUser", statisticsUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
@@ -332,10 +353,10 @@ public class StatisticsAdminApiService {
             }
 
             StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblUserLgnHstry.lgnDt);
-            List<StatisticsUserAccessDto> statisticsUserAccess = q
+            List<StatisticsUserDto> statisticsUserAccess = q
                     .select(
                         Projections.constructor(
-                            StatisticsUserAccessDto.class,
+                                StatisticsUserDto.class,
                             Expressions.numberTemplate(Long.class,
                                     "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
                             Expressions.numberTemplate(Long.class,
@@ -459,13 +480,13 @@ public class StatisticsAdminApiService {
         return resultVO;
     }
 
-    public StatisticsUserAccessDto regionJoinUser(SearchDto searchDto, Map<String, Object> region){
+    public StatisticsUserDto regionJoinUser(SearchDto searchDto, Map<String, Object> region){
         JPAQueryFactory q = new JPAQueryFactory(em);
         QTblUser qTblUser = QTblUser.tblUser;
 
-        StatisticsUserAccessDto statisticsUserAccessDto = q.select(
+        StatisticsUserDto statisticsUserDto = q.select(
             Projections.constructor(
-                StatisticsUserAccessDto.class,
+                    StatisticsUserDto.class,
                 Expressions.numberTemplate(Long.class,
                         "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
                 Expressions.numberTemplate(Long.class,
@@ -489,6 +510,6 @@ public class StatisticsAdminApiService {
             ).and(qTblUser.addr.startsWith(region.get("korAddrName").toString()))
         ).fetchFirst();
 
-        return statisticsUserAccessDto;
+        return statisticsUserDto;
     }
 }

@@ -853,9 +853,6 @@ public class MemberApiService {
                     .map(TblAcbg::getAcbgSn)
                     .collect(Collectors.toList());
 
-            System.out.println("3333"+qlfcLcnsSnList);
-            System.out.println(qCareerSnList);
-            System.out.println(qAcbgSnList);
 
             if (member != null) {
                 resultVO.putResult("member", member);
@@ -910,28 +907,36 @@ public class MemberApiService {
                 Long mvnEntSn = null;
                 Long relInstSn = null;
 
-                if (mvnEntMbr != null) { // Optional이 아니라 객체라면 null 체크
+                if (mvnEntMbr != null) {
                     mvnEntSn = mvnEntMbr.getMvnEntSn();
 
                     if (mvnEntSn != null) {
                         TblMvnEnt mvnEnt = tblMvnEntRepository.findByMvnEntSn(mvnEntSn);
                         if (mvnEnt != null) {
-                            resultVO.putResult("rc", mvnEnt);
+                            // aprvYn 값을 가져와서 rc에 추가
+                            String aprvYn = mvnEntMbr.getAprvYn();
+                            mvnEnt.setAprvYn(aprvYn); // 만약 TblMvnEnt 객체에 aprvYn을 추가할 수 있다면
+
+                            resultVO.putResult("rc", mvnEnt); // rc에 mvnEnt와 aprvYn 값을 함께 넣기
                         }
                     }
-                } else if (relInstMbr != null) { // 마찬가지로 null 체크
+                } else if (relInstMbr != null) {
                     relInstSn = relInstMbr.getRelInstSn();
 
                     if (relInstSn != null) {
                         TblRelInst relInst = tblRelInstRepository.findByRelInstSn(relInstSn);
                         if (relInst != null) {
-                            resultVO.putResult("rc", relInst);
-                            System.out.println("rc : " + relInst);
+                            // aprvYn 값을 가져와서 rc에 추가
+                            String aprvYn = relInstMbr.getAprvYn();
+                            relInst.setAprvYn(aprvYn); // 만약 TblRelInst 객체에 aprvYn을 추가할 수 있다면
+
+                            resultVO.putResult("rc", relInst); // rc에 relInst와 aprvYn 값을 함께 넣기
                         }
                     }
                 } else {
                     System.out.println("기업 정보가 없습니다.");
                 }
+
 
 
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
