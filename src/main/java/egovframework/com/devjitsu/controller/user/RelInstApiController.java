@@ -77,4 +77,9 @@ public class RelInstApiController {
         return relInstApiService.cancleMng(tblRelInstMbr);
     }
 
+    @PostMapping("/relatedApi/setRcActvtnYn")
+    public ResultVO setRcActvtnYn(@RequestBody TblRelInst tblRelInst){
+        return relInstApiService.setRcActvtnYn(tblRelInst);
+    }
+
 }

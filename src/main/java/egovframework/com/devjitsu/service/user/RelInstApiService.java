@@ -412,4 +412,39 @@ public class RelInstApiService {
         return resultVO;
     }
 
+    public ResultVO setRcActvtnYn(TblRelInst tblRelInst){
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            tblRelInst.setActvtnYn("N");
+            tblRelInstRepository.save(tblRelInst);
+
+            long relInstSn = tblRelInst.getRelInstSn();
+            List <TblRelInstMbr> tblrelInstMbrList =tblRelInstMbrRepository.findUserSnByRelInstSn(relInstSn);
+
+            List<Long> userSnList = new ArrayList<>();
+
+            if (tblrelInstMbrList != null && !tblrelInstMbrList.isEmpty()) {
+                userSnList = tblrelInstMbrList.stream()
+                        .map(TblRelInstMbr::getUserSn)
+                        .collect(Collectors.toList());
+
+                userSnList.forEach(userSn -> {
+                    TblUser user = tblUserRepository.findByUserSn(userSn);
+                    if (user != null) {
+                        user.setActvtnYn("N");
+                        tblUserRepository.save(user);
+                    }
+                });
+
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 }
