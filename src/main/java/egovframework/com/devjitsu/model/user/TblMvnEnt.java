@@ -220,4 +220,7 @@ public class TblMvnEnt {
     @Transient
     private String entTpbizNm;
 
+    @Transient
+    private String aprvYn;
+
 }
