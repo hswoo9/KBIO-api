@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class StatisticsUserDto {
 
-    private Long mbrType;
-    private Long cnt;
+    private long mbrType1Cnt;
+    private long mbrType3Cnt;
+    private long mbrType4Cnt;
+    private long mbrType2Cnt;
+    private String day;
 }

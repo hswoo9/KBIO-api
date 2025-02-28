@@ -1,6 +1,5 @@
 package egovframework.com.devjitsu.service.main;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -9,23 +8,14 @@ import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
-import egovframework.com.devjitsu.model.bannerPopup.BannerPopupDto;
-import egovframework.com.devjitsu.model.bannerPopup.QTblBnrPopup;
-import egovframework.com.devjitsu.model.bbs.QTblPst;
-import egovframework.com.devjitsu.model.bbs.TblBbs;
-import egovframework.com.devjitsu.model.bbs.TblPst;
-import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.consult.QTblCnsltAply;
 import egovframework.com.devjitsu.model.consult.QTblDfclMttr;
 import egovframework.com.devjitsu.model.main.MainCalendarDto;
 import egovframework.com.devjitsu.model.main.MainStatusDto;
-import egovframework.com.devjitsu.model.statistics.StatisticsDto;
-import egovframework.com.devjitsu.model.statistics.StatisticsUserAccessDto;
 import egovframework.com.devjitsu.model.user.QTblMvnEnt;
 import egovframework.com.devjitsu.model.user.QTblRelInst;
 import egovframework.com.devjitsu.model.user.QTblUser;
-import egovframework.com.devjitsu.model.user.TblMvnEnt;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.service.bbs.BbsAdminApiService;
 import lombok.RequiredArgsConstructor;
@@ -33,15 +23,10 @@ import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
