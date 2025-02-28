@@ -76,11 +76,13 @@ public class IntroduceApiService {
                     );
 
             BooleanBuilder builder = new BooleanBuilder();
-            qTblMvnEnt.actvtnYn.eq("Y")
+            builder.and(qTblMvnEnt.actvtnYn.eq("Y")
                     .and(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMvnEnt.rlsBgngYmd).loe(
                             Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")))
                     .and(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMvnEnt.rlsEndYmd).goe(
-                            Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")));
+                            Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')"))));
+
+            builder.and(qTblMvnEnt.rlsYn.eq("Y"));
 
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 if(dto.get("searchType").equals("mvnEntNm")){

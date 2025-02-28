@@ -135,6 +135,7 @@ public class MainApiService {
                                     Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")))
                             .and(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMvnEnt.rlsEndYmd).goe(
                                     Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")))
+                                .and(qTblMvnEnt.rlsYn.eq("Y"))
                     )
                     .orderBy(qTblMvnEnt.frstCrtDt.desc()).fetch();
             resultVO.putResult("mvnEntList",tblMvnEntList);
