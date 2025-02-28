@@ -25,12 +25,12 @@ public class MvnEntApiController {
 
     @PostMapping("/mvnEntApi/setMvnEnt")
     public ResultVO setMvnEnt(
-                /*@RequestBody TblMvnEnt tblMvnEnt*/
                 @ModelAttribute TblMvnEnt tblMvnEnt,
                 @RequestParam(value = "files", required = false) List<MultipartFile> files,
+                @RequestParam(value = "biFile", required = false) List<MultipartFile> biFile,
                 @RequestParam(value= "mvnEntAtchFiles", required = false)List<MultipartFile> mvnEntAtchFiles){
 
-        return mvnEntApiService.setMvnEnt(tblMvnEnt,files, mvnEntAtchFiles);
+        return mvnEntApiService.setMvnEnt(tblMvnEnt,files,biFile, mvnEntAtchFiles);
     }
 
     @PostMapping("/mvnEntApi/setMvnEntList.do")
@@ -76,11 +76,15 @@ public class MvnEntApiController {
         return mvnEntApiService.updateMvnEntMbrToMng(tblMvnEntMbrList);
     }
 
-    //cancleMng
     @PostMapping("/mvnEntApi/cancleMng")
     public ResultVO cancleMng(@RequestBody TblMvnEntMbr tblMvnEntMbrList){
 
         return mvnEntApiService.cancleMng(tblMvnEntMbrList);
+    }
+
+    @PostMapping("/mvnEntApi/setRcActvtnYn")
+    public ResultVO setRcActvtnYn(@RequestBody TblMvnEnt tblMvnEnt){
+        return mvnEntApiService.setRcActvtnYn(tblMvnEnt);
     }
 
 }

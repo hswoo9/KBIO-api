@@ -72,7 +72,7 @@ public class RelInstApiService {
         return resultVO;
     }
 
-    public ResultVO setRelInst(TblRelInst tblRelInst, List<MultipartFile> files, List<MultipartFile> relInstAtchFiles){
+    public ResultVO setRelInst(TblRelInst tblRelInst, List<MultipartFile> files, List<MultipartFile> biFile, List<MultipartFile> relInstAtchFiles){
         ResultVO resultVO = new ResultVO();
 
         try{
@@ -90,6 +90,18 @@ public class RelInstApiService {
                         "relInst_" + tblRelInst.getRelInstSn(),
                         fileCnt
                     )
+                );
+            }
+
+            if(biFile != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("relInstBi_" + tblRelInst.getRelInstSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                biFile,
+                                "/relInst/" + tblRelInst.getRelInstSn(),
+                                "relInstBi_" + tblRelInst.getRelInstSn(),
+                                fileCnt
+                        )
                 );
             }
 
@@ -133,6 +145,9 @@ public class RelInstApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             BooleanBuilder builder = new BooleanBuilder();
+            
+            //활성여부
+            builder.and(qTblRelInst.actvtnYn.eq("Y"));
 
             if(!StringUtils.isEmpty(dto.get("clsf"))){
                 builder.and(qTblRelInst.clsf.eq((String) dto.get("clsf")));
@@ -142,8 +157,8 @@ public class RelInstApiService {
                 builder.and(qTblRelInst.tpbiz.eq((String) dto.get("tpbiz")));
             }
 
-            if(!StringUtils.isEmpty(dto.get("actvtnYn"))){
-                builder.and(qTblRelInst.actvtnYn.eq((String) dto.get("actvtnYn")));
+            if(!StringUtils.isEmpty(dto.get("rlsYn"))){
+                builder.and(qTblRelInst.rlsYn.eq((String) dto.get("rlsYn")));
             }
 
             if(!StringUtils.isEmpty(dto.get("searchType"))) {
@@ -202,6 +217,7 @@ public class RelInstApiService {
         try{
             tblRelInst = tblRelInstRepository.findByRelInstSn(tblRelInst.getRelInstSn());
             tblRelInst.setLogoFile(tblComFileRepository.findByPsnTblSn("relInst_" + tblRelInst.getRelInstSn()));
+            tblRelInst.setBiLogoFile(tblComFileRepository.findByPsnTblSn("relInstBi_" + tblRelInst.getRelInstSn()));
             tblRelInst.setRelInstAtchFiles(tblComFileRepository.findAllByPsnTblSn("relInstAtch_" + tblRelInst.getRelInstSn()));
 
             resultVO.putResult("rc", tblRelInst);
@@ -390,6 +406,41 @@ public class RelInstApiService {
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
             e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setRcActvtnYn(TblRelInst tblRelInst){
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            tblRelInst.setActvtnYn("N");
+            tblRelInstRepository.save(tblRelInst);
+
+            long relInstSn = tblRelInst.getRelInstSn();
+            List <TblRelInstMbr> tblrelInstMbrList =tblRelInstMbrRepository.findUserSnByRelInstSn(relInstSn);
+
+            List<Long> userSnList = new ArrayList<>();
+
+            if (tblrelInstMbrList != null && !tblrelInstMbrList.isEmpty()) {
+                userSnList = tblrelInstMbrList.stream()
+                        .map(TblRelInstMbr::getUserSn)
+                        .collect(Collectors.toList());
+
+                userSnList.forEach(userSn -> {
+                    TblUser user = tblUserRepository.findByUserSn(userSn);
+                    if (user != null) {
+                        user.setActvtnYn("N");
+                        tblUserRepository.save(user);
+                    }
+                });
+
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

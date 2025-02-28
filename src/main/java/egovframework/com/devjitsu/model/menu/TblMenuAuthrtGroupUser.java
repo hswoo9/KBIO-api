@@ -32,7 +32,7 @@ public class TblMenuAuthrtGroupUser {
     private long userSn;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(name = "AUTHRT_GRNT_DT")
+    @Column(name = "AUTHRT_GRNT_DT", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP", updatable = false)
     @Comment("권한부여일")
     private LocalDateTime authrtGrntDt;
 

@@ -74,7 +74,7 @@ public class MvnEntApiService {
         return resultVO;
     }
 
-    public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt, List<MultipartFile> files, List<MultipartFile> mvnEntAtchFiles){
+    public ResultVO setMvnEnt(TblMvnEnt tblMvnEnt, List<MultipartFile> files, List<MultipartFile> biFile, List<MultipartFile> mvnEntAtchFiles){
         ResultVO resultVO = new ResultVO();
 
         try{
@@ -99,12 +99,24 @@ public class MvnEntApiService {
                 );
             }
 
+            if(biFile != null){
+                long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("mvnEntBi_" + tblMvnEnt.getMvnEntSn())).fetchCount();
+                tblComFileRepository.saveAll(
+                        fileUtil.devFileInf(
+                                biFile,
+                                "/mvnEnt/" + tblMvnEnt.getMvnEntSn(),
+                                "mvnEntBi_" + tblMvnEnt.getMvnEntSn(),
+                                fileCnt
+                        )
+                );
+            }
+
             if(mvnEntAtchFiles != null){
                 long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("mvnEntAtch_" + tblMvnEnt.getMvnEntSn())).fetchCount();
                 tblComFileRepository.saveAll(
                         fileUtil.devFileInf(
                                 mvnEntAtchFiles,
-                                "/mvnEntAtch/" + tblMvnEnt.getMvnEntSn(),
+                                "/mvnEnt/" + tblMvnEnt.getMvnEntSn(),
                                 "mvnEntAtch_" + tblMvnEnt.getMvnEntSn(),
                                 fileCnt
                         )
@@ -146,6 +158,9 @@ public class MvnEntApiService {
 
             BooleanBuilder builder = new BooleanBuilder();
 
+            //활성여부
+            builder.and(qTblMvnEnt.actvtnYn.eq("Y"));
+
             if(!StringUtils.isEmpty(dto.get("entClsf"))){
                 builder.and(qTblMvnEnt.entClsf.eq((String) dto.get("entClsf")));
             }
@@ -155,7 +170,7 @@ public class MvnEntApiService {
             }
 
             if(!StringUtils.isEmpty(dto.get("rlsYn"))){
-                builder.and(qTblMvnEnt.actvtnYn.eq((String) dto.get("rlsYn")));
+                builder.and(qTblMvnEnt.rlsYn.eq((String) dto.get("rlsYn")));
             }
 
             if(!StringUtils.isEmpty(dto.get("searchType"))) {
@@ -171,11 +186,6 @@ public class MvnEntApiService {
                 );
             }
 
-            /*List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
-                    .where(builder)
-                    .orderBy(qTblMvnEnt.frstCrtDt.desc())
-                    .offset(paginationInfo.getFirstRecordIndex())
-                    .limit(paginationInfo.getRecordCountPerPage()).fetch();*/
 
             List<MvnEntDto> tblMvnEntList = q
                     .select(
@@ -232,12 +242,20 @@ public class MvnEntApiService {
                                     )
                             ).fetchOne();
 
+            TblComFile biLogoFile = q.selectFrom(qTblComFile)
+                    .where(
+                            qTblComFile.psnTblSn.eq(
+                                    Expressions.stringTemplate("CONCAT('mvnEntBi_',{0})", tblMvnEnt.getMvnEntSn())
+                            )
+                    ).fetchOne();
+
             List<TblComFile> mvnEntAtchFile = q.selectFrom(qTblComFile)
                     .where(qTblComFile.psnTblSn.eq( Expressions.stringTemplate("CONCAT('mvnEntAtch_',{0})", tblMvnEnt.getMvnEntSn())))
                     .fetch();
 
             resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(tblMvnEnt.getMvnEntSn()));
             resultVO.putResult("logoFile",residentCompanyLogo);
+            resultVO.putResult("biLogoFile",biLogoFile);
             resultVO.putResult("mvnEntAtchFile",mvnEntAtchFile);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
@@ -421,6 +439,41 @@ public class MvnEntApiService {
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setRcActvtnYn(TblMvnEnt tblMvnEnt){
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            tblMvnEnt.setActvtnYn("N");
+            tblMvnEntRepository.save(tblMvnEnt);
+
+            long mvnEntSn = tblMvnEnt.getMvnEntSn();
+            List <TblMvnEntMbr> tblMvnEntMbrList =tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
+
+            List<Long> userSnList = new ArrayList<>();
+
+            if (tblMvnEntMbrList != null && !tblMvnEntMbrList.isEmpty()) {
+                userSnList = tblMvnEntMbrList.stream()
+                        .map(TblMvnEntMbr::getUserSn)
+                        .collect(Collectors.toList());
+
+                userSnList.forEach(userSn -> {
+                    TblUser user = tblUserRepository.findByUserSn(userSn);
+                    if (user != null) {
+                        user.setActvtnYn("N");
+                        tblUserRepository.save(user);
+                    }
+                });
+
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

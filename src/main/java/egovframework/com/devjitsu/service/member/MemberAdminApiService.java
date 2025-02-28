@@ -8,9 +8,13 @@ import egovframework.com.devjitsu.model.bbs.QTblPst;
 import egovframework.com.devjitsu.model.bbs.TblBbs;
 import egovframework.com.devjitsu.model.common.QTblComFile;
 import egovframework.com.devjitsu.model.common.SearchDto;
+import egovframework.com.devjitsu.model.menu.QTblMenuAuthrtGroupUser;
+import egovframework.com.devjitsu.model.menu.TblMenuAuthrtGroupUser;
 import egovframework.com.devjitsu.model.user.*;
+import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupUserRepository;
 import egovframework.com.devjitsu.repository.user.TblUserLgnHstryRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
+import egovframework.com.devjitsu.repository.user.TblUserSnsCertInfoRepository;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
@@ -37,6 +41,8 @@ public class MemberAdminApiService {
 
     private final TblUserRepository tblUserRepository;
     private final TblUserLgnHstryRepository tblUserLgnHstryRepository;
+    private final TblUserSnsCertInfoRepository tblUserSnsCertInfoRepository;
+    private final TblMenuAuthrtGroupUserRepository tblMenuAuthrtGroupUserRepository;
 
     public ResultVO getNormalMemberList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
@@ -57,6 +63,13 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry = QTblUserLgnHstry.tblUserLgnHstry;
+            QTblUserSnsCertInfo qTblUserSnsCertInfo = QTblUserSnsCertInfo.tblUserSnsCertInfo;
+            QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+            QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
+            QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y"));
@@ -89,6 +102,52 @@ public class MemberAdminApiService {
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
+
+            for (TblUser member : getNormalMemberList) {
+                TblMvnEntMbr mvnEntMbr = q.selectFrom(qTblMvnEntMbr)
+                        .where(qTblMvnEntMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (mvnEntMbr != null) {
+                    TblMvnEnt mvnEnt = q.selectFrom(qTblMvnEnt)
+                            .where(qTblMvnEnt.mvnEntSn.eq(mvnEntMbr.getMvnEntSn()))
+                            .fetchOne();
+                    if (mvnEnt != null) {
+                        member.setCompanyNm(mvnEnt.getMvnEntNm());
+                    }
+                }
+
+                TblRelInstMbr relInstMbr = q.selectFrom(qTblRelInstMbr)
+                        .where(qTblRelInstMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (relInstMbr != null) {
+                    TblRelInst relInst = q.selectFrom(qTblRelInst)
+                            .where(qTblRelInst.relInstSn.eq(relInstMbr.getRelInstSn()))
+                            .fetchOne();
+                    if (relInst != null) {
+                        member.setCompanyNm(relInst.getRelInstNm());
+                    }
+                }
+
+                TblUserSnsCertInfo snsClsf = q.selectFrom(qTblUserSnsCertInfo)
+                        .where(qTblUserSnsCertInfo.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserSnsCertInfo.snsClsf.desc())
+                        .fetchOne();
+                if (snsClsf != null) {
+                    member.setSnsClsf(snsClsf.getSnsClsf());
+                }
+
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
+
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
                     .where(builder)
@@ -113,11 +172,16 @@ public class MemberAdminApiService {
         try {
             TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
 
-
             TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
 
             if (latestLogin != null) {
                 member.setLastLoginDate(latestLogin.getLgnDt());
+            }
+
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
             }
 
             resultVO.putResult("member", member);
@@ -214,6 +278,13 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry  = QTblUserLgnHstry.tblUserLgnHstry;
+            QTblUserSnsCertInfo qTblUserSnsCertInfo = QTblUserSnsCertInfo.tblUserSnsCertInfo;
+            QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+            QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
+            QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("Y")));
@@ -243,6 +314,52 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+
+            for (TblUser member : getApprovalMemberList) {
+                TblMvnEntMbr mvnEntMbr = q.selectFrom(qTblMvnEntMbr)
+                        .where(qTblMvnEntMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (mvnEntMbr != null) {
+                    TblMvnEnt mvnEnt = q.selectFrom(qTblMvnEnt)
+                            .where(qTblMvnEnt.mvnEntSn.eq(mvnEntMbr.getMvnEntSn()))
+                            .fetchOne();
+                    if (mvnEnt != null) {
+                        member.setCompanyNm(mvnEnt.getMvnEntNm());
+                    }
+                }
+
+                TblRelInstMbr relInstMbr = q.selectFrom(qTblRelInstMbr)
+                        .where(qTblRelInstMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (relInstMbr != null) {
+                    TblRelInst relInst = q.selectFrom(qTblRelInst)
+                            .where(qTblRelInst.relInstSn.eq(relInstMbr.getRelInstSn()))
+                            .fetchOne();
+                    if (relInst != null) {
+                        member.setCompanyNm(relInst.getRelInstNm());
+                    }
+                }
+
+                TblUserSnsCertInfo snsClsf = q.selectFrom(qTblUserSnsCertInfo)
+                        .where(qTblUserSnsCertInfo.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserSnsCertInfo.snsClsf.desc())
+                        .fetchOne();
+                if (snsClsf != null) {
+                    member.setSnsClsf(snsClsf.getSnsClsf());
+                }
+
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
@@ -275,6 +392,12 @@ public class MemberAdminApiService {
                 member.setLastLoginDate(latestLogin.getLgnDt());
             }
 
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
+            }
+
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
@@ -298,6 +421,13 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry = QTblUserLgnHstry.tblUserLgnHstry;
+            QTblUserSnsCertInfo qTblUserSnsCertInfo = QTblUserSnsCertInfo.tblUserSnsCertInfo;
+            QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+            QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
+            QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("W")));
@@ -324,6 +454,52 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+
+            for (TblUser member : getWaitMemberList) {
+                TblMvnEntMbr mvnEntMbr = q.selectFrom(qTblMvnEntMbr)
+                        .where(qTblMvnEntMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (mvnEntMbr != null) {
+                    TblMvnEnt mvnEnt = q.selectFrom(qTblMvnEnt)
+                            .where(qTblMvnEnt.mvnEntSn.eq(mvnEntMbr.getMvnEntSn()))
+                            .fetchOne();
+                    if (mvnEnt != null) {
+                        member.setCompanyNm(mvnEnt.getMvnEntNm());
+                    }
+                }
+
+                TblRelInstMbr relInstMbr = q.selectFrom(qTblRelInstMbr)
+                        .where(qTblRelInstMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (relInstMbr != null) {
+                    TblRelInst relInst = q.selectFrom(qTblRelInst)
+                            .where(qTblRelInst.relInstSn.eq(relInstMbr.getRelInstSn()))
+                            .fetchOne();
+                    if (relInst != null) {
+                        member.setCompanyNm(relInst.getRelInstNm());
+                    }
+                }
+
+                TblUserSnsCertInfo snsClsf = q.selectFrom(qTblUserSnsCertInfo)
+                        .where(qTblUserSnsCertInfo.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserSnsCertInfo.snsClsf.desc())
+                        .fetchOne();
+                if (snsClsf != null) {
+                    member.setSnsClsf(snsClsf.getSnsClsf());
+                }
+
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
@@ -414,6 +590,12 @@ public class MemberAdminApiService {
                 member.setLastLoginDate(latestLogin.getLgnDt());
             }
 
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
+            }
+
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
@@ -437,6 +619,13 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry  = QTblUserLgnHstry.tblUserLgnHstry;
+            QTblUserSnsCertInfo qTblUserSnsCertInfo = QTblUserSnsCertInfo.tblUserSnsCertInfo;
+            QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+            QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
+            QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("R")));
@@ -466,6 +655,51 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+            for (TblUser member : getRejectMemberList) {
+                TblMvnEntMbr mvnEntMbr = q.selectFrom(qTblMvnEntMbr)
+                        .where(qTblMvnEntMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (mvnEntMbr != null) {
+                    TblMvnEnt mvnEnt = q.selectFrom(qTblMvnEnt)
+                            .where(qTblMvnEnt.mvnEntSn.eq(mvnEntMbr.getMvnEntSn()))
+                            .fetchOne();
+                    if (mvnEnt != null) {
+                        member.setCompanyNm(mvnEnt.getMvnEntNm());
+                    }
+                }
+
+                TblRelInstMbr relInstMbr = q.selectFrom(qTblRelInstMbr)
+                        .where(qTblRelInstMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (relInstMbr != null) {
+                    TblRelInst relInst = q.selectFrom(qTblRelInst)
+                            .where(qTblRelInst.relInstSn.eq(relInstMbr.getRelInstSn()))
+                            .fetchOne();
+                    if (relInst != null) {
+                        member.setCompanyNm(relInst.getRelInstNm());
+                    }
+                }
+
+                TblUserSnsCertInfo snsClsf = q.selectFrom(qTblUserSnsCertInfo)
+                        .where(qTblUserSnsCertInfo.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserSnsCertInfo.snsClsf.desc())
+                        .fetchOne();
+                if (snsClsf != null) {
+                    member.setSnsClsf(snsClsf.getSnsClsf());
+                }
+
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
@@ -527,6 +761,12 @@ public class MemberAdminApiService {
                 member.setLastLoginDate(latestLogin.getLgnDt());
             }
 
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
+            }
+
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
@@ -550,6 +790,13 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry  = QTblUserLgnHstry.tblUserLgnHstry;
+            QTblUserSnsCertInfo qTblUserSnsCertInfo = QTblUserSnsCertInfo.tblUserSnsCertInfo;
+            QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+            QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
+            QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("S")));
@@ -579,6 +826,51 @@ public class MemberAdminApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+            for (TblUser member : getStopMemberList) {
+                TblMvnEntMbr mvnEntMbr = q.selectFrom(qTblMvnEntMbr)
+                        .where(qTblMvnEntMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (mvnEntMbr != null) {
+                    TblMvnEnt mvnEnt = q.selectFrom(qTblMvnEnt)
+                            .where(qTblMvnEnt.mvnEntSn.eq(mvnEntMbr.getMvnEntSn()))
+                            .fetchOne();
+                    if (mvnEnt != null) {
+                        member.setCompanyNm(mvnEnt.getMvnEntNm());
+                    }
+                }
+
+                TblRelInstMbr relInstMbr = q.selectFrom(qTblRelInstMbr)
+                        .where(qTblRelInstMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (relInstMbr != null) {
+                    TblRelInst relInst = q.selectFrom(qTblRelInst)
+                            .where(qTblRelInst.relInstSn.eq(relInstMbr.getRelInstSn()))
+                            .fetchOne();
+                    if (relInst != null) {
+                        member.setCompanyNm(relInst.getRelInstNm());
+                    }
+                }
+
+                TblUserSnsCertInfo snsClsf = q.selectFrom(qTblUserSnsCertInfo)
+                        .where(qTblUserSnsCertInfo.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserSnsCertInfo.snsClsf.desc())
+                        .fetchOne();
+                if (snsClsf != null) {
+                    member.setSnsClsf(snsClsf.getSnsClsf());
+                }
+
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
 
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
@@ -640,6 +932,12 @@ public class MemberAdminApiService {
                 member.setLastLoginDate(latestLogin.getLgnDt());
             }
 
+            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+            if (snsCertInfo != null) {
+                member.setSnsClsf(snsCertInfo.getSnsClsf());
+            }
+
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
@@ -663,6 +961,13 @@ public class MemberAdminApiService {
 
             JPAQueryFactory q = new JPAQueryFactory(em);
             QTblUser qTblUser = QTblUser.tblUser;
+            QTblUserLgnHstry qTblUserLgnHstry  = QTblUserLgnHstry.tblUserLgnHstry;
+            QTblUserSnsCertInfo qTblUserSnsCertInfo = QTblUserSnsCertInfo.tblUserSnsCertInfo;
+            QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+            QTblMvnEnt qTblMvnEnt = QTblMvnEnt.tblMvnEnt;
+            QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
+            QTblRelInst qTblRelInst = QTblRelInst.tblRelInst;
+
 
             BooleanBuilder builder = new BooleanBuilder();
             builder.and(qTblUser.actvtnYn.eq("Y").and(qTblUser.mbrStts.eq("C")));
@@ -693,6 +998,51 @@ public class MemberAdminApiService {
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
+            for (TblUser member : getCancelMemberList) {
+                TblMvnEntMbr mvnEntMbr = q.selectFrom(qTblMvnEntMbr)
+                        .where(qTblMvnEntMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (mvnEntMbr != null) {
+                    TblMvnEnt mvnEnt = q.selectFrom(qTblMvnEnt)
+                            .where(qTblMvnEnt.mvnEntSn.eq(mvnEntMbr.getMvnEntSn()))
+                            .fetchOne();
+                    if (mvnEnt != null) {
+                        member.setCompanyNm(mvnEnt.getMvnEntNm());
+                    }
+                }
+
+                TblRelInstMbr relInstMbr = q.selectFrom(qTblRelInstMbr)
+                        .where(qTblRelInstMbr.userSn.eq(member.getUserSn()))
+                        .fetchOne();
+
+                if (relInstMbr != null) {
+                    TblRelInst relInst = q.selectFrom(qTblRelInst)
+                            .where(qTblRelInst.relInstSn.eq(relInstMbr.getRelInstSn()))
+                            .fetchOne();
+                    if (relInst != null) {
+                        member.setCompanyNm(relInst.getRelInstNm());
+                    }
+                }
+
+                TblUserSnsCertInfo snsClsf = q.selectFrom(qTblUserSnsCertInfo)
+                        .where(qTblUserSnsCertInfo.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserSnsCertInfo.snsClsf.desc())
+                        .fetchOne();
+                if (snsClsf != null) {
+                    member.setSnsClsf(snsClsf.getSnsClsf());
+                }
+
+                TblUserLgnHstry latestLogin = q.selectFrom(qTblUserLgnHstry)
+                        .where(qTblUserLgnHstry.userSn.eq(member.getUserSn()))
+                        .orderBy(qTblUserLgnHstry.lgnDt.desc())
+                        .limit(1)
+                        .fetchOne();
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+            }
+
             Long totCnt = q.select(qTblUser.count())
                     .from(qTblUser)
                     .where(builder)
@@ -711,26 +1061,50 @@ public class MemberAdminApiService {
         return resultVO;
     }
 
-    public ResultVO managerMemberInsert(TblUser tblUser){
+    public ResultVO managerMemberInsert(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
-        try{
+        try {
+            // 비밀번호 암호화
             String hashedPswd = EgovFileScrty.encryptPassword(tblUser.getUserPw(), tblUser.getUserId());
             tblUser.setUserPw(hashedPswd);
-            System.out.println("Pwd" + hashedPswd);
+
+            // 휴대폰 번호 암호화
             String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
             tblUser.setMblTelno(encryptedMblTelno);
-            System.out.println("mblTel" + encryptedMblTelno);
-            System.out.println(tblUser);
-            tblUserRepository.save(tblUser);
 
+            // 사용자 저장
+            TblUser savedUser = tblUserRepository.save(tblUser);
+            Long userSn = savedUser.getUserSn();
+
+            Integer mbrType = (int) tblUser.getMbrType();
+            TblMenuAuthrtGroupUser menuAuthrtGroupUser = new TblMenuAuthrtGroupUser();
+            menuAuthrtGroupUser.setUserSn(userSn);
+
+            if (Integer.valueOf(2).equals(mbrType)) {
+                menuAuthrtGroupUser.setAuthrtGroupSn(6);
+            } else if (Integer.valueOf(9).equals(mbrType)) {
+                menuAuthrtGroupUser.setAuthrtGroupSn(2);
+            } else {
+                menuAuthrtGroupUser.setAuthrtGroupSn(5);
+            }
+
+            menuAuthrtGroupUser.setActvtnYn("Y");
+            menuAuthrtGroupUser.setCreatrSn(1);
+            tblMenuAuthrtGroupUserRepository.save(menuAuthrtGroupUser);
+            System.out.println("menu" + menuAuthrtGroupUser);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("관리자 회원 등록 중 오류 발생");
         }
 
         return resultVO;
     }
+
+
+
+
 }
