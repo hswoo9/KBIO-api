@@ -3,6 +3,7 @@ package egovframework.com.devjitsu.service.member;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -913,11 +914,10 @@ public class MemberApiService {
                     if (mvnEntSn != null) {
                         TblMvnEnt mvnEnt = tblMvnEntRepository.findByMvnEntSn(mvnEntSn);
                         if (mvnEnt != null) {
-                            // aprvYn 값을 가져와서 rc에 추가
-                            String aprvYn = mvnEntMbr.getAprvYn();
-                            mvnEnt.setAprvYn(aprvYn); // 만약 TblMvnEnt 객체에 aprvYn을 추가할 수 있다면
+                            String sysMngrYn = mvnEntMbr.getSysMngrYn();
+                            mvnEnt.setSysMngrYn(sysMngrYn);
 
-                            resultVO.putResult("rc", mvnEnt); // rc에 mvnEnt와 aprvYn 값을 함께 넣기
+                            resultVO.putResult("rc", mvnEnt);
                         }
                     }
                 } else if (relInstMbr != null) {
@@ -926,11 +926,10 @@ public class MemberApiService {
                     if (relInstSn != null) {
                         TblRelInst relInst = tblRelInstRepository.findByRelInstSn(relInstSn);
                         if (relInst != null) {
-                            // aprvYn 값을 가져와서 rc에 추가
-                            String aprvYn = relInstMbr.getAprvYn();
-                            relInst.setAprvYn(aprvYn); // 만약 TblRelInst 객체에 aprvYn을 추가할 수 있다면
+                            String sysMngrYn = relInstMbr.getSysMngrYn();
+                            relInst.setSysMngrYn(sysMngrYn);
 
-                            resultVO.putResult("rc", relInst); // rc에 relInst와 aprvYn 값을 함께 넣기
+                            resultVO.putResult("rc", relInst);
                         }
                     }
                 } else {
@@ -1629,6 +1628,111 @@ public class MemberApiService {
 
         return resultVO;
     }
+
+    public ResultVO getCompanyMemberList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+        JPAQueryFactory q = new JPAQueryFactory(em);
+
+        try {
+            QTblMvnEntMbr qTblMvnEntMbr = QTblMvnEntMbr.tblMvnEntMbr;
+            QTblUser qTblUser = QTblUser.tblUser;
+            QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
+            BooleanBuilder builder = new BooleanBuilder();
+
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            }
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            Long mvnEntSn = dto.get("mvnEntSn") != null ? ((Number) dto.get("mvnEntSn")).longValue() : null;
+            Long relInstSn = dto.get("relInstSn") != null ? ((Number) dto.get("relInstSn")).longValue() : null;
+
+            if (mvnEntSn == null && relInstSn == null) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                return resultVO;
+            }
+
+            List<Long> userSnList = new ArrayList<>();
+
+            if (mvnEntSn != null) {
+                userSnList = q.select(qTblMvnEntMbr.userSn)
+                        .from(qTblMvnEntMbr)
+                        .where(qTblMvnEntMbr.mvnEntSn.eq(mvnEntSn))
+                        .fetch();
+            }
+
+            if (userSnList.isEmpty() && relInstSn != null) {
+                userSnList = q.select(qTblRelInstMbr.userSn)
+                        .from(qTblRelInstMbr)
+                        .where(qTblRelInstMbr.relInstSn.eq(relInstSn))
+                        .fetch();
+            }
+
+            if (userSnList.isEmpty()) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                return resultVO;
+            }
+
+            // 검색 조건 추가
+            if (!StringUtils.isEmpty(dto.get("sysMngrYn"))) {
+                builder.and(qTblMvnEntMbr.sysMngrYn.eq((String) dto.get("sysMngrYn")));
+            }
+            if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
+                builder.and(qTblUser.mbrStts.eq((String) dto.get("mbrStts")));
+            }
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                String searchVal = (String) dto.get("searchVal");
+                if ("kornFlnm".equals(dto.get("searchType"))) {
+                    builder.and(qTblUser.kornFlnm.contains(searchVal));
+                } else if ("userId".equals(dto.get("searchType"))) {
+                    builder.and(qTblUser.userId.contains(searchVal));
+                }
+            } else if (!StringUtils.isEmpty(dto.get("searchVal"))) {
+                String searchVal = (String) dto.get("searchVal");
+                builder.and(qTblUser.kornFlnm.contains(searchVal)
+                        .or(qTblUser.userId.contains(searchVal)));
+            }
+
+            List<TblUser> userList = q.select(qTblUser)
+                    .from(qTblUser)
+                    .where(qTblUser.userSn.in(userSnList).and(builder))
+                    .fetch();
+
+            Map<Long, String> aprvYnMap = q.select(
+                            qTblMvnEntMbr.userSn,
+                            qTblMvnEntMbr.aprvYn.coalesce(qTblRelInstMbr.aprvYn)
+                    )
+                    .from(qTblMvnEntMbr)
+                    .leftJoin(qTblRelInstMbr).on(qTblMvnEntMbr.userSn.eq(qTblRelInstMbr.userSn))
+                    .where(qTblMvnEntMbr.userSn.in(userSnList))
+                    .transform(GroupBy.groupBy(qTblMvnEntMbr.userSn).as(qTblMvnEntMbr.aprvYn.coalesce(qTblRelInstMbr.aprvYn)));
+
+            for (TblUser user : userList) {
+                user.setAprvYn(aprvYnMap.getOrDefault(user.getUserSn(), "N"));  // 기본값 "N"
+            }
+
+            Long totCnt = q.select(qTblUser.count())
+                    .from(qTblUser)
+                    .where(qTblUser.userSn.in(userSnList).and(builder))
+                    .fetchOne();
+
+            if (totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            resultVO.putResult("getCompanyMemberList", userList);
+            resultVO.putPaginationInfo(paginationInfo);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 
 
 }

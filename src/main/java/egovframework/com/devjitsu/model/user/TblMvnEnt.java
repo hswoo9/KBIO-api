@@ -221,6 +221,6 @@ public class TblMvnEnt {
     private String entTpbizNm;
 
     @Transient
-    private String aprvYn;
+    private String sysMngrYn;
 
 }

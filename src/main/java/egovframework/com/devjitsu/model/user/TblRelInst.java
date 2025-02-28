@@ -227,5 +227,5 @@ public class TblRelInst {
     private List<TblComFile> relInstAtchFiles;
 
     @Transient
-    private String aprvYn;
+    private String sysMngrYn;
 }

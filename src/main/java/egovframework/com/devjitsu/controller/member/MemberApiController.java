@@ -407,4 +407,11 @@ public class MemberApiController {
     public ResultVO delAcbg(@RequestBody TblAcbg tblAcbg) {
         return memberApiService.delAcbg(tblAcbg);
     }
+
+    @PostMapping("/memberApi/getCompanyMemberList.do")
+    public ResultVO getCompanyMemberList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+        return memberApiService.getCompanyMemberList(dto);
+    }
 }

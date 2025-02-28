@@ -125,4 +125,7 @@ public class TblUser {
 
   @Transient
   private String companyNm;
+
+  @Transient
+  private String aprvYn;
 }
