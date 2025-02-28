@@ -186,11 +186,6 @@ public class MvnEntApiService {
                 );
             }
 
-            /*List<TblMvnEnt> tblMvnEntList = q.selectFrom(qTblMvnEnt)
-                    .where(builder)
-                    .orderBy(qTblMvnEnt.frstCrtDt.desc())
-                    .offset(paginationInfo.getFirstRecordIndex())
-                    .limit(paginationInfo.getRecordCountPerPage()).fetch();*/
 
             List<MvnEntDto> tblMvnEntList = q
                     .select(
@@ -444,6 +439,41 @@ public class MvnEntApiService {
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         }catch (Exception e){
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setRcActvtnYn(TblMvnEnt tblMvnEnt){
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            tblMvnEnt.setActvtnYn("N");
+            tblMvnEntRepository.save(tblMvnEnt);
+
+            long mvnEntSn = tblMvnEnt.getMvnEntSn();
+            List <TblMvnEntMbr> tblMvnEntMbrList =tblMvnEntMbrRepository.findUserSnByMvnEntSn(mvnEntSn);
+
+            List<Long> userSnList = new ArrayList<>();
+
+            if (tblMvnEntMbrList != null && !tblMvnEntMbrList.isEmpty()) {
+                userSnList = tblMvnEntMbrList.stream()
+                        .map(TblMvnEntMbr::getUserSn)
+                        .collect(Collectors.toList());
+
+                userSnList.forEach(userSn -> {
+                    TblUser user = tblUserRepository.findByUserSn(userSn);
+                    if (user != null) {
+                        user.setActvtnYn("N");
+                        tblUserRepository.save(user);
+                    }
+                });
+
+            }
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (Exception e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

@@ -76,11 +76,15 @@ public class MvnEntApiController {
         return mvnEntApiService.updateMvnEntMbrToMng(tblMvnEntMbrList);
     }
 
-    //cancleMng
     @PostMapping("/mvnEntApi/cancleMng")
     public ResultVO cancleMng(@RequestBody TblMvnEntMbr tblMvnEntMbrList){
 
         return mvnEntApiService.cancleMng(tblMvnEntMbrList);
+    }
+
+    @PostMapping("/mvnEntApi/setRcActvtnYn")
+    public ResultVO setRcActvtnYn(@RequestBody TblMvnEnt tblMvnEnt){
+        return mvnEntApiService.setRcActvtnYn(tblMvnEnt);
     }
 
 }
