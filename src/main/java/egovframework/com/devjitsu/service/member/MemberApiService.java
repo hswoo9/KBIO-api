@@ -1870,5 +1870,25 @@ public class MemberApiService {
         return resultVO;
     }
 
+    public ResultVO setDiffDel(TblDfclMttr tblDfclMttr) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            TblDfclMttr diffDel = tblDfclMttrRepository.findByDfclMttrSn(tblDfclMttr.getDfclMttrSn());
+
+            if (diffDel != null) {
+                tblDfclMttrRepository.delete(diffDel);
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            } else {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 
 }
