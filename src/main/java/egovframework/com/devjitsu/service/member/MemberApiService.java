@@ -1701,6 +1701,7 @@ public class MemberApiService {
             QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
             BooleanBuilder builder = new BooleanBuilder();
 
+            // 페이지 설정
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
                 paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
             }
@@ -1736,13 +1737,7 @@ public class MemberApiService {
                 return resultVO;
             }
 
-            // 검색 조건 추가
-            if (!StringUtils.isEmpty(dto.get("sysMngrYn"))) {
-                builder.and(qTblMvnEntMbr.sysMngrYn.eq((String) dto.get("sysMngrYn")));
-            }
-            if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
-                builder.and(qTblUser.mbrStts.eq((String) dto.get("mbrStts")));
-            }
+
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 String searchVal = (String) dto.get("searchVal");
                 if ("kornFlnm".equals(dto.get("searchType"))) {
@@ -1771,7 +1766,7 @@ public class MemberApiService {
                     .transform(GroupBy.groupBy(qTblMvnEntMbr.userSn).as(qTblMvnEntMbr.aprvYn.coalesce(qTblRelInstMbr.aprvYn)));
 
             for (TblUser user : userList) {
-                user.setAprvYn(aprvYnMap.getOrDefault(user.getUserSn(), "N"));  // 기본값 "N"
+                user.setAprvYn(aprvYnMap.getOrDefault(user.getUserSn(), "N"));
             }
 
             Long totCnt = q.select(qTblUser.count())
@@ -1794,6 +1789,86 @@ public class MemberApiService {
         return resultVO;
     }
 
+
+    public ResultVO setCompanyMember(TblUser tblUser) {
+        ResultVO resultVO = new ResultVO();
+        JPAQueryFactory q = new JPAQueryFactory(em);
+
+        try {
+            Long userSn = tblUser.getUserSn();
+
+            if (userSn == null) {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+                resultVO.setResultMessage("userSn이 없습니다.");
+                return resultVO;
+            }
+
+            long updatedMvnEntMbr = q.update(QTblMvnEntMbr.tblMvnEntMbr)
+                    .set(QTblMvnEntMbr.tblMvnEntMbr.aprvYn, "Y")
+                    .where(QTblMvnEntMbr.tblMvnEntMbr.userSn.eq(userSn))
+                    .execute();
+
+            long updatedRelInstMbr = q.update(QTblRelInstMbr.tblRelInstMbr)
+                    .set(QTblRelInstMbr.tblRelInstMbr.aprvYn, "Y")
+                    .where(QTblRelInstMbr.tblRelInstMbr.userSn.eq(userSn))
+                    .execute();
+
+            if (updatedMvnEntMbr > 0 || updatedRelInstMbr > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("승인 처리 완료");
+            } else {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+                resultVO.setResultMessage("해당 사용자를 찾을 수 없습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            resultVO.setResultMessage("승인 처리 중 오류 발생");
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setCompanyMemberDel(TblUser tblUser) {
+        ResultVO resultVO = new ResultVO();
+        JPAQueryFactory q = new JPAQueryFactory(em);
+
+        try {
+            Long userSn = tblUser.getUserSn();
+
+            if (userSn == null) {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+                resultVO.setResultMessage("userSn이 없습니다.");
+                return resultVO;
+            }
+
+            long updatedMvnEntMbr = q.update(QTblMvnEntMbr.tblMvnEntMbr)
+                    .set(QTblMvnEntMbr.tblMvnEntMbr.aprvYn, "N")
+                    .where(QTblMvnEntMbr.tblMvnEntMbr.userSn.eq(userSn))
+                    .execute();
+
+            long updatedRelInstMbr = q.update(QTblRelInstMbr.tblRelInstMbr)
+                    .set(QTblRelInstMbr.tblRelInstMbr.aprvYn, "N")
+                    .where(QTblRelInstMbr.tblRelInstMbr.userSn.eq(userSn))
+                    .execute();
+
+            if (updatedMvnEntMbr > 0 || updatedRelInstMbr > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("취소 처리 완료");
+            } else {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+                resultVO.setResultMessage("해당 사용자를 찾을 수 없습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            resultVO.setResultMessage("승인 처리 중 오류 발생");
+        }
+
+        return resultVO;
+    }
 
 
 }
