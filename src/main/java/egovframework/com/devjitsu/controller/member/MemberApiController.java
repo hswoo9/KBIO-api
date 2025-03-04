@@ -414,4 +414,14 @@ public class MemberApiController {
 
         return memberApiService.getCompanyMemberList(dto);
     }
+    @PostMapping("/memberApi/setCompanyMember")
+    public ResultVO setCompanyMember(@RequestBody TblUser tblUser){
+        return memberApiService.setCompanyMember(tblUser);
+    }
+
+    @PostMapping("/memberApi/setCompanyMemberDel")
+    public ResultVO setCompanyMemberDel(@RequestBody TblUser tblUser){
+        return memberApiService.setCompanyMemberDel(tblUser);
+    }
+
 }
