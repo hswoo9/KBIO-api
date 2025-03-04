@@ -1506,6 +1506,67 @@ public class MemberApiService {
         return resultVO;
     }
 
+    public ResultVO setAcceptCnslt(TblCnsltDtl tblCnsltDtl) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+
+            long updatedCount = new JPAQueryFactory(em)
+                    .update(qTblCnsltDtl)
+                    .set(qTblCnsltDtl.cnsltSttsCd, "101")
+                    .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDtl.getCnsltAplySn()))
+                    .execute();
+
+            if (updatedCount > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("처리되었습니다.");
+            } else {
+                resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+                resultVO.setResultMessage("실패하였습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("오류가 발생했습니다.");
+        }
+
+        return resultVO;
+    }
+
+    public ResultVO setCancleCnsltRequest(TblCnsltDtl tblCnsltDtl) {
+        ResultVO resultVO = new ResultVO();
+
+        try {
+            QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
+
+            long updatedCount = new JPAQueryFactory(em)
+                    .update(qTblCnsltDtl)
+                    .set(qTblCnsltDtl.cnsltSttsCd, "12")
+                    .set(qTblCnsltDtl.cnslttUserSn, (Long) null)
+                    .set(qTblCnsltDtl.cnslttDsgnDt, (LocalDateTime) null)
+                    .where(qTblCnsltDtl.cnsltAplySn.eq(tblCnsltDtl.getCnsltAplySn()))
+                    .execute();
+
+            if (updatedCount > 0) {
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultMessage("처리되었습니다.");
+            } else {
+                resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+                resultVO.setResultMessage("실패하였습니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+            resultVO.setResultMessage("오류가 발생했습니다.");
+        }
+
+        return resultVO;
+    }
+
+
     public ResultVO setSatisSimpleData(TblCnsltDgstfn tblCnsltDgstfn) {
         ResultVO resultVO = new ResultVO();
 
