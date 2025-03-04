@@ -1640,6 +1640,7 @@ public class MemberApiService {
             QTblRelInstMbr qTblRelInstMbr = QTblRelInstMbr.tblRelInstMbr;
             BooleanBuilder builder = new BooleanBuilder();
 
+            // 페이지 설정
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
                 paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
             }
@@ -1675,13 +1676,7 @@ public class MemberApiService {
                 return resultVO;
             }
 
-            // 검색 조건 추가
-            if (!StringUtils.isEmpty(dto.get("sysMngrYn"))) {
-                builder.and(qTblMvnEntMbr.sysMngrYn.eq((String) dto.get("sysMngrYn")));
-            }
-            if (!StringUtils.isEmpty(dto.get("mbrStts"))) {
-                builder.and(qTblUser.mbrStts.eq((String) dto.get("mbrStts")));
-            }
+
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 String searchVal = (String) dto.get("searchVal");
                 if ("kornFlnm".equals(dto.get("searchType"))) {
@@ -1710,7 +1705,7 @@ public class MemberApiService {
                     .transform(GroupBy.groupBy(qTblMvnEntMbr.userSn).as(qTblMvnEntMbr.aprvYn.coalesce(qTblRelInstMbr.aprvYn)));
 
             for (TblUser user : userList) {
-                user.setAprvYn(aprvYnMap.getOrDefault(user.getUserSn(), "N"));  // 기본값 "N"
+                user.setAprvYn(aprvYnMap.getOrDefault(user.getUserSn(), "N"));
             }
 
             Long totCnt = q.select(qTblUser.count())
@@ -1732,6 +1727,7 @@ public class MemberApiService {
 
         return resultVO;
     }
+
 
     public ResultVO setCompanyMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
