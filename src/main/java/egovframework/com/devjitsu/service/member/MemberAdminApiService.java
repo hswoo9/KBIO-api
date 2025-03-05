@@ -168,7 +168,7 @@ public class MemberAdminApiService {
 
     public ResultVO getNormalMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
-
+        System.out.println("userSn:" + tblUser.getUserSn());
         try {
             TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
 
@@ -198,6 +198,9 @@ public class MemberAdminApiService {
         ResultVO resultVO = new ResultVO();
 
         try {
+            String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+            tblUser.setMblTelno(encryptedMblTelno);
+
             tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
