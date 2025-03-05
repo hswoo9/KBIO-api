@@ -16,6 +16,8 @@
         .severity-low { color: #388e3c; }
         .chart { margin: 20px 0; padding: 20px; background: #f9f9f9; border-radius: 4px; }
         .action-item { margin: 10px 0; padding-left: 20px; }
+        a { color: #1976d2; text-decoration: none; }
+        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -43,7 +45,10 @@
                 </tr>
                 <tr>
                     <td>사용 도구</td>
-                    <td>PMD 6.55.0, SpotBugs 4.7.3</td>
+                    <td>
+                        <a href="https://pmd.github.io/" target="_blank">PMD 6.55.0</a>, 
+                        <a href="https://spotbugs.github.io/" target="_blank">SpotBugs 4.7.3</a>
+                    </td>
                 </tr>
             </table>
         </section>
@@ -188,6 +193,15 @@
                         <li>테스트 커버리지 향상</li>
                     </ul>
                 </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>관련 문서</h2>
+            <ul>
+                <li><a href="pmd.html" target="_blank">PMD 상세 검사 결과</a></li>
+                <li><a href="https://pmd.github.io/latest/pmd_rules_java.html" target="_blank">PMD Java 규칙 문서</a></li>
+                <li><a href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html" target="_blank">SpotBugs 버그 패턴 문서</a></li>
             </ul>
         </section>
     </div>
