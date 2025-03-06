@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-public class userMsgAdminApiController {
+public class UserMsgAdminApiController {
 
     @Autowired
     private UserMsgAdminApiService userMsgAdminApiService;
