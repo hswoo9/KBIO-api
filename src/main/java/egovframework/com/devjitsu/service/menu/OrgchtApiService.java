@@ -61,6 +61,18 @@ public class OrgchtApiService {
         return resultVO;
     }
 
+    public ResultVO delOrgcht(TblOrgcht tblOrgcht){
+        ResultVO resultVO = new ResultVO();
+        try {
+            tblOrgchtRepository.delete(tblOrgcht);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+        return resultVO;
+    }
+
     public ResultVO getOrgcht(TblOrgcht tblOrgcht){
         ResultVO resultVO = new ResultVO();
         try {

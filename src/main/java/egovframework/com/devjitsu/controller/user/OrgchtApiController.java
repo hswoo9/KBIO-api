@@ -35,6 +35,16 @@ public class OrgchtApiController {
     }
 
     /**
+     * 조직도 삭제
+     * @param tblOrgcht
+     * @return
+     */
+    @PostMapping("/orgchtApi/delOrgcht")
+    public ResultVO delOrgcht(@RequestBody TblOrgcht tblOrgcht){
+        return orgchtApiService.delOrgcht(tblOrgcht);
+    }
+
+    /**
      * 조직도 리스트 조회 (페이징)
      * @param request
      * @return
