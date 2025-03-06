@@ -5,6 +5,7 @@ import egovframework.com.devjitsu.model.common.SearchDto;
 import egovframework.com.devjitsu.model.consult.TblCnsltAply;
 import egovframework.com.devjitsu.model.consult.TblCnsltDtl;
 import egovframework.com.devjitsu.model.user.TblCnslttMbr;
+import egovframework.com.devjitsu.model.user.TblUser;
 import egovframework.com.devjitsu.service.consult.ConsultingAdminApiService;
 import egovframework.com.devjitsu.service.consult.ConsultingApiService;
 import lombok.RequiredArgsConstructor;
@@ -48,9 +49,14 @@ public class ConsultingAdminApiController {
         return consultingAdminApiService.getConsultingDetail(dto);
     }
 
-    @PostMapping("/consultingApi/setCnslttMbrActv")
+    /*@PostMapping("/consultingApi/setCnslttMbrActv")
     public ResultVO setCnslttMbrActv(@RequestBody TblCnslttMbr tblCnslttMbr){
         return consultingAdminApiService.setCnslttMbrActv(tblCnslttMbr);
+    }*/
+    @PostMapping("/consultingApi/setCnslttMbrActv")
+    public ResultVO setCnslttMbrActv(@ModelAttribute TblCnslttMbr tblCnslttMbr,
+                                     @ModelAttribute TblUser tblUser){
+        return consultingAdminApiService.setCnslttMbrActv(tblCnslttMbr, tblUser);
     }
 
     @PostMapping("/consultingApi/setCnsltDtlSttsCd")

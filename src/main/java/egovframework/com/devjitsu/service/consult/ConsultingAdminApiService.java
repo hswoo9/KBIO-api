@@ -21,6 +21,7 @@ import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import egovframework.com.devjitsu.repository.consult.*;
 import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
+import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
@@ -546,12 +547,12 @@ public class ConsultingAdminApiService {
         return resultVO;
     }
 
-    public ResultVO setCnslttMbrActv (TblCnslttMbr tblCnslttMbr){
+    public ResultVO setCnslttMbrActv (TblCnslttMbr tblCnslttMbr, TblUser tblUser){
         ResultVO resultVO = new ResultVO();
         long userSn = tblCnslttMbr.getUserSn();
 
         try{
-            Optional<TblCnslttMbr> tblCnslttMbrOptional = Optional.ofNullable(tblCnslttMbrRepository.findByUserSn(userSn));
+            /*Optional<TblCnslttMbr> tblCnslttMbrOptional = Optional.ofNullable(tblCnslttMbrRepository.findByUserSn(userSn));
             if(tblCnslttMbrOptional.isPresent()) {
                 TblCnslttMbr cnslttMbr = tblCnslttMbrOptional.get();
                 cnslttMbr.setCnsltActv(tblCnslttMbr.getCnsltActv());
@@ -559,7 +560,16 @@ public class ConsultingAdminApiService {
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             }else{
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
-            }
+            }*/
+
+            String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+            tblUser.setMblTelno(encryptedMblTelno);
+            tblUserRepository.save(tblUser);
+            tblCnslttMbrRepository.save(tblCnslttMbr);
+
+
+
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }

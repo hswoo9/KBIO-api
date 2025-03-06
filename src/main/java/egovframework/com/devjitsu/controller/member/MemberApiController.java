@@ -365,6 +365,16 @@ public class MemberApiController {
         return memberApiService.setCancelSimple(tblCnsltDtl);
     }
 
+    @PostMapping("/memberApi/setAcceptCnslt")
+    public ResultVO setAcceptCnslt(@RequestBody TblCnsltDtl tblCnsltDtl){
+        return memberApiService.setAcceptCnslt(tblCnsltDtl);
+    }
+
+    @PostMapping("/memberApi/setCancleCnsltRequest")
+    public ResultVO setCancleCnsltRequest(@RequestBody TblCnsltDtl tblCnsltDtl){
+        return memberApiService.setCancleCnsltRequest(tblCnsltDtl);
+    }
+
     @PostMapping("/memberApi/setSatisSimpleData")
     public ResponseEntity<ResultVO> setSatisSimpleData(@RequestParam Map<String, String> params) {
         String dgstfnArtcl = params.get("dgstfnArtcl");
@@ -414,4 +424,19 @@ public class MemberApiController {
 
         return memberApiService.getCompanyMemberList(dto);
     }
+    @PostMapping("/memberApi/setCompanyMember")
+    public ResultVO setCompanyMember(@RequestBody TblUser tblUser){
+        return memberApiService.setCompanyMember(tblUser);
+    }
+
+    @PostMapping("/memberApi/setCompanyMemberDel")
+    public ResultVO setCompanyMemberDel(@RequestBody TblUser tblUser){
+        return memberApiService.setCompanyMemberDel(tblUser);
+    }
+
+    @PostMapping("/memberApi/setDiffDel")
+    public ResultVO setDiffDel(@RequestBody TblDfclMttr tblDfclMttr){
+        return memberApiService.setDiffDel(tblDfclMttr);
+    }
+
 }
