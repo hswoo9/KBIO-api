@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-BIO API 품질/보안 검사 종합 보고서</title>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1, h2, h3 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        .severity-high { color: #d32f2f; }
+        .severity-medium { color: #f57c00; }
+        .severity-low { color: #388e3c; }
+        .chart { margin: 20px 0; padding: 20px; background: #f9f9f9; border-radius: 4px; }
+        .action-item { margin: 10px 0; padding-left: 20px; }
+        a { color: #1976d2; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>K-BIO API 품질/보안 검사 종합 보고서</h1>
+        
+        <section>
+            <h2>검사 개요</h2>
+            <table>
+                <tr>
+                    <th>항목</th>
+                    <th>내용</th>
+                </tr>
+                <tr>
+                    <td>프로젝트명</td>
+                    <td>K-BIO API</td>
+                </tr>
+                <tr>
+                    <td>검사 일시</td>
+                    <td>2025-03-05</td>
+                </tr>
+                <tr>
+                    <td>검사 대상</td>
+                    <td>Java 소스 코드</td>
+                </tr>
+                <tr>
+                    <td>사용 도구</td>
+                    <td>
+                        <a href="https://pmd.github.io/" target="_blank">PMD 6.55.0</a>, 
+                        <a href="https://spotbugs.github.io/" target="_blank">SpotBugs 4.7.3</a>
+                    </td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>품질 검사 결과</h2>
+            <div class="chart">
+                <h3>심각도 별 이슈 현황</h3>
+                <table>
+                    <tr>
+                        <th>심각도</th>
+                        <th>발견</th>
+                        <th>해결</th>
+                        <th>미해결</th>
+                        <th>해결률</th>
+                    </tr>
+                    <tr class="severity-high">
+                        <td>높음</td>
+                        <td>229</td>
+                        <td>20</td>
+                        <td>209</td>
+                        <td>8.7%</td>
+                    </tr>
+                    <tr class="severity-medium">
+                        <td>중간</td>
+                        <td>109</td>
+                        <td>0</td>
+                        <td>109</td>
+                        <td>0%</td>
+                    </tr>
+                    <tr class="severity-low">
+                        <td>낮음</td>
+                        <td>11,413</td>
+                        <td>0</td>
+                        <td>11,413</td>
+                        <td>0%</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>보안 취약점 분석</h2>
+            <table>
+                <tr>
+                    <th>취약점 유형</th>
+                    <th>발견 건수</th>
+                    <th>심각도</th>
+                    <th>주요 위험</th>
+                </tr>
+                <tr>
+                    <td>CRLF 인젝션</td>
+                    <td>42</td>
+                    <td class="severity-high">높음</td>
+                    <td>로그 조작 및 정보 노출</td>
+                </tr>
+                <tr>
+                    <td>쿠키 보안</td>
+                    <td>15</td>
+                    <td class="severity-high">높음</td>
+                    <td>세션 하이재킹</td>
+                </tr>
+                <tr>
+                    <td>HTTP 응답 분할</td>
+                    <td>8</td>
+                    <td class="severity-high">높음</td>
+                    <td>응답 헤더 조작</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>주요 개선 필요사항</h2>
+            
+            <h3>1. 보안 취약점</h3>
+            <div class="action-item">
+                <h4>CRLF 인젝션 (42건)</h4>
+                <ul>
+                    <li>로그 출력 시 사용자 입력값 검증 강화</li>
+                    <li>로깅 라이브러리의 이스케이프 기능 활용</li>
+                    <li>문자열 필터링 로직 추가</li>
+                </ul>
+            </div>
+            
+            <div class="action-item">
+                <h4>쿠키 보안 (15건)</h4>
+                <ul>
+                    <li>보안 속성(Secure, HttpOnly) 설정</li>
+                    <li>세션 ID 암호화</li>
+                    <li>쿠키 만료 시간 적절히 설정</li>
+                </ul>
+            </div>
+
+            <h3>2. 코드 품질</h3>
+            <div class="action-item">
+                <h4>복잡도 개선</h4>
+                <ul>
+                    <li>순환 복잡도가 높은 메소드 분할</li>
+                    <li>중복 코드 제거 및 공통 모듈화</li>
+                    <li>조건문 단순화</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>개선 계획</h2>
+            
+            <h3>단기 계획 (2주)</h3>
+            <ul>
+                <li>심각한 보안 취약점 해결
+                    <ul>
+                        <li>CRLF 인젝션 방지</li>
+                        <li>쿠키 보안 강화</li>
+                        <li>HTTP 응답 분할 취약점 제거</li>
+                    </ul>
+                </li>
+                <li>심각한 품질 이슈 해결
+                    <ul>
+                        <li>순환 복잡도가 높은 메소드 리팩토링</li>
+                        <li>중복 코드 제거</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>중기 계획 (1-2개월)</h3>
+            <ul>
+                <li>코드 구조 개선
+                    <ul>
+                        <li>긴 메소드 분할</li>
+                        <li>미사용 코드 제거</li>
+                        <li>복잡한 조건문 단순화</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>장기 계획 (3개월+)</h3>
+            <ul>
+                <li>전반적인 품질 향상
+                    <ul>
+                        <li>코딩 컨벤션 준수</li>
+                        <li>문서화 개선</li>
+                        <li>테스트 커버리지 향상</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>관련 문서</h2>
+            <ul>
+                <li><a href="pmd.html" target="_blank">PMD 상세 검사 결과</a></li>
+                <li><a href="https://pmd.github.io/latest/pmd_rules_java.html" target="_blank">PMD Java 규칙 문서</a></li>
+                <li><a href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html" target="_blank">SpotBugs 버그 패턴 문서</a></li>
+            </ul>
+        </section>
+    </div>
+</body>
+</html> 
