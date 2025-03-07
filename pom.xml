@@ -474,6 +474,42 @@
                     <artifactId>maven-pmd-plugin</artifactId>
                     <version>3.21.0</version>
                 </plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-spotbugs-plugin</artifactId>
+					<version>4.7.0.0</version> <!-- 최신 버전 사용 -->
+					<executions>
+						<execution>
+							<goals>
+								<goal>spotbugs</goal> <!-- SpotBugs 검사 실행 -->
+							</goals>
+							<configuration>
+								<outputDirectory>${project.build.directory}/spotbugs</outputDirectory> <!-- output 위치 설정 -->
+								<reportEncoding>UTF-8</reportEncoding>
+								<xmlOutput>true</xmlOutput> <!-- XML 리포트 출력 -->
+								<htmlOutput>true</htmlOutput> <!-- HTML 리포트 출력 -->
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>3.21.0</version>
+					<executions>
+						<execution>
+							<phase>validate</phase>
+							<goals>
+								<goal>pmd</goal>
+							</goals>
+							<configuration>
+								<failOnViolation>false</failOnViolation> <!-- 위반 사항에 대해 빌드 실패를 막음 -->
+								<reportFormat>html</reportFormat> <!-- HTML 형식으로 결과 생성 -->
+								<outputDirectory>${project.build.directory}/pmd</outputDirectory> <!-- 검사 결과 저장 위치 -->
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
             </plugins>
         </pluginManagement>
  
