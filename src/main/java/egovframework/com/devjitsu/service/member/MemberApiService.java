@@ -1758,6 +1758,8 @@ public class MemberApiService {
             List<TblUser> userList = q.select(qTblUser)
                     .from(qTblUser)
                     .where(qTblUser.userSn.in(userSnList).and(builder))
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
             Map<Long, String> aprvYnMap = q.select(
