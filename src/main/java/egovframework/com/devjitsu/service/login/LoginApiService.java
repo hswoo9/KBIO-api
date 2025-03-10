@@ -149,11 +149,11 @@ public class LoginApiService {
                     resultVO.setResultCode(ResponseCode.REJECT_FOR_APPROVAL.getCode());
                     resultVO.setResultMessage(ResponseCode.REJECT_FOR_APPROVAL.getMessage());
                     return resultVO;
-                }else if(tblUser.getMbrStts().equals("C")){
+                }else if(tblUser.getMbrStts().equals("S")){
                     resultVO.setResultCode(ResponseCode.SUSPENSION_OF_USE.getCode());
                     resultVO.setResultMessage(ResponseCode.SUSPENSION_OF_USE.getMessage());
                     return resultVO;
-                }if(tblUser.getMbrStts().equals("S")){
+                }if(tblUser.getMbrStts().equals("C")){
                     resultVO.setResultCode(ResponseCode.WITHDRAWN_USER.getCode());
                     resultVO.setResultMessage(ResponseCode.WITHDRAWN_USER.getMessage());
                     return resultVO;
