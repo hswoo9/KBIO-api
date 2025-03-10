@@ -123,34 +123,38 @@ public class MemberApiService {
         QTblMvnEnt tblMvnEnt = QTblMvnEnt.tblMvnEnt;
         QTblRelInst tblRelInst = QTblRelInst.tblRelInst;
 
+        TblMvnEnt businessInfo = new JPAQueryFactory(em)
+                .selectFrom(tblMvnEnt)
+                .where(tblMvnEnt.brno.eq(dto.get("businessNumber").toString()))
+                .fetchOne();
+
+        if (businessInfo != null) {
+            resultVO.setResultCode(200);
+            resultVO.putResult("businessType", "입주기업");
+            resultVO.putResult("businessData", businessInfo);
+            return resultVO;
+        }
+
         TblRelInst relatedInstInfo = new JPAQueryFactory(em)
                 .selectFrom(tblRelInst)
                 .where(tblRelInst.brno.eq(dto.get("businessNumber").toString()))
                 .fetchOne();
 
-        if (relatedInstInfo == null) {
-            TblMvnEnt businessInfo = new JPAQueryFactory(em)
-                    .selectFrom(tblMvnEnt)
-                    .where(tblMvnEnt.brno.eq(dto.get("businessNumber").toString()))
-                    .fetchOne();
-
-            if (businessInfo != null) {
-                resultVO.setResultCode(200);
-                resultVO.putResult("businessCnt", 1);
-                resultVO.putResult("businessData", businessInfo);
-            } else {
-                resultVO.setResultCode(400);
-                resultVO.putResult("businessCnt", 0);
-                resultVO.putResult("businessData", null);
-            }
-        } else {
+        if (relatedInstInfo != null) {
             resultVO.setResultCode(200);
-            resultVO.putResult("businessCnt", 1);
-            resultVO.putResult("businessData", relatedInstInfo); // TblRelInst의 정보 반환
+            resultVO.putResult("businessType", "유관기관");
+            resultVO.putResult("businessData", relatedInstInfo);
+            return resultVO;
         }
+
+        // 3. 둘 다 없으면 비입주기업 처리
+        resultVO.setResultCode(400);
+        resultVO.putResult("businessType", "비입주기업");
+        resultVO.putResult("businessData", null);
 
         return resultVO;
     }
+
 
 
 
