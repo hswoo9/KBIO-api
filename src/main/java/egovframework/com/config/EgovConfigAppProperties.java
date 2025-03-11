@@ -40,6 +40,11 @@ public class EgovConfigAppProperties {
 	@Value("${Globals.posblAtchFileSize}")
 	private String posblAtchFileSize;
 
+	@Value("${Globals.mail.id}")
+	private String mailId;
+	@Value("${Globals.mail.password}")
+	private String mailPwd;
+
 
 	@Bean(destroyMethod = "destroy")
 	public EgovPropertyServiceImpl propertiesService() {
@@ -50,6 +55,8 @@ public class EgovConfigAppProperties {
 		properties.put("Globals.pageSize", pageSize);
 		properties.put("Globals.posblAtchFileSize", posblAtchFileSize);
 		properties.put("Globals.fileStorePath", fileStorePath);
+		properties.put("Gmail.id", mailId);
+		properties.put("Gmail.password", mailPwd);
 
 		egovPropertyServiceImpl.setProperties(properties);
 		return egovPropertyServiceImpl;

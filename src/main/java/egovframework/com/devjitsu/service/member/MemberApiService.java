@@ -40,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
 import javax.mail.*;
@@ -604,10 +605,10 @@ public class MemberApiService {
     private String generateRandomPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder password = new StringBuilder();
-        Random random = new Random();
 
         for (int i = 0; i < 10; i++) {
-            int index = random.nextInt(chars.length());
+            SecureRandom rand = new SecureRandom();
+            int index = rand.nextInt(chars.length());
             password.append(chars.charAt(index));
         }
 
@@ -617,8 +618,8 @@ public class MemberApiService {
 
     private boolean sendEmail(String to, String body) {
         String host = "smtp.gmail.com";
-        final String username = propertyService.getString("GLobals.mail.id");
-        final String password = propertyService.getString("GLobals.mail.password");
+        final String username = propertyService.getString("Gmail.id");
+        final String password = propertyService.getString("Gmail.password");
 
         Properties properties = new Properties();
         properties.put("mail.smtp.host", host);
