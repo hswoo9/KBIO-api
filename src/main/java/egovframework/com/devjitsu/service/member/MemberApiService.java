@@ -617,8 +617,8 @@ public class MemberApiService {
 
     private boolean sendEmail(String to, String body) {
         String host = "smtp.gmail.com";
-        final String username = "gksthe@gmail.com";
-        final String password = "mqhgtubmkdtpsoaa";
+        final String username = propertyService.getString("GLobals.mail.id");
+        final String password = propertyService.getString("GLobals.mail.password");
 
         Properties properties = new Properties();
         properties.put("mail.smtp.host", host);
