@@ -8,13 +8,24 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
+import egovframework.com.cmm.service.EgovProperties;
 import org.apache.commons.codec.binary.Base64;
 
 import egovframework.com.cmm.EgovWebUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.crypto.BlockCipher;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.bouncycastle.crypto.engines.ARIAEngine;
+import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.bouncycastle.jcajce.provider.symmetric.ARIA;
 
 /**
  * Base64인코딩/디코딩 방식을 이용한 데이터를 암호화/복호화하는 Business Interface class
@@ -39,6 +50,9 @@ public class EgovFileScrty {
 	static final String FILE_SEPARATOR = System.getProperty("file.separator");
 	// 버퍼사이즈
 	static final int BUFFER_SIZE = 1024;
+
+	private static final byte[] ARIA_KEY = EgovProperties.getProperty("Globals.ariaKey").getBytes(StandardCharsets.UTF_8);
+	private static final byte[] ARIA_IV = EgovProperties.getProperty("Globals.ariaIv").getBytes(StandardCharsets.UTF_8);
 
 	/**
 	 * 파일을 암호화하는 기능
@@ -312,4 +326,34 @@ public class EgovFileScrty {
 
     	return MessageDigest.isEqual(hashValue, Base64.decodeBase64(encoded.getBytes()));
     }
+
+	//암호화 함수
+	public static String encryptAria(byte[] data) throws InvalidCipherTextException {
+		byte[] encryptedData = processCipher(true, data);  // UTF-8로 바이트 변환 후 암호화
+		return Base64.encodeBase64String(encryptedData);
+	}
+
+	//복호화 함수
+	public static String decryptAria(String encryptedDataBase64) throws InvalidCipherTextException {
+		byte[] encryptedData = Base64.decodeBase64(encryptedDataBase64);  // Base64 디코딩
+		byte[] decryptedData = processCipher(false, encryptedData);  // 암호화된 데이터 복호화
+		return new String(decryptedData, StandardCharsets.UTF_8);
+	}
+
+
+	// ARIA 암호화/복호화 공통 처리 함수
+	private static byte[] processCipher(boolean isEncrypt, byte[] data) throws InvalidCipherTextException {
+		BlockCipher engine = new ARIAEngine();
+		PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
+		cipher.init(isEncrypt, new ParametersWithIV(new KeyParameter(ARIA_KEY), ARIA_IV));
+
+		byte[] output = new byte[cipher.getOutputSize(data.length)];
+		int processed = cipher.processBytes(data, 0, data.length, output, 0);
+		processed += cipher.doFinal(output, processed);
+
+		byte[] result = new byte[processed];
+		System.arraycopy(output, 0, result, 0, processed);
+		return result;
+	}
+
 }

@@ -128,4 +128,7 @@ public class TblUser {
 
   @Transient
   private String aprvYn;
+
+  @Transient
+  private String decodeMblTelno;
 }

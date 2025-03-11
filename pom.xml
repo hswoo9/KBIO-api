@@ -401,6 +401,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
+		<!-- ARIA 관련 -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.70</version>
+		</dependency>
 	</dependencies>
 
 	<build>

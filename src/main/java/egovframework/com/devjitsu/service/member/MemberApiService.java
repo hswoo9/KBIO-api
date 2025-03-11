@@ -30,6 +30,7 @@ import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -264,7 +266,8 @@ public class MemberApiService {
         String emailDomain = "direct".equals(dto.get("emailProvider")) ? (String) dto.get("emailDomain") : (String) dto.get("emailProvider");
         member.setEmail(dto.get("emailPrefix") + "@" + emailDomain); // 이메일
         //*member.setMblTelno((String) dto.get("mblTelno")); // 휴대폰 번호*//*
-        String encryptedMblTelno = EgovFileScrty.encode((String) dto.get("mblTelno")); // 휴대폰 번호 암호화
+        //String encryptedMblTelno = EgovFileScrty.encode((String) dto.get("mblTelno")); // 휴대폰 번호 암호화
+        String encryptedMblTelno = EgovFileScrty.encryptAria(dto.get("mblTelno").toString().getBytes(StandardCharsets.UTF_8)); // 휴대폰 번호 암호화
         member.setMblTelno(encryptedMblTelno);
         member.setEmlRcptnAgreYn((String) dto.get("emlRcptnAgreYn")); // 이메일 수신 동의 여부
         member.setSmsRcptnAgreYn((String) dto.get("smsRcptnAgreYn")); // SMS 수신 동의 여부
@@ -662,7 +665,8 @@ public class MemberApiService {
 
         try {
             if (tblUser.getMblTelno() != null && !tblUser.getMblTelno().isEmpty()) {
-                String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+                //String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+                String encryptedMblTelno = EgovFileScrty.encryptAria(tblUser.getMblTelno().getBytes(StandardCharsets.UTF_8));
                 tblUser.setMblTelno(encryptedMblTelno);
             }
 
@@ -793,6 +797,9 @@ public class MemberApiService {
         } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
             resultVO.setResultMessage("회원 수정 중 오류가 발생했습니다.");
+        } catch (InvalidCipherTextException e) {
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+            resultVO.setResultMessage("회원 수정 중 오류가 발생했습니다.");
         }
 
 
@@ -858,6 +865,7 @@ public class MemberApiService {
 
 
             if (member != null) {
+                member.setDecodeMblTelno(EgovFileScrty.decryptAria(member.getMblTelno()));
                 resultVO.putResult("member", member);
 
                 if (cnslttMbr != null) {
@@ -943,6 +951,8 @@ public class MemberApiService {
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
         } catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -1734,6 +1744,7 @@ public class MemberApiService {
 
             for (TblUser user : userList) {
                 user.setAprvYn(aprvYnMap.getOrDefault(user.getUserSn(), "N"));
+                user.setDecodeMblTelno(EgovFileScrty.decryptAria(user.getMblTelno()));
             }
 
             Long totCnt = q.select(qTblUser.count())
@@ -1749,6 +1760,8 @@ public class MemberApiService {
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
 
         } catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

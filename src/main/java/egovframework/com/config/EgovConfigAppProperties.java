@@ -45,6 +45,12 @@ public class EgovConfigAppProperties {
 	@Value("${Globals.mail.password}")
 	private String mailPwd;
 
+	@Value("${Globals.ariaKey}")
+	private String ariaKey;
+
+	@Value("${Globals.ariaIv}")
+	private String ariaIv;
+
 
 	@Bean(destroyMethod = "destroy")
 	public EgovPropertyServiceImpl propertiesService() {
@@ -57,6 +63,8 @@ public class EgovConfigAppProperties {
 		properties.put("Globals.fileStorePath", fileStorePath);
 		properties.put("Gmail.id", mailId);
 		properties.put("Gmail.password", mailPwd);
+		properties.put("Globals.ariaKey", ariaKey);
+		properties.put("Globals.ariaIv", ariaIv);
 
 		egovPropertyServiceImpl.setProperties(properties);
 		return egovPropertyServiceImpl;
