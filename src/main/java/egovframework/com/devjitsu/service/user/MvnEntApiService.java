@@ -37,6 +37,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,8 +68,7 @@ public class MvnEntApiService {
                 tblMvnEntRepository.saveAll(tblMvnEntList);
             }
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
         return resultVO;
@@ -124,8 +124,7 @@ public class MvnEntApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (IOException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -219,8 +218,7 @@ public class MvnEntApiService {
             resultVO.putPaginationInfo(paginationInfo);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -258,8 +256,7 @@ public class MvnEntApiService {
             resultVO.putResult("biLogoFile",biLogoFile);
             resultVO.putResult("mvnEntAtchFile",mvnEntAtchFile);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -359,8 +356,7 @@ public class MvnEntApiService {
 
         resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
 
-        }catch (Exception e){
-        e.printStackTrace();
+        }catch (NullPointerException e){
         resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -378,7 +374,7 @@ public class MvnEntApiService {
             resultVO.putResult("member", tblUserRepository.findByUserSn(userSn));
             resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(mvnEntSn));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
 
         }
@@ -400,7 +396,7 @@ public class MvnEntApiService {
             }else{
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
             }
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -420,7 +416,7 @@ public class MvnEntApiService {
 
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
 
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
@@ -438,7 +434,7 @@ public class MvnEntApiService {
             tblMvnEntMbrRepository.save(tblMvnEntMbr);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -473,7 +469,7 @@ public class MvnEntApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

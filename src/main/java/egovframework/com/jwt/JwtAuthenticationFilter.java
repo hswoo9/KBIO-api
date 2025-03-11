@@ -54,18 +54,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             id = jwtTokenUtil.getUserIdFromToken(jwtToken);
             if (id == null) {
-                logger.debug("jwtToken not validate");
                 verificationFlag =  false;
             }
-            logger.debug("===>>> id = " + id);
         } catch (IllegalArgumentException | ExpiredJwtException | MalformedJwtException | UnsupportedJwtException | SignatureException e) {
-            logger.debug("Unable to verify JWT Token: " + e.getMessage());
             verificationFlag = false;
         }
 
         LoginVO loginVO = new LoginVO();
         if( verificationFlag ){
-            logger.debug("jwtToken validated");
             loginVO.setId(id);
             loginVO.setUserSe( jwtTokenUtil.getUserSeFromToken(jwtToken) );
             loginVO.setUniqId( jwtTokenUtil.getInfoFromToken("userSn",jwtToken) );

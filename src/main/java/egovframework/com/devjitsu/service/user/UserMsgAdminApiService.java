@@ -110,8 +110,7 @@ public class UserMsgAdminApiService {
             resultVO.putResult("userMsgList", userMsgList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

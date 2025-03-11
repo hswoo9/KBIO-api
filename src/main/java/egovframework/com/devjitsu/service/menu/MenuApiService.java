@@ -89,7 +89,7 @@ public class MenuApiService {
             }
             resultVO.putResult("menus", returnMenus);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -103,7 +103,7 @@ public class MenuApiService {
             tblMenu.setContent(tblContentRepository.findByMenuSn(tblMenu.getMenuSn()));
             resultVO.putResult("menu", tblMenu);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -167,8 +167,7 @@ public class MenuApiService {
 
             tblMenuRepository.setMenuPathAllUpd();
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -184,7 +183,7 @@ public class MenuApiService {
                 deleteMenuRecursively(tblMenuRepository.findByMenuSn(Long.parseLong(menuSn)));
             }
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -207,7 +206,7 @@ public class MenuApiService {
         try {
             tblContentRepository.save(tblContent);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -220,7 +219,7 @@ public class MenuApiService {
         try {
             tblContentRepository.delete(tblContent);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 

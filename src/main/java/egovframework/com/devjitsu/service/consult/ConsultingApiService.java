@@ -225,8 +225,7 @@ public class ConsultingApiService {
             resultVO.putResult("consultantList", consultantList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -284,7 +283,7 @@ public class ConsultingApiService {
             resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -329,13 +328,8 @@ public class ConsultingApiService {
                 );
             }
 
-
-
-
-
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (IOException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -363,8 +357,7 @@ public class ConsultingApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (IOException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 

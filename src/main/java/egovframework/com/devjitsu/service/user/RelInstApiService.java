@@ -36,6 +36,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,8 +66,7 @@ public class RelInstApiService {
                 tblRelInstRepository.saveAll(tblRelInstList);
             }
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
         return resultVO;
@@ -119,8 +119,7 @@ public class RelInstApiService {
 
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (IOException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -202,8 +201,7 @@ public class RelInstApiService {
             resultVO.putPaginationInfo(paginationInfo);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -222,8 +220,7 @@ public class RelInstApiService {
 
             resultVO.putResult("rc", tblRelInst);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -325,8 +322,7 @@ public class RelInstApiService {
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
 
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -350,7 +346,7 @@ public class RelInstApiService {
             }else{
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
             }
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -366,8 +362,7 @@ public class RelInstApiService {
             resultVO.putResult("member", tblUserRepository.findByUserSn(userSn));
             resultVO.putResult("rc",tblRelInstRepository.findByRelInstSn(relInstSn));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
 
         }
@@ -387,8 +382,7 @@ public class RelInstApiService {
             tblRelInstMbrRepository.saveAll(tblRelInstMbrList);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -404,8 +398,7 @@ public class RelInstApiService {
             tblRelInstMbrRepository.save(tblRelInstMbr);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -440,7 +433,7 @@ public class RelInstApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

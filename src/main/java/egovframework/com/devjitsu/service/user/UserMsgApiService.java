@@ -71,8 +71,7 @@ public class UserMsgApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -151,8 +150,7 @@ public class UserMsgApiService {
             resultVO.putResult("userMsgList", userMsgList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -173,8 +171,7 @@ public class UserMsgApiService {
                     .execute();
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -196,8 +193,7 @@ public class UserMsgApiService {
                     .execute();
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 

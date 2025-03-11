@@ -54,8 +54,7 @@ public class OrgchtApiService {
         try {
             tblOrgchtRepository.save(tblOrgcht);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -66,8 +65,7 @@ public class OrgchtApiService {
         try {
             tblOrgchtRepository.delete(tblOrgcht);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -78,8 +76,7 @@ public class OrgchtApiService {
         try {
             resultVO.putResult("orgcht", tblOrgchtRepository.findByOrgchtSn(tblOrgcht.getOrgchtSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -162,8 +159,7 @@ public class OrgchtApiService {
             paginationInfo.setTotalRecordCount(totCnt.intValue());
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

@@ -41,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -258,8 +259,7 @@ public class PstApiService {
 
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -304,8 +304,7 @@ public class PstApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -365,8 +364,7 @@ public class PstApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (IOException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -380,8 +378,7 @@ public class PstApiService {
         try {
             deletePstRecursively(tblPst);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -394,8 +391,7 @@ public class PstApiService {
         try {
             resultVO.putResult("pstCmntList", getPstCmnt(tblPst));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -471,8 +467,7 @@ public class PstApiService {
             tblPstCmntRepository.save(tblPstCmnt);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -485,8 +480,7 @@ public class PstApiService {
         try {
             deletePstCmntRecursively(tblPstCmnt);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -504,8 +498,7 @@ public class PstApiService {
             }
             resultVO.putResult("pstEvlList", q.selectFrom(qTblPstEvl).where(builder).orderBy(qTblPstEvl.pstSn.desc()).fetch());
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -526,8 +519,7 @@ public class PstApiService {
             }
             resultVO.putResult("pstEvl", q.selectFrom(qTblPstEvl).where(builder).fetchFirst());
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -540,8 +532,7 @@ public class PstApiService {
         try {
             tblPstEvlRepository.save(tblPstEvl);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -567,7 +558,7 @@ public class PstApiService {
         return pstDtos;
     }
 
-    private void deletePstRecursively(TblPst tblPst) throws Exception {
+    private void deletePstRecursively(TblPst tblPst) {
         QTblPst qTblPst = QTblPst.tblPst;
         QTblComFile qTblComFile = QTblComFile.tblComFile;
 
@@ -584,7 +575,7 @@ public class PstApiService {
             if(isDelete){
                 tblComFileRepository.delete(pstFile);
             }else{
-                throw new Exception();
+                throw new NullPointerException();
             }
         }
 

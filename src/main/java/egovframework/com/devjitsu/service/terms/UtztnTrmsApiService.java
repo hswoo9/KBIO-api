@@ -48,8 +48,7 @@ public class UtztnTrmsApiService {
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage("개인정보처리 방침이 성공적으로 완료되었습니다.");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -118,7 +117,7 @@ public class UtztnTrmsApiService {
             resultVO.putResult("getPrivacyPolicyList", getPrivacyPolicyList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -146,7 +145,7 @@ public class UtztnTrmsApiService {
                     .fetch();
             resultVO.putResult("dataList", dataList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -158,7 +157,7 @@ public class UtztnTrmsApiService {
         try {
             tblUtztnTrmsRepository.delete(tblUtztnTrms);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -174,8 +173,7 @@ public class UtztnTrmsApiService {
             TblUtztnTrms tblUtztnTrmsData = tblUtztnTrmsRepository.findByUtztnTrmsSn(tblUtztnTrms.getUtztnTrmsSn());
             resultVO.putResult("tblUtztnTrms", tblUtztnTrmsData);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -192,8 +190,7 @@ public class UtztnTrmsApiService {
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage("개인정보처리 방침이 성공적으로 완료되었습니다.");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -263,7 +260,7 @@ public class UtztnTrmsApiService {
             resultVO.putResult("getTermsAgreementList", getTermsAgreementList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -276,7 +273,7 @@ public class UtztnTrmsApiService {
         try {
             tblUtztnTrmsRepository.delete(tblUtztnTrms);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -292,8 +289,7 @@ public class UtztnTrmsApiService {
             TblUtztnTrms tblUtztnTrmsData = tblUtztnTrmsRepository.findByUtztnTrmsSn(tblUtztnTrms.getUtztnTrmsSn());
             resultVO.putResult("tblUtztnTrms", tblUtztnTrmsData);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

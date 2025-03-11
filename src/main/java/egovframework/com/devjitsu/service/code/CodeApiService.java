@@ -122,7 +122,7 @@ public class CodeApiService {
             resultVO.putResult("authGroup", cdGroupList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -176,7 +176,7 @@ public class CodeApiService {
             resultVO.putResult("cdList", cdList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -188,7 +188,7 @@ public class CodeApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
             tblComCdGroupRepository.save(tblComCdGroup);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
         return resultVO;
@@ -200,7 +200,7 @@ public class CodeApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
             tblComCdRepository.save(tblComCd);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
         return resultVO;
@@ -224,7 +224,7 @@ public class CodeApiService {
 
             resultVO.putResult("comCdGroup", comCdGroup);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
         return resultVO;
@@ -238,7 +238,7 @@ public class CodeApiService {
             BooleanBuilder builder = new BooleanBuilder();
             resultVO.putResult("comCd", tblComCdRepository.findByComCdSn(tblComCd.getComCdSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
         return resultVO;
@@ -258,7 +258,7 @@ public class CodeApiService {
 
             resultVO.putResult("comCdList", tblComCdList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
         return resultVO;
@@ -272,7 +272,7 @@ public class CodeApiService {
             q.delete(qTblComCd).where(qTblComCd.cdGroupSn.eq(tblComCdGroup.getCdGroupSn())).execute();
             tblComCdGroupRepository.delete(tblComCdGroup);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
         return resultVO;
@@ -284,7 +284,7 @@ public class CodeApiService {
             JPAQueryFactory q = new JPAQueryFactory(em);
             tblComCdRepository.delete(tblComCd);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
         return resultVO;

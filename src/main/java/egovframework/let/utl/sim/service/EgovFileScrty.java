@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -158,7 +159,7 @@ public class EgovFileScrty {
 	 * @return String result 암호화된 데이터
 	 * @exception Exception
 	 */
-	public static String encodeBinary(byte[] data) throws Exception {
+	public static String encodeBinary(byte[] data) {
 		if (data == null) {
 			return "";
 		}
@@ -173,7 +174,7 @@ public class EgovFileScrty {
 	 * @return String result 암호화된 데이터
 	 * @exception Exception
 	 */
-	public static String encode(String data) throws Exception {
+	public static String encode(String data) {
 		return encodeBinary(data.getBytes());
 	}
 
@@ -249,7 +250,7 @@ public class EgovFileScrty {
      * @return
      * @throws Exception
      */
-    public static String encryptPassword(String password, String id) throws Exception {
+    public static String encryptPassword(String password, String id) throws NoSuchAlgorithmException {
 
 		if (password == null) {
 		    return "";

@@ -34,9 +34,7 @@ public class CnslttMbrService {
             tblCnslttMbrRepository.save(tblCnslttMbr);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
 
         }
@@ -50,7 +48,7 @@ public class CnslttMbrService {
         try {
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
 
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
@@ -64,7 +62,7 @@ public class CnslttMbrService {
         try {
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
 
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }

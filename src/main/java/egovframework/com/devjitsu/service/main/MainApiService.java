@@ -100,8 +100,7 @@ public class MainApiService {
 
             resultVO.putResult("bnrPopupList", bnrPopupList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -140,8 +139,7 @@ public class MainApiService {
                     .orderBy(qTblMvnEnt.frstCrtDt.desc()).fetch();
             resultVO.putResult("mvnEntList",tblMvnEntList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -235,8 +233,7 @@ public class MainApiService {
                 resultVO.putResult("authrt", bbsAdminApiService.getUserBbsAuthrt(tblBbs, null));
             }
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

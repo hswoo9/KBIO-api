@@ -40,6 +40,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -592,10 +594,9 @@ public class MemberApiService {
             // 성공 응답 처리
             resultVO.setResultCode(200);
             resultVO.putResult("message", "임시 비밀번호가 이메일로 발송되었습니다.");
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(500);
-            resultVO.setResultMessage("비밀번호 찾기 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            resultVO.setResultMessage("비밀번호 찾기 중 오류가 발생했습니다");
         }
 
         return resultVO;
@@ -643,7 +644,6 @@ public class MemberApiService {
             Transport.send(message);
             return true;
         } catch (MessagingException e) {
-            e.printStackTrace();
             return false;
         }
     }
@@ -787,11 +787,14 @@ public class MemberApiService {
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage("회원 수정이 완료되었습니다.");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+            resultVO.setResultMessage("회원 수정 중 오류가 발생했습니다.");
+        } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
             resultVO.setResultMessage("회원 수정 중 오류가 발생했습니다.");
         }
+
 
         return resultVO;
     }
@@ -939,8 +942,7 @@ public class MemberApiService {
             } else {
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -969,8 +971,7 @@ public class MemberApiService {
                 resultVO.setResultMessage("회원탈퇴가 실패하였습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
         }
@@ -1093,8 +1094,7 @@ public class MemberApiService {
             resultVO.putResult("diffList", diffList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -1116,8 +1116,7 @@ public class MemberApiService {
 
             resultVO.putResult("difficulties", tblDfclMttr);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -1149,8 +1148,7 @@ public class MemberApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (IOException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -1284,8 +1282,7 @@ public class MemberApiService {
                 resultVO.putResult("consultantList", consultantList);
                 resultVO.putPaginationInfo(paginationInfo);
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -1355,8 +1352,7 @@ public class MemberApiService {
             resultVO.putResult("cnsltDsctnList", tblCnsltDsctnList);
             resultVO.putResult("filesByDsctnSn",filesByDsctnSn);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -1386,8 +1382,7 @@ public class MemberApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (IOException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -1425,8 +1420,7 @@ public class MemberApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (IOException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -1453,8 +1447,7 @@ public class MemberApiService {
                 resultVO.setResultMessage("실패하였습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("오류가 발생했습니다.");
         }
@@ -1482,8 +1475,7 @@ public class MemberApiService {
                 resultVO.setResultMessage("실패하였습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("오류가 발생했습니다.");
         }
@@ -1511,8 +1503,7 @@ public class MemberApiService {
                 resultVO.setResultMessage("실패하였습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("오류가 발생했습니다.");
         }
@@ -1542,8 +1533,7 @@ public class MemberApiService {
                 resultVO.setResultMessage("실패하였습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("오류가 발생했습니다.");
         }
@@ -1560,8 +1550,7 @@ public class MemberApiService {
             tblCnsltDgstfnRepository.save(tblCnsltDgstfn);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -1579,8 +1568,7 @@ public class MemberApiService {
                 resultVO.putResult("ratings", ratingsList);
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -1622,8 +1610,7 @@ public class MemberApiService {
             } else {
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -1642,8 +1629,7 @@ public class MemberApiService {
             } else {
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -1662,8 +1648,7 @@ public class MemberApiService {
             } else {
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -1763,8 +1748,7 @@ public class MemberApiService {
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -1803,8 +1787,7 @@ public class MemberApiService {
                 resultVO.setResultMessage("해당 사용자를 찾을 수 없습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             resultVO.setResultMessage("승인 처리 중 오류 발생");
         }
@@ -1843,8 +1826,7 @@ public class MemberApiService {
                 resultVO.setResultMessage("해당 사용자를 찾을 수 없습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             resultVO.setResultMessage("승인 처리 중 오류 발생");
         }
@@ -1864,8 +1846,7 @@ public class MemberApiService {
             } else {
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 

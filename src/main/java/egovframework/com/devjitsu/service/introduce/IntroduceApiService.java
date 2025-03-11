@@ -125,8 +125,7 @@ public class IntroduceApiService {
             resultVO.putPaginationInfo(paginationInfo);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -143,8 +142,7 @@ public class IntroduceApiService {
             tblMvnEnt.setEntTpbizNm(tblComCdRepository.findComCdNm(18L, tblMvnEnt.getEntTpbiz()));
             resultVO.putResult("operational", tblMvnEnt);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -224,8 +222,7 @@ public class IntroduceApiService {
             resultVO.putPaginationInfo(paginationInfo);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -244,8 +241,7 @@ public class IntroduceApiService {
 
             resultVO.putResult("related", tblRelInst);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

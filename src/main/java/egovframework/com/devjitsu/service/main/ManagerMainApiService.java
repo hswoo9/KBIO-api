@@ -66,8 +66,7 @@ public class ManagerMainApiService {
 
             resultVO.putResult("mainStatus", mainStatusDto);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -121,8 +120,7 @@ public class ManagerMainApiService {
 
             resultVO.putResult("mainCalendar", mainCalendarDto);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

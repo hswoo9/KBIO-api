@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
@@ -158,8 +159,7 @@ public class MemberAdminApiService {
             resultVO.putResult("getNormalMemberList", getNormalMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -185,8 +185,7 @@ public class MemberAdminApiService {
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -202,8 +201,7 @@ public class MemberAdminApiService {
 
             tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -216,8 +214,7 @@ public class MemberAdminApiService {
         try {
             tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -244,8 +241,7 @@ public class MemberAdminApiService {
                 resultVO.setResultMessage("해당 회원이 존재하지 않습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
         }
@@ -265,8 +261,7 @@ public class MemberAdminApiService {
 
             tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -379,8 +374,7 @@ public class MemberAdminApiService {
             resultVO.putResult("getApprovalMemberList", getApprovalMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -408,8 +402,7 @@ public class MemberAdminApiService {
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -519,8 +512,7 @@ public class MemberAdminApiService {
             resultVO.putResult("getWaitMemberList", getWaitMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -547,8 +539,7 @@ public class MemberAdminApiService {
                 resultVO.setResultMessage("해당 회원이 존재하지 않습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
         }
@@ -576,8 +567,7 @@ public class MemberAdminApiService {
                 resultVO.setResultMessage("해당 회원이 존재하지 않습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
         }
@@ -606,8 +596,7 @@ public class MemberAdminApiService {
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -719,8 +708,7 @@ public class MemberAdminApiService {
             resultVO.putResult("getRejectMemberList", getRejectMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -747,8 +735,7 @@ public class MemberAdminApiService {
                 resultVO.setResultMessage("해당 회원이 존재하지 않습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
         }
@@ -777,8 +764,7 @@ public class MemberAdminApiService {
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -890,8 +876,7 @@ public class MemberAdminApiService {
             resultVO.putResult("getStopMemberList", getStopMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -918,8 +903,7 @@ public class MemberAdminApiService {
                 resultVO.setResultMessage("해당 회원이 존재하지 않습니다.");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("이용 정지 처리 중 오류가 발생했습니다.");
         }
@@ -948,8 +932,7 @@ public class MemberAdminApiService {
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -1061,8 +1044,7 @@ public class MemberAdminApiService {
             resultVO.putResult("getCancelMemberList", getCancelMemberList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -1102,8 +1084,7 @@ public class MemberAdminApiService {
             tblMenuAuthrtGroupUserRepository.save(menuAuthrtGroupUser);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("관리자 회원 등록 중 오류 발생");
         }

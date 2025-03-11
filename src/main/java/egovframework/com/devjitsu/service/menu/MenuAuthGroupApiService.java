@@ -19,6 +19,7 @@ import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupRepository;
 import egovframework.com.devjitsu.repository.menu.TblMenuAuthrtGroupUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.bag.HashBag;
+import org.apache.ibatis.jdbc.Null;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,7 @@ public class MenuAuthGroupApiService {
             List<TblMenuAuthrtGroup> authGroup = q.selectFrom(qTblMenuAuthrtGroup).where(builder).orderBy(qTblMenuAuthrtGroup.frstCrtDt.desc()).fetch();
             resultVO.putResult("menuAuthGroup", authGroup);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -103,7 +104,7 @@ public class MenuAuthGroupApiService {
             resultVO.putResult("authGroup", authGroup);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -129,7 +130,7 @@ public class MenuAuthGroupApiService {
             }
             resultVO.putResult("menuAuthGroup", menuAuthGroup);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -166,7 +167,7 @@ public class MenuAuthGroupApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -190,7 +191,7 @@ public class MenuAuthGroupApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -224,8 +225,7 @@ public class MenuAuthGroupApiService {
                     .fetch();
             resultVO.putResult("menuAuthGroupUser",  menuAuthGroupUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -254,8 +254,7 @@ public class MenuAuthGroupApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -268,8 +267,7 @@ public class MenuAuthGroupApiService {
         try{
             tblMenuAuthrtGroupUserRepository.save(tblMenuAuthrtGroupUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -289,8 +287,7 @@ public class MenuAuthGroupApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

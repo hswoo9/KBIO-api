@@ -25,20 +25,24 @@ import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -108,8 +112,7 @@ public class BbsAdminApiService {
             resultVO.putResult("bbsList", bbsList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -131,8 +134,7 @@ public class BbsAdminApiService {
             List<TblBbs> bbsList = q.selectFrom(qTblBbs).where(builder).orderBy(qTblBbs.frstCrtDt.desc()).fetch();
             resultVO.putResult("bbsList", bbsList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -144,9 +146,8 @@ public class BbsAdminApiService {
         try {
             tblBbsRepository.save(tblBbs);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
-            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        }catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
@@ -158,8 +159,7 @@ public class BbsAdminApiService {
         try {
             resultVO.putResult("bbs", getBbs(tblBbs.getBbsSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -179,9 +179,8 @@ public class BbsAdminApiService {
 
             tblBbsRepository.delete(tblBbs);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
-            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
@@ -191,7 +190,7 @@ public class BbsAdminApiService {
         return tblBbsRepository.findByBbsSn(bbsSn);
     }
 
-    private void deletePstRecursively(TblPst tblPst) throws Exception {
+    private void deletePstRecursively(TblPst tblPst) {
         QTblPst qTblPst = QTblPst.tblPst;
         QTblComFile qTblComFile = QTblComFile.tblComFile;
 
@@ -208,7 +207,7 @@ public class BbsAdminApiService {
             if(isDelete){
                 tblComFileRepository.delete(pstFile);
             }else{
-                throw new Exception();
+                throw new NullPointerException();
             }
         }
 
@@ -265,8 +264,8 @@ public class BbsAdminApiService {
                     .where(qTblMenuAuthrtGroup.authrtGroupSn.eq(1L).and(qTblMenu.bbsSn.eq(tblBbs.getBbsSn())))
                     .groupBy(qTblMenu.bbsSn).fetchFirst();
             }
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
+            log.error(ResponseCode.SELECT_ERROR.getMessage());
         }
 
         return authrtDto;
@@ -357,8 +356,7 @@ public class BbsAdminApiService {
 
             resultVO.putResult("bbsList", bbsList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;

@@ -21,6 +21,7 @@ import egovframework.com.devjitsu.model.statistics.StatisticsUserDto;
 import egovframework.com.devjitsu.model.user.QTblUser;
 import egovframework.com.devjitsu.model.user.QTblUserLgnHstry;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -88,158 +89,160 @@ public class StatisticsAdminApiService {
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(String.valueOf(resourceLoader.getResource("classpath:/static/googleApiKey/kbio-447309-ba4bfac8ab2a.json").getFile().toPath())))
                 .createScoped("https://www.googleapis.com/auth/analytics.readonly");
 
-        BetaAnalyticsDataSettings settings = BetaAnalyticsDataSettings.newBuilder()
-                .setCredentialsProvider(() -> credentials)
-                .build();
+        if(credentials != null){
+            BetaAnalyticsDataSettings settings = BetaAnalyticsDataSettings.newBuilder()
+                    .setCredentialsProvider(() -> credentials)
+                    .build();
 
-        try (BetaAnalyticsDataClient analyticsData = BetaAnalyticsDataClient.create(settings)) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String[] dimensions = objectMapper.readValue(searchDto.get("dimensions").toString(), String[].class);
-            String[] metrics = objectMapper.readValue(searchDto.get("metrics").toString(), String[].class);
+            try (BetaAnalyticsDataClient analyticsData = BetaAnalyticsDataClient.create(settings)) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String[] dimensions = objectMapper.readValue(searchDto.get("dimensions").toString(), String[].class);
+                String[] metrics = objectMapper.readValue(searchDto.get("metrics").toString(), String[].class);
 
-            RunReportRequest.Builder requestBuilder = RunReportRequest.newBuilder()
-                    .setProperty("properties/478528722")
-                    .addDateRanges(DateRange.newBuilder().setStartDate(searchDto.get("startDate").toString()).setEndDate(searchDto.get("endDate").toString()));
+                RunReportRequest.Builder requestBuilder = RunReportRequest.newBuilder()
+                        .setProperty("properties/478528722")
+                        .addDateRanges(DateRange.newBuilder().setStartDate(searchDto.get("startDate").toString()).setEndDate(searchDto.get("endDate").toString()));
 
-            for (String dimension : dimensions) {
-                requestBuilder.addDimensions(Dimension.newBuilder().setName(dimension));
-            }
-
-            for (String metric : metrics) {
-                requestBuilder.addMetrics(Metric.newBuilder().setName(metric));
-            }
-
-            RunReportRequest request = requestBuilder.build();
-            RunReportResponse response = analyticsData.runReport(request);
-
-            JPAQueryFactory q = new JPAQueryFactory(em);
-            QTblUser qTblUser = QTblUser.tblUser;
-            BooleanBuilder builder = new BooleanBuilder();
-
-            Map<String, Object> otherRegionMap = new HashMap<>();
-//            otherRegionMap.put("korRegionName", "기타");
-//            otherRegionMap.put("region", "Others");
-            otherRegionMap.put("korRegionName", "세종특별자치시");
-            otherRegionMap.put("korAddrName", "세종특별자치시");
-            otherRegionMap.put("region", "Sejong City");
-            otherRegionMap.put("engRegionName", "Sejong City");
-
-            for (Row row : response.getRowsList()) {
-                Map<String, Object> map = new HashMap<>();
-
-                // 차원 값 처리
-                String yearValue = "";
-                String monthValue = "";
-
-                for(int i = 0; i < dimensions.length; i++){
-                    String dimensionValue = row.getDimensionValues(i).getValue();
-                    if(dimensionValue.equals("(not set)")){
-                        map.put(dimensions[i], "알 수 없음");
-                    } else if(dimensionValue.equals("(direct)")){
-                        map.put(dimensions[i], "다이렉트");
-                    } else if (dimensions[i].equals("year")) {
-                        yearValue = dimensionValue;
-                        map.put("date", yearValue);
-                        map.put("type", "year");
-                    } else if (dimensions[i].equals("month")) {
-                        monthValue = dimensionValue;
-                        map.put("date", yearValue + monthValue + "01");
-                        map.put("type", "month");
-                    } else {
-                        map.put("type", "date");
-                        map.put(dimensions[i], dimensionValue);
-                    }
-
+                for (String dimension : dimensions) {
+                    requestBuilder.addDimensions(Dimension.newBuilder().setName(dimension));
                 }
 
-                if(searchDto.get("page").equals("userSts")){
-                    if(map.get("type").equals("year")){
-                        searchDto.put("searchDate", yearValue);
-                    }else if(map.get("type").equals("month")){
-                        searchDto.put("searchDate", yearValue + monthValue);
-                    }else {
-                        searchDto.put("searchDate", map.get("date"));
-                    }
-
-                    StatisticsUserDto statisticsUserDto = q.select(
-                        Projections.constructor(
-                            StatisticsUserDto.class,
-                            Expressions.numberTemplate(Long.class,
-                                    "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
-                            Expressions.numberTemplate(Long.class,
-                                    "SUM(CASE WHEN {0} = 3 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType3Count"),
-                            Expressions.numberTemplate(Long.class,
-                                    "SUM(CASE WHEN {0} = 4 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType4Count"),
-                            Expressions.numberTemplate(Long.class,
-                                    "SUM(CASE WHEN {0} = 2 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType2Count"),
-                            Expressions.constant(searchDto.get("searchDate").toString())
-                        )
-                    )
-                    .from(qTblUser)
-                    .where(
-                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y%m%d')", qTblUser.joinYmd).like(searchDto.get("searchDate").toString()+ "%")
-                    ).fetchFirst();
-
-                    map.put("newUserCnt", statisticsUserDto);
+                for (String metric : metrics) {
+                    requestBuilder.addMetrics(Metric.newBuilder().setName(metric));
                 }
 
-                for(int i = 0; i < metrics.length; i++){
-                    map.put(metrics[i], row.getMetricValues(i).getValue());
-                }
+                RunReportRequest request = requestBuilder.build();
+                RunReportResponse response = analyticsData.runReport(request);
 
-                if(searchDto.get("page").equals("regionUser")){
-                    boolean regionDataInclude = false;
-                    for (Map<String, Object> region : regionData) {
-                        if (map.get("region").equals(region.get("engRegionName"))) {
-                            regionDataInclude = true;
-                            searchDto.put("regionName", region.get("korRegionName"));
-                            map.put("korRegionName", region.get("korRegionName"));
-                            map.put("newUserCnt", regionJoinUser(searchDto, region));
-                            returnList.add(map);
-                            break;
+                JPAQueryFactory q = new JPAQueryFactory(em);
+                QTblUser qTblUser = QTblUser.tblUser;
+                BooleanBuilder builder = new BooleanBuilder();
+
+                Map<String, Object> otherRegionMap = new HashMap<>();
+    //            otherRegionMap.put("korRegionName", "기타");
+    //            otherRegionMap.put("region", "Others");
+                otherRegionMap.put("korRegionName", "세종특별자치시");
+                otherRegionMap.put("korAddrName", "세종특별자치시");
+                otherRegionMap.put("region", "Sejong City");
+                otherRegionMap.put("engRegionName", "Sejong City");
+
+                for (Row row : response.getRowsList()) {
+                    Map<String, Object> map = new HashMap<>();
+
+                    // 차원 값 처리
+                    String yearValue = "";
+                    String monthValue = "";
+
+                    for(int i = 0; i < dimensions.length; i++){
+                        String dimensionValue = row.getDimensionValues(i).getValue();
+                        if(dimensionValue.equals("(not set)")){
+                            map.put(dimensions[i], "알 수 없음");
+                        } else if(dimensionValue.equals("(direct)")){
+                            map.put(dimensions[i], "다이렉트");
+                        } else if (dimensions[i].equals("year")) {
+                            yearValue = dimensionValue;
+                            map.put("date", yearValue);
+                            map.put("type", "year");
+                        } else if (dimensions[i].equals("month")) {
+                            monthValue = dimensionValue;
+                            map.put("date", yearValue + monthValue + "01");
+                            map.put("type", "month");
+                        } else {
+                            map.put("type", "date");
+                            map.put(dimensions[i], dimensionValue);
                         }
+
                     }
 
-                    if(!regionDataInclude && map.get("region").equals("알 수 없음")){
-                        otherRegionMap.put("totalUsers", map.get("totalUsers"));
-                        otherRegionMap.put("activeUsers", map.get("activeUsers"));
-                        otherRegionMap.put("newUserCnt", regionJoinUser(searchDto, otherRegionMap));
-                        returnList.add(otherRegionMap);
-                    }
-                }else if(searchDto.get("page").equals("content")){
-//                    String pagePath = (String) map.get("pagePathPlusQueryString");
-//                    Map<String, Object> queryMap = new HashMap<>();
-//                    if(pagePath.indexOf("?") > -1){
-//                        String[] pairs = pagePath.substring(pagePath.indexOf("?") + 1).split("&");
-//                        for (String pair : pairs) {
-//                            String[] keyValue = pair.split("=");
-//                            if (keyValue.length > 1) {
-//                                queryMap.put(keyValue[0], keyValue[1]);
-//                            } else {
-//                                queryMap.put(keyValue[0], "");
-//                            }
-//                        }
-//                    }
+                    if(searchDto.get("page").equals("userSts")){
+                        if(map.get("type").equals("year")){
+                            searchDto.put("searchDate", yearValue);
+                        }else if(map.get("type").equals("month")){
+                            searchDto.put("searchDate", yearValue + monthValue);
+                        }else {
+                            searchDto.put("searchDate", map.get("date"));
+                        }
 
-//                    if(
-//                            pagePath.indexOf("/index.do") == -1 &&
-//                                    (pagePath.indexOf("/content/contentView.do") > -1 || pagePath.indexOf("/compDiff/consttPoolList.do") > -1 || pagePath.indexOf("/compDiff/consttView.do") > -1 ||
-//                                            pagePath.indexOf("/board") > -1 || pagePath.indexOf("/spWork/supportBusinessList.do") > -1 || pagePath.indexOf("/spWork/supportBDetailedList.do") > -1 ||
-//                                            pagePath.indexOf("/spWork/supportOtherBusinessList.do") > -1 || pagePath.indexOf("/spWork/supportBusinessCalList.do") > -1 || pagePath.indexOf("/spWork/supportBusinessView.do") > -1 ||
-//                                            pagePath.indexOf("/join/joinTypeSel.do") > -1 || pagePath.indexOf("/login.do") > -1) &&
-//                                    !pagePath.equals("/logoutAction.do") && !pagePath.equals("/")
-//                    ){
-//                        Map<String, Object> menu = menuMngrRepository.getMenu(queryMap);
-//                        if(menu != null){
-//                            String menuPathName = (String) menu.get("MENU_NAME_PATH");
-//                            if(menuPathName.indexOf("관리") == -1){
-//                                map.put("pageName", menu.get("MENU_NAME"));
-//                                returnList.add(map);
-//                            }
-//                        }
-//                    }
-                }else{
-                    returnList.add(map);
+                        StatisticsUserDto statisticsUserDto = q.select(
+                            Projections.constructor(
+                                StatisticsUserDto.class,
+                                Expressions.numberTemplate(Long.class,
+                                        "SUM(CASE WHEN {0} = 1 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType1Count"),
+                                Expressions.numberTemplate(Long.class,
+                                        "SUM(CASE WHEN {0} = 3 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType3Count"),
+                                Expressions.numberTemplate(Long.class,
+                                        "SUM(CASE WHEN {0} = 4 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType4Count"),
+                                Expressions.numberTemplate(Long.class,
+                                        "SUM(CASE WHEN {0} = 2 THEN 1 ELSE 0 END)", qTblUser.mbrType).as("mbrType2Count"),
+                                Expressions.constant(searchDto.get("searchDate").toString())
+                            )
+                        )
+                        .from(qTblUser)
+                        .where(
+                            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y%m%d')", qTblUser.joinYmd).like(searchDto.get("searchDate").toString()+ "%")
+                        ).fetchFirst();
+
+                        map.put("newUserCnt", statisticsUserDto);
+                    }
+
+                    for(int i = 0; i < metrics.length; i++){
+                        map.put(metrics[i], row.getMetricValues(i).getValue());
+                    }
+
+                    if(searchDto.get("page").equals("regionUser")){
+                        boolean regionDataInclude = false;
+                        for (Map<String, Object> region : regionData) {
+                            if (map.get("region").equals(region.get("engRegionName"))) {
+                                regionDataInclude = true;
+                                searchDto.put("regionName", region.get("korRegionName"));
+                                map.put("korRegionName", region.get("korRegionName"));
+                                map.put("newUserCnt", regionJoinUser(searchDto, region));
+                                returnList.add(map);
+                                break;
+                            }
+                        }
+
+                        if(!regionDataInclude && map.get("region").equals("알 수 없음")){
+                            otherRegionMap.put("totalUsers", map.get("totalUsers"));
+                            otherRegionMap.put("activeUsers", map.get("activeUsers"));
+                            otherRegionMap.put("newUserCnt", regionJoinUser(searchDto, otherRegionMap));
+                            returnList.add(otherRegionMap);
+                        }
+                    }else if(searchDto.get("page").equals("content")){
+    //                    String pagePath = (String) map.get("pagePathPlusQueryString");
+    //                    Map<String, Object> queryMap = new HashMap<>();
+    //                    if(pagePath.indexOf("?") > -1){
+    //                        String[] pairs = pagePath.substring(pagePath.indexOf("?") + 1).split("&");
+    //                        for (String pair : pairs) {
+    //                            String[] keyValue = pair.split("=");
+    //                            if (keyValue.length > 1) {
+    //                                queryMap.put(keyValue[0], keyValue[1]);
+    //                            } else {
+    //                                queryMap.put(keyValue[0], "");
+    //                            }
+    //                        }
+    //                    }
+
+    //                    if(
+    //                            pagePath.indexOf("/index.do") == -1 &&
+    //                                    (pagePath.indexOf("/content/contentView.do") > -1 || pagePath.indexOf("/compDiff/consttPoolList.do") > -1 || pagePath.indexOf("/compDiff/consttView.do") > -1 ||
+    //                                            pagePath.indexOf("/board") > -1 || pagePath.indexOf("/spWork/supportBusinessList.do") > -1 || pagePath.indexOf("/spWork/supportBDetailedList.do") > -1 ||
+    //                                            pagePath.indexOf("/spWork/supportOtherBusinessList.do") > -1 || pagePath.indexOf("/spWork/supportBusinessCalList.do") > -1 || pagePath.indexOf("/spWork/supportBusinessView.do") > -1 ||
+    //                                            pagePath.indexOf("/join/joinTypeSel.do") > -1 || pagePath.indexOf("/login.do") > -1) &&
+    //                                    !pagePath.equals("/logoutAction.do") && !pagePath.equals("/")
+    //                    ){
+    //                        Map<String, Object> menu = menuMngrRepository.getMenu(queryMap);
+    //                        if(menu != null){
+    //                            String menuPathName = (String) menu.get("MENU_NAME_PATH");
+    //                            if(menuPathName.indexOf("관리") == -1){
+    //                                map.put("pageName", menu.get("MENU_NAME"));
+    //                                returnList.add(map);
+    //                            }
+    //                        }
+    //                    }
+                    }else{
+                        returnList.add(map);
+                    }
                 }
             }
         }
@@ -321,8 +324,7 @@ public class StatisticsAdminApiService {
 
             resultVO.putResult("statisticsUser", statisticsUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -375,8 +377,7 @@ public class StatisticsAdminApiService {
 
             resultVO.putResult("statisticsUserAccess", statisticsUserAccess);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -422,8 +423,7 @@ public class StatisticsAdminApiService {
 
             resultVO.putResult("statisticsPstAccess", statisticsPstAccess);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -470,8 +470,7 @@ public class StatisticsAdminApiService {
 
             resultVO.putResult("statisticsPstFile", statisticsPstFile);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

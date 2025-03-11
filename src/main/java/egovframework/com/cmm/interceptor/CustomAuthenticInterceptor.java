@@ -55,7 +55,6 @@ public class CustomAuthenticInterceptor extends HandlerInterceptorAdapter {
 				sb.append(line);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			return true; // 오류가 발생하면 그대로 진행
 		}
 
@@ -80,7 +79,6 @@ public class CustomAuthenticInterceptor extends HandlerInterceptorAdapter {
 		try {
 			return objectMapper.readValue(jsonString, Map.class);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
 			return new HashMap<>();
 		}
 	}

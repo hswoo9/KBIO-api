@@ -44,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.net.ssl.*;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -147,8 +148,7 @@ public class CommonApiService {
 
             resultVO.putResult("menuList", menuList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -214,8 +214,7 @@ public class CommonApiService {
 
             resultVO.putResult("menuList", returnMenus);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -235,8 +234,7 @@ public class CommonApiService {
             }
             resultVO.putResult("leftMenuList", getLeftMenuList(Long.parseLong(dto.get("menuSn").toString()), menuAuthrtGroups));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -286,8 +284,7 @@ public class CommonApiService {
             }else{
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.AUTH_IP_ERROR.getCode());
             resultVO.setResultMessage(ResponseCode.AUTH_IP_ERROR.getMessage());
         }
@@ -330,8 +327,7 @@ public class CommonApiService {
 
             resultVO.putResult("file", tblComFile);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 
@@ -352,8 +348,7 @@ public class CommonApiService {
             }
             resultVO.putResult("files", filesList);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (IOException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
         return resultVO;
@@ -417,77 +412,76 @@ public class CommonApiService {
     public ResponseEntity<org.springframework.core.io.Resource> getFileZipDownLoad(SearchDto dto) throws IOException {
         List<TblComFile> tblComFiles = tblComFileRepository.findAllByPsnTblSn((String) dto.get("psnTblSn"));
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
-
-        for (TblComFile tblComFile : tblComFiles) {
-            String fileNm = tblComFile.getAtchFileNm();
-            Path filePath = Paths.get(tblComFile.getAtchFilePathNm() + "/" + tblComFile.getStrgFileNm() + "." + tblComFile.getAtchFileExtnNm());
-
-            org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
-            if (!resource.exists() || !resource.isReadable()) {
-                continue;
-            }
-
-            if(!StringUtils.isEmpty(dto.get("trgtTblNm"))){
-                QTblAtchFileDwnldCnt qTblAtchFileDwnldCnt = QTblAtchFileDwnldCnt.tblAtchFileDwnldCnt;
-                JPAQueryFactory q = new JPAQueryFactory(em);
-                BooleanBuilder builder = new BooleanBuilder();
-
-                builder.and(
-                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblAtchFileDwnldCnt.frstCrtDt).eq(
-                                Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
-                        )
-                );
-
-                if(tblComFile.getPsnTblSn().startsWith("pst_")){
-                    builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString())
-                            .and(qTblAtchFileDwnldCnt.trgtSn.eq(Long.valueOf(dto.get("trgtSn").toString())))
-                    );
-                }else{
-                    builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString()));
-                }
-
-                TblAtchFileDwnldCnt tblAtchFileDwnldCnt = q
-                        .selectFrom(qTblAtchFileDwnldCnt)
-                        .where(builder).fetchFirst();
-
-                if(tblAtchFileDwnldCnt != null){
-                    tblAtchFileDwnldCnt.setAtchFileDwnldCnt(tblAtchFileDwnldCnt.getAtchFileDwnldCnt() + 1);
-                }else{
-                    tblAtchFileDwnldCnt = new TblAtchFileDwnldCnt();
-                    tblAtchFileDwnldCnt.setTrgtTblNm(dto.get("trgtTblNm").toString());
-                    tblAtchFileDwnldCnt.setTrgtSn(dto.get("trgtSn") == null ? null : Long.valueOf(dto.get("trgtSn").toString()));
-                    tblAtchFileDwnldCnt.setAtchFileDwnldCnt(1);
-                }
-                tblAtchFileDwnldCntRepository.save(tblAtchFileDwnldCnt);
-            }
-
-            try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile())) {
-                ZipEntry zipEntry = new ZipEntry(fileNm);
-                zipOutputStream.putNextEntry(zipEntry);
-
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = fileInputStream.read(buffer)) > 0) {
-                    zipOutputStream.write(buffer, 0, length);
-                }
-                zipOutputStream.closeEntry();
-            }
-        }
-
-        zipOutputStream.close();
-        byte[] zipBytes = byteArrayOutputStream.toByteArray();
-
-        ByteArrayResource resource = new ByteArrayResource(zipBytes);
-
         String zipFileName = dto.get("zipFileName") + ".zip";
         String encodedFileName = URLEncoder.encode(zipFileName, StandardCharsets.UTF_8.toString());
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
-                .body(resource);
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+
+            for (TblComFile tblComFile : tblComFiles) {
+                String fileNm = tblComFile.getAtchFileNm();
+                Path filePath = Paths.get(tblComFile.getAtchFilePathNm() + "/" + tblComFile.getStrgFileNm() + "." + tblComFile.getAtchFileExtnNm());
+
+                org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
+                if (!resource.exists() || !resource.isReadable()) {
+                    continue;
+                }
+
+                if(!StringUtils.isEmpty(dto.get("trgtTblNm"))){
+                    QTblAtchFileDwnldCnt qTblAtchFileDwnldCnt = QTblAtchFileDwnldCnt.tblAtchFileDwnldCnt;
+                    JPAQueryFactory q = new JPAQueryFactory(em);
+                    BooleanBuilder builder = new BooleanBuilder();
+
+                    builder.and(
+                            Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblAtchFileDwnldCnt.frstCrtDt).eq(
+                                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+                            )
+                    );
+
+                    if(tblComFile.getPsnTblSn().startsWith("pst_")){
+                        builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString())
+                                .and(qTblAtchFileDwnldCnt.trgtSn.eq(Long.valueOf(dto.get("trgtSn").toString())))
+                        );
+                    }else{
+                        builder.and(qTblAtchFileDwnldCnt.trgtTblNm.eq(dto.get("trgtTblNm").toString()));
+                    }
+
+                    TblAtchFileDwnldCnt tblAtchFileDwnldCnt = q
+                            .selectFrom(qTblAtchFileDwnldCnt)
+                            .where(builder).fetchFirst();
+
+                    if(tblAtchFileDwnldCnt != null){
+                        tblAtchFileDwnldCnt.setAtchFileDwnldCnt(tblAtchFileDwnldCnt.getAtchFileDwnldCnt() + 1);
+                    }else{
+                        tblAtchFileDwnldCnt = new TblAtchFileDwnldCnt();
+                        tblAtchFileDwnldCnt.setTrgtTblNm(dto.get("trgtTblNm").toString());
+                        tblAtchFileDwnldCnt.setTrgtSn(dto.get("trgtSn") == null ? null : Long.valueOf(dto.get("trgtSn").toString()));
+                        tblAtchFileDwnldCnt.setAtchFileDwnldCnt(1);
+                    }
+                    tblAtchFileDwnldCntRepository.save(tblAtchFileDwnldCnt);
+                }
+
+                try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile())) {
+                    ZipEntry zipEntry = new ZipEntry(fileNm);
+                    zipOutputStream.putNextEntry(zipEntry);
+
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = fileInputStream.read(buffer)) > 0) {
+                        zipOutputStream.write(buffer, 0, length);
+                    }
+                    zipOutputStream.closeEntry();
+                }
+            }
+
+            byte[] zipBytes = byteArrayOutputStream.toByteArray();
+            ByteArrayResource resource = new ByteArrayResource(zipBytes);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
+                    .body(resource);
+        }
     }
 
     public ResultVO setFileDel(TblComFile tblComFile) {
@@ -498,11 +492,10 @@ public class CommonApiService {
             if (isDelete) {
                 tblComFileRepository.delete(tblComFile);
             } else {
-                throw new Exception();
+                throw new PersistenceException();
             }
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (PersistenceException  e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 

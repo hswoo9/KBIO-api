@@ -94,7 +94,7 @@ public class AltibaseClobStringTypeHandler extends AbstractLobTypeHandler {
 			try {
 			    rd.close();
 			} catch (IOException ignore) {
-				log.debug("IGNORE: {}", ignore.getMessage());
+				log.error("IOException occurred");
 			}
 		    
 		}

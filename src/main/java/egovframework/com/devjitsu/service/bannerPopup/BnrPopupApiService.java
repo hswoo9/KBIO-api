@@ -28,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -91,7 +93,7 @@ public class BnrPopupApiService {
             resultVO.putResult("bannerPopupList", bannerPopupList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -107,7 +109,7 @@ public class BnrPopupApiService {
             tblBnrPopupData.setTblComFile(tblComFileRepository.findByPsnTblSn("bnrPopup_" + tblBnrPopupData.getBnrPopupSn()));
             resultVO.putResult("tblBnrPopup", tblBnrPopupData);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -138,9 +140,10 @@ public class BnrPopupApiService {
             }
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
-            resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
+        }catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        } catch (IOException e) {
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
         return resultVO;
@@ -158,12 +161,12 @@ public class BnrPopupApiService {
                 if(isDelete){
                     tblComFileRepository.delete(pstFile);
                 }else{
-                    throw new Exception();
+                    throw new PersistenceException();
                 }
             }
             tblBnrPopupRepository.delete(tblBnrPopup);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e){
+        }catch (PersistenceException e){
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
         return resultVO;

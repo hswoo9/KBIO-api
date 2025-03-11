@@ -82,8 +82,7 @@ public class MngrAcsIpApiService {
             resultVO.putResult("mngrAcsIpList", mngrAcsIpList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -96,8 +95,7 @@ public class MngrAcsIpApiService {
         try {
             resultVO.putResult("mngrAcsIp", tblMngrAcsIpRepository.findByMngrAcsSn(tblMngrAcsIp.getMngrAcsSn()));
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -110,8 +108,7 @@ public class MngrAcsIpApiService {
         try {
             tblMngrAcsIpRepository.save(tblMngrAcsIp);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -124,8 +121,7 @@ public class MngrAcsIpApiService {
         try {
             tblMngrAcsIpRepository.delete(tblMngrAcsIp);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.DELETE_ERROR.getCode());
         }
 

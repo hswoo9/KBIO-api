@@ -200,8 +200,7 @@ public class ConsultingAdminApiService {
             resultVO.putResult("consultantList", consultantList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -422,8 +421,7 @@ public class ConsultingAdminApiService {
             resultVO.putResult("consultantList", consultantList);
             resultVO.putPaginationInfo(paginationInfo);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -536,7 +534,7 @@ public class ConsultingAdminApiService {
             }
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
 
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -594,7 +592,7 @@ public class ConsultingAdminApiService {
             }
 
 
-        }catch(Exception e){
+        }catch(NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -617,7 +615,7 @@ public class ConsultingAdminApiService {
             }
 
 
-        }catch(Exception e){
+        }catch(NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
         return resultVO;
@@ -640,7 +638,7 @@ public class ConsultingAdminApiService {
             }
 
 
-        }catch(Exception e){
+        }catch(NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

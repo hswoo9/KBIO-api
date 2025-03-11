@@ -9,6 +9,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import egovframework.com.cmm.ResponseCode;
 import egovframework.com.cmm.service.ResultVO;
+import egovframework.com.cmm.util.EgovBasicLogger;
 import egovframework.com.devjitsu.config.LoginUsers;
 import egovframework.com.devjitsu.config.UserSessionBinding;
 import egovframework.com.devjitsu.model.login.LettnemplyrinfoVO;
@@ -25,8 +26,10 @@ import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.jwt.EgovJwtTokenUtil;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -46,6 +49,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -280,8 +284,8 @@ public class LoginApiService {
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 return (String) response.getBody().get("access_token");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
+            return null;
         }
         return null;
     }
@@ -307,8 +311,8 @@ public class LoginApiService {
             if (response.getStatusCode() == HttpStatus.OK) {
                 return response.getBody(); // 사용자 정보 반환
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
+            return null;
         }
         return null;
     }
@@ -368,8 +372,8 @@ public class LoginApiService {
             }else {
                 dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
+
         }
     }
     /**
@@ -428,8 +432,8 @@ public class LoginApiService {
             }else{
                 dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (ParseException e) {
+
         }
     }
     /**
@@ -443,13 +447,13 @@ public class LoginApiService {
             map = new ObjectMapper().readValue(jsonObj.toString(), Map.class);
         } catch (JsonParseException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("JsonParseException");
         } catch (JsonMappingException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("JsonMappingException");
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("IOException");
         }
         return map;
     }
