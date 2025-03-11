@@ -168,7 +168,6 @@ public class MemberAdminApiService {
 
     public ResultVO getNormalMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
-        System.out.println("userSn:" + tblUser.getUserSn());
         try {
             TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
 
@@ -1101,7 +1100,6 @@ public class MemberAdminApiService {
             menuAuthrtGroupUser.setActvtnYn("Y");
             menuAuthrtGroupUser.setCreatrSn(1);
             tblMenuAuthrtGroupUserRepository.save(menuAuthrtGroupUser);
-            System.out.println("menu" + menuAuthrtGroupUser);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (Exception e) {

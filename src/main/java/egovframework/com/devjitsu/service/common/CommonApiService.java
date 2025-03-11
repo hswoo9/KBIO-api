@@ -278,7 +278,6 @@ public class CommonApiService {
 
         try {
             String clientIp = request.getRemoteAddr();
-            System.out.println("clientIp = " + clientIp);
             List<String> mngrAcsIps = mngrAcsIpApiService.getMngrIps();
 
             if (!mngrAcsIps.contains(clientIp)) {

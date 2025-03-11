@@ -98,18 +98,10 @@ public class MemberApiController {
 
         ObjectMapper objectMapper = new ObjectMapper();
         SearchDto dto = new SearchDto();
-        System.out.println("****userInfo****"+userInfoJson);
-        System.out.println("****certInfo****"+certInfoJson);
-        System.out.println("****careerInfo****"+careerInfoJson);
-        System.out.println("****acbgInfo****"+acbgInfoJson);
-
         Map<String, Object> userInfoMap = objectMapper.readValue(userInfoJson, Map.class);
         for (Map.Entry<String, Object> entry : userInfoMap.entrySet()) {
             dto.put(entry.getKey(), entry.getValue());
         }
-        System.out.println(dto);
-
-
         List<Map<String, Object>> certInfoList = new ArrayList<>();
         List<Map<String, Object>> careerInfoList = new ArrayList<>();
         List<Map<String, Object>> acbgInfoList = new ArrayList<>();

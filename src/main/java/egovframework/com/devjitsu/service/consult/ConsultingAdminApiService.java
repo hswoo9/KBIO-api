@@ -399,10 +399,6 @@ public class ConsultingAdminApiService {
 
 
 
-            System.out.println("*****searchDto******" + dto);
-            System.out.println("*****consultantList******" + consultantList);
-
-
 /*            Long totCnt = q.select(qTblUser.count())
 //                    .join().on() 컨설턴트
 //                    .join().on() 컨설턴트 사진
