@@ -40,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
 import javax.mail.*;
@@ -209,7 +210,6 @@ public class MemberApiService {
 
             Object mvnEntSnObj = dto.get("mvnEntSn");
             Long mvnEntSn = (mvnEntSnObj instanceof Number) ? ((Number) mvnEntSnObj).longValue() : null;
-            System.out.println("**mvnEntSn : **" + mvnEntSn);
 
             mvnEntMbr.setUserSn(userSn);
             mvnEntMbr.setMvnEntSn(mvnEntSn);
@@ -316,7 +316,6 @@ public class MemberApiService {
 
             Object mvnEntSnObj = dto.get("mvnEntSn");
             Long mvnEntSn = (mvnEntSnObj instanceof Number) ? ((Number) mvnEntSnObj).longValue() : null;
-            System.out.println("**mvnEntSn : **" + mvnEntSn);
 
             mvnEntMbr.setUserSn(userSn);
             mvnEntMbr.setMvnEntSn(mvnEntSn);
@@ -504,7 +503,6 @@ public class MemberApiService {
 
             Object relInstSnObj = dto.get("relInstSn");
             Long relInstSn = (relInstSnObj instanceof Number) ? ((Number) relInstSnObj).longValue() : null;
-            System.out.println("**relInstSnObj : **" + relInstSnObj);
 
             relInstMbr.setUserSn(userSn);
             relInstMbr.setRelInstSn(relInstSn);
@@ -607,10 +605,10 @@ public class MemberApiService {
     private String generateRandomPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder password = new StringBuilder();
-        Random random = new Random();
 
         for (int i = 0; i < 10; i++) {
-            int index = random.nextInt(chars.length());
+            SecureRandom rand = new SecureRandom();
+            int index = rand.nextInt(chars.length());
             password.append(chars.charAt(index));
         }
 
@@ -620,8 +618,8 @@ public class MemberApiService {
 
     private boolean sendEmail(String to, String body) {
         String host = "smtp.gmail.com";
-        final String username = "gksthe@gmail.com";
-        final String password = "mqhgtubmkdtpsoaa";
+        final String username = propertyService.getString("Gmail.id");
+        final String password = propertyService.getString("Gmail.password");
 
         Properties properties = new Properties();
         properties.put("mail.smtp.host", host);
@@ -810,7 +808,6 @@ public class MemberApiService {
 
         // 사용자 ID와 비밀번호를 사용하여 암호화
         String encryptedPassword = EgovFileScrty.encryptPassword(dto.get("password").toString(), dto.get("id").toString());
-        System.out.println("Encrypted password: " + encryptedPassword);
 
         // 데이터베이스에서 사용자 조회
         TblUser tblUser = q.selectFrom(qTblUser)
@@ -821,11 +818,9 @@ public class MemberApiService {
                 .fetchOne();
 
         if (tblUser != null) {
-            System.out.println("User found: " + tblUser.getUserId());
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             resultVO.setResultMessage("회원 인증 성공");
         } else {
-            System.out.println("No matching user found");
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             resultVO.setResultMessage("회원 인증 실패");
         }
@@ -863,7 +858,6 @@ public class MemberApiService {
                 resultVO.putResult("member", member);
 
                 if (cnslttMbr != null) {
-                    System.out.println("컨설턴트 회원 정보: " + cnslttMbr);
 
                     TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
                             qTblComFile.psnTblSn.eq(
@@ -937,14 +931,12 @@ public class MemberApiService {
                         }
                     }
                 } else {
-                    System.out.println("기업 정보가 없습니다.");
                 }
 
 
 
                 resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
             } else {
-                System.out.println("회원 정보 없음.");
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             }
         } catch (Exception e) {
@@ -1343,8 +1335,6 @@ public class MemberApiService {
                     .map(TblCnsltDsctn::getCnsltDsctnSn)
                     .collect(Collectors.toList());
 
-            System.out.println("dsctn리스트 : " + dsctnSnList);
-
             List<TblComFile> allFiles = q
                     .selectFrom(qTblComFile)
                     .where(qTblComFile.psnTblSn.in(
@@ -1355,18 +1345,12 @@ public class MemberApiService {
                     .orderBy(qTblComFile.atchFileSn.desc())
                     .fetch();
 
-            System.out.println("조회된 전체 첨부파일 리스트:");
-            for (TblComFile file : allFiles) {
-                System.out.println(file);
-            }
-
             Map<Long, List<TblComFile>> filesByDsctnSn = allFiles.stream()
                     .collect(Collectors.groupingBy(file -> {
                         String psnTblSn = file.getPsnTblSn();
                         return Long.parseLong(psnTblSn.replace("consulting_", ""));
                     }));
 
-            System.out.println("조회된 tblCnsltDsctnList: " + tblCnsltDsctnList);
             resultVO.putResult("simple", tblCnsltAply);
             resultVO.putResult("cnsltDsctnList", tblCnsltDsctnList);
             resultVO.putResult("filesByDsctnSn",filesByDsctnSn);
@@ -1387,10 +1371,8 @@ public class MemberApiService {
             QTblComFile qTblComFile = QTblComFile.tblComFile;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
-            System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
             tblCnsltDsctnRepository.save(tblCnsltDsctn);
 
-            System.out.println("files확인:" +files);
             if(files != null){
                 long fileCnt = q.selectFrom(qTblComFile).where(qTblComFile.psnTblSn.eq("consulting" + tblCnsltDsctn.getCnsltDsctnSn())).fetchCount();
                 tblComFileRepository.saveAll(
@@ -1420,7 +1402,6 @@ public class MemberApiService {
             QTblCnsltDtl qTblCnsltDtl = QTblCnsltDtl.tblCnsltDtl;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
-            System.out.println("CnsltDsctnSn: " + tblCnsltDsctn.getCnsltDsctnSn());
             tblCnsltDsctnRepository.save(tblCnsltDsctn);
 
 
@@ -1575,7 +1556,6 @@ public class MemberApiService {
         ResultVO resultVO = new ResultVO();
 
         try {
-            System.out.println("chcScr: " + tblCnsltDgstfn.getChcScr());
             JPAQueryFactory q = new JPAQueryFactory(em);
             tblCnsltDgstfnRepository.save(tblCnsltDgstfn);
 
@@ -1593,7 +1573,6 @@ public class MemberApiService {
 
         try {
             List<TblCnsltDgstfn> ratingsList = tblCnsltDgstfnRepository.findByCnsltAplySn(tblCnsltDgstfn.getCnsltAplySn());
-            System.out.println(ratingsList);
             if (ratingsList.isEmpty()) {
                 resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
             } else {
@@ -1614,7 +1593,6 @@ public class MemberApiService {
         QTblUser qTblUser = QTblUser.tblUser;
         JPAQueryFactory q = new JPAQueryFactory(em);
         String encryptedPassword = EgovFileScrty.encryptPassword(dto.get("userPw").toString(), dto.get("userId").toString());
-        System.out.println("Encrypted password: " + encryptedPassword);
 
         TblUser tblUser = q.selectFrom(qTblUser)
                 .where(
@@ -1624,10 +1602,8 @@ public class MemberApiService {
                 .fetchOne();
 
         if (tblUser != null) {
-            System.out.println("User found: " + tblUser.getUserId());
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } else {
-            System.out.println("No matching user found");
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

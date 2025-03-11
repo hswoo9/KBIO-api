@@ -150,7 +150,6 @@ public class StatisticsAdminApiService {
                         map.put(dimensions[i], dimensionValue);
                     }
 
-                    System.out.printf(dimensions[i] + ": %s\n", row.getDimensionValues(i).getValue());
                 }
 
                 if(searchDto.get("page").equals("userSts")){
@@ -186,7 +185,6 @@ public class StatisticsAdminApiService {
 
                 for(int i = 0; i < metrics.length; i++){
                     map.put(metrics[i], row.getMetricValues(i).getValue());
-                    System.out.printf(metrics[i] + ": %s\n", row.getMetricValues(i).getValue());
                 }
 
                 if(searchDto.get("page").equals("regionUser")){
