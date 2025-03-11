@@ -492,24 +492,6 @@
 						</execution>
 					</executions>
 				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-pmd-plugin</artifactId>
-					<version>3.21.0</version>
-					<executions>
-						<execution>
-							<phase>validate</phase>
-							<goals>
-								<goal>pmd</goal>
-							</goals>
-							<configuration>
-								<failOnViolation>false</failOnViolation> <!-- 위반 사항에 대해 빌드 실패를 막음 -->
-								<reportFormat>html</reportFormat> <!-- HTML 형식으로 결과 생성 -->
-								<outputDirectory>${project.build.directory}/pmd</outputDirectory> <!-- 검사 결과 저장 위치 -->
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
             </plugins>
         </pluginManagement>
  
