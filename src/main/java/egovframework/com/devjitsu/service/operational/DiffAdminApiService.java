@@ -75,10 +75,21 @@ public class DiffAdminApiService {
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
                 paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
             }
+            if (!StringUtils.isEmpty(dto.get("pageSize"))) {
+                paginationInfo.setPageSize(Integer.parseInt(dto.get("pageIndex").toString()));
+            }else{
+                paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+            }
 
-            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            if (!StringUtils.isEmpty(dto.get("pageUnit"))) {
+                paginationInfo.setRecordCountPerPage(Integer.parseInt(dto.get("pageUnit").toString()));
+            }else{
+                paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            }
+
+            /*paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
-
+*/
             QTblUser qTblUser = QTblUser.tblUser;
             QTblDfclMttr qTblDfclMttr = QTblDfclMttr.tblDfclMttr;
             QTblComCd qTblComCd = QTblComCd.tblComCd;
