@@ -561,10 +561,8 @@ public class ConsultingAdminApiService {
             tblUserRepository.save(tblUser);
             tblCnslttMbrRepository.save(tblCnslttMbr);
 
-
-
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

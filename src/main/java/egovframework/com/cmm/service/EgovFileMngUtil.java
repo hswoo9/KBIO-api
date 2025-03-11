@@ -239,14 +239,14 @@ public class EgovFileMngUtil {
 		try {
 		    bos.close();
 		} catch (IOException ignore) {
-			log.debug("IGNORED: {}", ignore.getMessage());
+			log.debug("IGNORED: {}");
 		}
 	    }
 	    if (stream != null) {
 		try {
 		    stream.close();
 		} catch (IOException ignore) {
-			log.debug("IGNORED: {}", ignore.getMessage());
+			log.debug("IGNORED: {}");
 		}
 	    }
 	}
@@ -310,14 +310,14 @@ public class EgovFileMngUtil {
 			try {
 			    outs.close();
 			} catch (IOException ignore) {
-				log.debug("IGNORED: {}", ignore.getMessage());
+				log.debug("IGNORED: {}");
 			}
 		    }
 		    if (fin != null) {
 			try {
 			    fin.close();
 			} catch (IOException ignore) {
-				log.debug("IGNORED: {}", ignore.getMessage());
+				log.debug("IGNORED: {}");
 			}
 		    }
 		}
@@ -394,14 +394,14 @@ public class EgovFileMngUtil {
 		try {
 		    bos.close();
 		} catch (IOException ignore) {
-			log.debug("IGNORED: {}", ignore.getMessage());
+			log.debug("IGNORED: {}");
 		}
 	    }
 	    if (stream != null) {
 		try {
 		    stream.close();
 		} catch (IOException ignore) {
-			log.debug("IGNORED: {}", ignore.getMessage());
+			log.debug("IGNORED: {}");
 		}
 	    }
 	}
@@ -457,7 +457,7 @@ public class EgovFileMngUtil {
 		    try {
 			in.close();
 		    } catch (IOException ignore) {
-		    	log.debug("IGNORED: {}", ignore.getMessage());
+		    	log.debug("IGNORED: {}");
 		    }
 		}
 	    }

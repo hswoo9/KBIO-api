@@ -34,11 +34,7 @@ public class EgovBasicLogger {
 	 * @param exception
 	 */
 	public static void ignore(String message, Exception exception) {
-		if (exception == null) {
-			ignoreLogger.log(IGNORE_INFO_LEVEL, message);
-		} else {
-			ignoreLogger.log(IGNORE_INFO_LEVEL, message, exception);
-		}
+        ignoreLogger.log(IGNORE_INFO_LEVEL, message);
 	}
 	
 	/**
@@ -56,11 +52,7 @@ public class EgovBasicLogger {
 	 * @param exception
 	 */
 	public static void debug(String message, Exception exception) {
-		if (exception == null) {
-			debugLogger.log(DEBUG_INFO_LEVEL, message);
-		} else {
-			debugLogger.log(DEBUG_INFO_LEVEL, message, exception);
-		}
+		debugLogger.log(DEBUG_INFO_LEVEL, message);
 	}
 	
 	/**

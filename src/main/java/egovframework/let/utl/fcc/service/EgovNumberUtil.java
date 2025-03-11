@@ -116,7 +116,7 @@ public class EgovNumberUtil {
 		try {
 			cnvrDate = dateFormatter.parse(srcStr);
 		} catch (ParseException e) {
-			log.error("ERROR parsing", e.getMessage());
+			log.error("ERROR parsing");
 		}
 
 		cnvrStr = String.format("%1$tY-%1$tm-%1$td", cnvrDate);

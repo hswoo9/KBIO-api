@@ -27,7 +27,7 @@ public class EgovComExcepHndlr implements ExceptionHandler {
      * 발생된 Exception을 처리한다.
      */
     public void occur(Exception ex, String packageName) {
-		log.debug("[HANDLER][PACKAGE]::: {}", packageName);
-		log.debug("[HANDLER][Exception]:::", ex);
+		log.debug("[HANDLER][PACKAGE]::: {}");
+		log.debug("[HANDLER][Exception]:::");
     }
 }
