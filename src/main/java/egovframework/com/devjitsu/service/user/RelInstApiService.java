@@ -370,13 +370,23 @@ public class RelInstApiService {
         long userSn = ((Number)dto.get("userSn")).longValue();
         long relInstSn = ((Number)dto.get("relInstSn")).longValue();
         try {
-            resultVO.putResult("relInstMbr", tblRelInstMbrRepository.findByUserSn(userSn));
-            resultVO.putResult("member", tblUserRepository.findByUserSn(userSn));
-            resultVO.putResult("rc",tblRelInstRepository.findByRelInstSn(relInstSn));
-            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+
+            TblUser member =  tblUserRepository.findByUserSn(userSn);
+
+            if(member != null){
+                member.setDecodeMblTelno(EgovFileScrty.decryptAria(member.getMblTelno()));
+                resultVO.putResult("member", member);
+
+                resultVO.putResult("relInstMbr", tblRelInstMbrRepository.findByUserSn(userSn));
+                resultVO.putResult("rc",tblRelInstRepository.findByRelInstSn(relInstSn));
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            }else{
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            }
         }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
-
+        }catch (InvalidCipherTextException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;

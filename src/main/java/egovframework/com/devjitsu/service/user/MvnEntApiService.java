@@ -384,13 +384,22 @@ public class MvnEntApiService {
         long mvnEntSn = ((Number)dto.get("mvnEntSn")).longValue();
 
         try {
-            resultVO.putResult("mvnEntMbr", tblMvnEntMbrRepository.findByUserSn(userSn));
-            resultVO.putResult("member", tblUserRepository.findByUserSn(userSn));
-            resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(mvnEntSn));
-            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            TblUser member =  tblUserRepository.findByUserSn(userSn);
+            if(member != null){
+                member.setDecodeMblTelno(EgovFileScrty.decryptAria(member.getMblTelno()));
+                resultVO.putResult("member", member);
+
+                resultVO.putResult("mvnEntMbr", tblMvnEntMbrRepository.findByUserSn(userSn));
+                resultVO.putResult("rc",tblMvnEntRepository.findByMvnEntSn(mvnEntSn));
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+            }else {
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            }
         }catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
 
+        }catch (InvalidCipherTextException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
