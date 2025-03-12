@@ -267,13 +267,14 @@ public class MemberAdminApiService {
             String hashedPswd = EgovFileScrty.encryptPassword(tblUser.getUserPw(), tblUser.getUserId());
             tblUser.setUserPw(hashedPswd);
 
-            String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+            String encryptedMblTelno = EgovFileScrty.encryptAria(tblUser.getMblTelno().toString().getBytes(StandardCharsets.UTF_8));
             tblUser.setMblTelno(encryptedMblTelno);
 
             tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
         }
 
         return resultVO;
@@ -1071,7 +1072,7 @@ public class MemberAdminApiService {
             tblUser.setUserPw(hashedPswd);
 
             // 휴대폰 번호 암호화
-            String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+            String encryptedMblTelno = EgovFileScrty.encryptAria(tblUser.getMblTelno().toString().getBytes(StandardCharsets.UTF_8));
             tblUser.setMblTelno(encryptedMblTelno);
 
             // 사용자 저장
@@ -1098,6 +1099,8 @@ public class MemberAdminApiService {
         } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("관리자 회원 등록 중 오류 발생");
+        } catch (InvalidCipherTextException e) {
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
         return resultVO;
