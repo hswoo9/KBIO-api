@@ -138,6 +138,9 @@ public class ConsultingApiService {
             /** query DSL 조건 추가하는 방법 */
             BooleanBuilder builder = new BooleanBuilder();
 
+            builder.and(qTblUser.mbrType.eq(2L));
+            builder.and(qTblCnslttMbr.cnsltActv.eq("Y"));
+
             if(!StringUtils.isEmpty(dto.get("cnsltFld"))){
                 builder.and(qTblCnslttMbr.cnsltFld.eq(Long.valueOf((String) dto.get("cnsltFld"))));
             }
