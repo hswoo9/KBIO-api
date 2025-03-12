@@ -337,43 +337,39 @@ public class LoginApiService {
         map.add("code", dto.getCode());
         map.add("state", dto.getState());
 
-        try {
-            HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(map, headers);
-            // reqUrl로 Http 요청, POST 방식
-            ResponseEntity<String> response = restTemplate.exchange(naverTokenUrl,
+        HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(map, headers);
+        // reqUrl로 Http 요청, POST 방식
+        ResponseEntity<String> response = restTemplate.exchange(naverTokenUrl,
+                HttpMethod.POST,
+                naverTokenRequest,
+                String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            String responseBody = response.getBody();
+            Gson gson = new Gson();
+            Map<String, String> getUserInfo = gson.fromJson(responseBody, new TypeToken<Map<String, String>>() {}.getType());
+            headers.setBearerAuth(getUserInfo.get("access_token"));
+            naverTokenRequest = new HttpEntity<>(null, headers);
+            ResponseEntity<String> infoResponse = restTemplate.exchange(naverInfoUrl,
                     HttpMethod.POST,
                     naverTokenRequest,
                     String.class);
-
-            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                String responseBody = response.getBody();
-                Gson gson = new Gson();
-                Map<String, String> getUserInfo = gson.fromJson(responseBody, new TypeToken<Map<String, String>>() {}.getType());
-                headers.setBearerAuth(getUserInfo.get("access_token"));
-                naverTokenRequest = new HttpEntity<>(null, headers);
-                ResponseEntity<String> infoResponse = restTemplate.exchange(naverInfoUrl,
-                        HttpMethod.POST,
-                        naverTokenRequest,
-                        String.class);
-                if (infoResponse.getStatusCode() == HttpStatus.OK && infoResponse.getBody() != null) {
-                    String infoResponseBody = infoResponse.getBody();
-                    Map<String, Object> naverUserInfo = gson.fromJson(infoResponseBody, new TypeToken<Map<String, Object>>() {}.getType());
-                    if(naverUserInfo != null){
-                        Map<String, Object> resultMap = (Map<String, Object>) naverUserInfo.get("response");
-                        dto.setSnsId((String) resultMap.get("id"));
-                        dto.setTotalData(resultMap);
-                        dto.setStatusCode(ResponseCode.SUCCESS.getCode());
-                    }else{
-                        dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
-                    }
+            if (infoResponse.getStatusCode() == HttpStatus.OK && infoResponse.getBody() != null) {
+                String infoResponseBody = infoResponse.getBody();
+                Map<String, Object> naverUserInfo = gson.fromJson(infoResponseBody, new TypeToken<Map<String, Object>>() {}.getType());
+                if(naverUserInfo != null){
+                    Map<String, Object> resultMap = (Map<String, Object>) naverUserInfo.get("response");
+                    dto.setSnsId((String) resultMap.get("id"));
+                    dto.setTotalData(resultMap);
+                    dto.setStatusCode(ResponseCode.SUCCESS.getCode());
                 }else{
                     dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
                 }
-            }else {
+            }else{
                 dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
             }
-        } catch (NullPointerException e) {
-
+        }else {
+            dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
         }
     }
     /**
@@ -433,7 +429,7 @@ public class LoginApiService {
                 dto.setStatusCode(ResponseCode.AUTH_ERROR.getCode());
             }
         } catch (ParseException e) {
-
+            log.error("ParseException");
         }
     }
     /**
