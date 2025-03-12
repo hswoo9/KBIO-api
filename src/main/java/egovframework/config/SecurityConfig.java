@@ -37,7 +37,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
                 .and()
                 // Content Security Policy
-                .contentSecurityPolicy("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'")
+                .contentSecurityPolicy(
+                    "default-src 'self'; " +
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com https://ssl.google-analytics.com; " +
+                    "style-src 'self' 'unsafe-inline'; " +
+                    "img-src 'self' data: https: https://www.google-analytics.com https://ssl.google-analytics.com; " +
+                    "font-src 'self'; " +
+                    "connect-src 'self' https://www.google-analytics.com https://ssl.google-analytics.com"
+                )
                 .and()
                 // Referrer Policy
                 .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
