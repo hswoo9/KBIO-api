@@ -170,7 +170,7 @@ public class DiffAdminApiService {
                     .join(qTblUser).on(qTblDfclMttr.userSn.eq(qTblUser.userSn))
                     .join(qTblComCd).on(qTblDfclMttr.dfclMttrFld.eq(qTblComCd.comCdSn))
                     .where(builder)
-                    .orderBy(qTblUser.frstCrtDt.desc())
+                    .orderBy(qTblDfclMttr.frstCrtDt.desc())
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
