@@ -12,6 +12,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.config.Customizer;
 
 import java.util.Arrays;
 
@@ -23,23 +25,36 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             // CORS 설정
-            .cors().configurationSource(corsConfigurationSource())
-            .and()
+            .cors(Customizer.withDefaults())
             // CSRF 보호
             .csrf()
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .and()
-            // XSS 방지를 위한 헤더
+            // 보안 헤더 설정
             .headers()
+                // XSS 보호
                 .xssProtection()
+                    .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
                 .and()
-                .contentSecurityPolicy("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';")
+                // Content Security Policy
+                .contentSecurityPolicy("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'")
                 .and()
+                // Referrer Policy
                 .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
                 .and()
+                // X-Frame-Options
                 .frameOptions()
-                .deny()
+                    .deny()
                 .and()
+                // X-Content-Type-Options
+                .contentTypeOptions()
+                .and()
+                // HTTP Strict Transport Security
+                .httpStrictTransportSecurity()
+                    .includeSubDomains(true)
+                    .maxAgeInSeconds(31536000)
+                .and()
+            .and()
             // HTTP 기본 인증 비활성화
             .httpBasic().disable()
             // URL 기반 보안 설정
