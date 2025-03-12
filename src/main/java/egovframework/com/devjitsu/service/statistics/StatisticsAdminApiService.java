@@ -340,13 +340,26 @@ public class StatisticsAdminApiService {
             QTblUserLgnHstry qTblUserLgnHstry = QTblUserLgnHstry.tblUserLgnHstry;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(
-                qTblUser.mbrType.eq(1L).or(qTblUser.mbrType.eq(2L)).or(qTblUser.mbrType.eq(3L)).or(qTblUser.mbrType.eq(4L))
-            ).and(
-                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUserLgnHstry.lgnDt).eq(
-                    Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
-                )
-            );
+
+            if(!StringUtils.isEmpty(dto.get("searchDate"))){
+                builder.and(
+                        qTblUser.mbrType.eq(1L).or(qTblUser.mbrType.eq(2L)).or(qTblUser.mbrType.eq(3L)).or(qTblUser.mbrType.eq(4L))
+                ).and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblUserLgnHstry.lgnDt).between(
+                                Expressions.stringTemplate("{0}", dto.get("searchDate")),
+                                Expressions.stringTemplate("{0}", dto.get("lastDate"))
+                        )
+                );
+            }else {
+
+                builder.and(
+                        qTblUser.mbrType.eq(1L).or(qTblUser.mbrType.eq(2L)).or(qTblUser.mbrType.eq(3L)).or(qTblUser.mbrType.eq(4L))
+                ).and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUserLgnHstry.lgnDt).eq(
+                                Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
+                        )
+                );
+            }
 
             if(!StringUtils.isEmpty(dto.get("mbrType"))){
                 builder.and(qTblUser.mbrType.eq(Long.valueOf(dto.get("mbrType").toString())));
