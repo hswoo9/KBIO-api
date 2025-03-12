@@ -55,7 +55,7 @@ public class ConsultingAdminApiController {
     }*/
     @PostMapping("/consultingApi/setCnslttMbrActv")
     public ResultVO setCnslttMbrActv(@ModelAttribute TblCnslttMbr tblCnslttMbr,
-                                     @ModelAttribute TblUser tblUser){
+                                     @ModelAttribute TblUser tblUser) throws Exception{
         return consultingAdminApiService.setCnslttMbrActv(tblCnslttMbr, tblUser);
     }
 

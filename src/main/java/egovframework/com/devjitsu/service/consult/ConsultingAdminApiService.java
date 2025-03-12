@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -545,7 +546,7 @@ public class ConsultingAdminApiService {
         return resultVO;
     }
 
-    public ResultVO setCnslttMbrActv (TblCnslttMbr tblCnslttMbr, TblUser tblUser){
+    public ResultVO setCnslttMbrActv (TblCnslttMbr tblCnslttMbr, TblUser tblUser) throws Exception{
         ResultVO resultVO = new ResultVO();
         long userSn = tblCnslttMbr.getUserSn();
 
@@ -559,8 +560,8 @@ public class ConsultingAdminApiService {
             }else{
                 resultVO.setResultCode(ResponseCode.NOT_USER.getCode());
             }*/
-
-            String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+            //String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+            String encryptedMblTelno = EgovFileScrty.encryptAria(tblUser.getMblTelno().toString().getBytes(StandardCharsets.UTF_8));
             tblUser.setMblTelno(encryptedMblTelno);
             tblUserRepository.save(tblUser);
             tblCnslttMbrRepository.save(tblCnslttMbr);
