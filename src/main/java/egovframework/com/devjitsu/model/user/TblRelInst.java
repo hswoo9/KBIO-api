@@ -186,11 +186,11 @@ public class TblRelInst {
 
     @Column(name = "RLS_YN" , columnDefinition = "CHAR(1)")
     @Comment("공개여부")
-    private String rlsYn;
+    private String rlsYn = "N";
 
     @Column(name = "EMP_JOIN_YN" , columnDefinition = "CHAR(1)")
     @Comment("산하직원가입여부")
-    private String empJoinYn;
+    private String empJoinYn = "N";
 
     @Column(name = "ACTVTN_YN", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     @Comment("활성여부")

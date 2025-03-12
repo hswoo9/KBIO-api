@@ -190,11 +190,11 @@ public class TblMvnEnt {
 
     @Column(name = "RLS_YN" , columnDefinition = "CHAR(1)")
     @Comment("공개여부")
-    private String rlsYn;
+    private String rlsYn = "N";
 
     @Column(name = "EMP_JOIN_YN" , columnDefinition = "CHAR(1)")
     @Comment("산하직원가입여부")
-    private String empJoinYn;
+    private String empJoinYn = "N";
 
     @Column(name = "CREATR_SN", columnDefinition = "INT(10)", updatable=false, nullable = false)
     @Comment("생성자일련번호")
