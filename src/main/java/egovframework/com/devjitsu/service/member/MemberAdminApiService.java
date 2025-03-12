@@ -17,6 +17,7 @@ import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.repository.user.TblUserSnsCertInfoRepository;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
@@ -171,37 +173,46 @@ public class MemberAdminApiService {
         try {
             TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
 
-            TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+            if (member != null) {
+                member.setDecodeMblTelno(EgovFileScrty.decryptAria(member.getMblTelno()));
 
-            if (latestLogin != null) {
-                member.setLastLoginDate(latestLogin.getLgnDt());
-            }
+                TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
 
-            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
 
-            if (snsCertInfo != null) {
-                member.setSnsClsf(snsCertInfo.getSnsClsf());
+                TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+                if (snsCertInfo != null) {
+                    member.setSnsClsf(snsCertInfo.getSnsClsf());
+                }
             }
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
     }
 
+
     public ResultVO setNormalMember(TblUser tblUser) {
         ResultVO resultVO = new ResultVO();
 
         try {
-            String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+            String encryptedMblTelno = EgovFileScrty.encryptAria(tblUser.getMblTelno().toString().getBytes(StandardCharsets.UTF_8));
             tblUser.setMblTelno(encryptedMblTelno);
 
             tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
@@ -256,13 +267,14 @@ public class MemberAdminApiService {
             String hashedPswd = EgovFileScrty.encryptPassword(tblUser.getUserPw(), tblUser.getUserId());
             tblUser.setUserPw(hashedPswd);
 
-            String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+            String encryptedMblTelno = EgovFileScrty.encryptAria(tblUser.getMblTelno().toString().getBytes(StandardCharsets.UTF_8));
             tblUser.setMblTelno(encryptedMblTelno);
 
             tblUserRepository.save(tblUser);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
         }
 
         return resultVO;
@@ -1060,7 +1072,7 @@ public class MemberAdminApiService {
             tblUser.setUserPw(hashedPswd);
 
             // 휴대폰 번호 암호화
-            String encryptedMblTelno = EgovFileScrty.encode(tblUser.getMblTelno());
+            String encryptedMblTelno = EgovFileScrty.encryptAria(tblUser.getMblTelno().toString().getBytes(StandardCharsets.UTF_8));
             tblUser.setMblTelno(encryptedMblTelno);
 
             // 사용자 저장
@@ -1087,6 +1099,8 @@ public class MemberAdminApiService {
         } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("관리자 회원 등록 중 오류 발생");
+        } catch (InvalidCipherTextException e) {
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
         return resultVO;
