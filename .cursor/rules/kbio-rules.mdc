@@ -1,0 +1,19 @@
+---
+description: K-BIOLABHUB
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+
+
+개발환경 정보 
+MariaDB: 11.6 1
+Nginx: 1.26 1
+Node: v18.20.6 1
+Redis: 7.4.2 1
+Java: 11.0.26 1
+Tomcat: 9.0.73 2
