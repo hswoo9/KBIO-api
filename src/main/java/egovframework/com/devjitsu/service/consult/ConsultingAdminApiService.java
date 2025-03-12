@@ -23,6 +23,7 @@ import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
@@ -451,6 +452,7 @@ public class ConsultingAdminApiService {
             String cnslttUserSnStr = cnslttUserSnObj != null ? cnslttUserSnObj.toString() : "";
             if (!StringUtils.isEmpty(cnslttUserSnStr) && !"0".equals(cnslttUserSnStr)) {
                 TblUser consulttUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
+                consulttUser.setDecodeMblTelno(EgovFileScrty.decryptAria(consulttUser.getMblTelno()));
                 TblCnslttMbr consulttDtl = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("cnslttUserSn").toString()));
 
                 TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
@@ -535,6 +537,8 @@ public class ConsultingAdminApiService {
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
 
         } catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }catch (InvalidCipherTextException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 

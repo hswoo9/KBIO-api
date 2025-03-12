@@ -35,7 +35,9 @@ import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import egovframework.com.devjitsu.service.access.MngrAcsIpApiService;
 import egovframework.com.devjitsu.service.common.RedisApiService;
 import egovframework.com.devjitsu.service.menu.MenuAuthGroupApiService;
+import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -241,49 +243,55 @@ public class ConsultingApiService {
             TblUser tblUser = tblUserRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
             TblCnslttMbr tblCnslttMbr = tblCnslttMbrRepository.findByUserSn(Long.parseLong(dto.get("userSn").toString()));
 
-            List<TblQlfcLcns> tblQlfcLcnsList = tblQlfcLcnsRepository.findAllByUserSn(tblUser.getUserSn());
-            List<TblAcbg> tblAcbgList = tblAcbgRepository.findAllByUserSn(tblUser.getUserSn());
-            List<TblCrr> tblCrrList = tblCrrRepository.findAllByUserSn(tblUser.getUserSn());
+            if(tblUser != null){
+                tblUser.setDecodeMblTelno(EgovFileScrty.decryptAria(tblUser.getMblTelno()));
+                List<TblQlfcLcns> tblQlfcLcnsList = tblQlfcLcnsRepository.findAllByUserSn(tblUser.getUserSn());
+                List<TblAcbg> tblAcbgList = tblAcbgRepository.findAllByUserSn(tblUser.getUserSn());
+                List<TblCrr> tblCrrList = tblCrrRepository.findAllByUserSn(tblUser.getUserSn());
 
-            List<Long> qlfcLcnsSnList = tblQlfcLcnsList.stream()
-                    .map(TblQlfcLcns::getQlfcLcnsSn)
-                    .collect(Collectors.toList());
+                List<Long> qlfcLcnsSnList = tblQlfcLcnsList.stream()
+                        .map(TblQlfcLcns::getQlfcLcnsSn)
+                        .collect(Collectors.toList());
 
-            TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
-                    qTblComFile.psnTblSn.eq(
-                            Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", tblCnslttMbr.getUserSn()) //사진
-                    )
-            ).fetchOne();
+                TblComFile cnsltProfileFile = q.selectFrom(qTblComFile).where(
+                        qTblComFile.psnTblSn.eq(
+                                Expressions.stringTemplate("CONCAT('cnsltProfile_',{0})", tblCnslttMbr.getUserSn()) //사진
+                        )
+                ).fetchOne();
 
-//            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile).where(
-//                    qTblComFile.psnTblSn.eq(
-//                            Expressions.stringTemplate("CONCAT('cnsltCertificate_',{0})", tblCnslttMbr.getUserSn()) //자격증
-//                    )
-//            ).fetch();
+//
 
-            List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile)
-                    .where(qTblComFile.psnTblSn.in(
-                            qlfcLcnsSnList.stream()
-                                    .map(sn -> "cnsltCertificate_" + sn)
-                                    .collect(Collectors.toList())
-                    ))
-                    .fetch();
+                List<TblComFile> cnsltCertificateFile = q.selectFrom(qTblComFile)
+                        .where(qTblComFile.psnTblSn.in(
+                                qlfcLcnsSnList.stream()
+                                        .map(sn -> "cnsltCertificate_" + sn)
+                                        .collect(Collectors.toList())
+                        ))
+                        .fetch();
 
 
 
 
 
 
-            resultVO.putResult("memberDetail",tblUser);
-            resultVO.putResult("consultant",tblCnslttMbr);
-            resultVO.putResult("tblQlfcLcnsList",tblQlfcLcnsList);
-            resultVO.putResult("tblAcbgList",tblAcbgList);
-            resultVO.putResult("tblCrrList",tblCrrList);
-            resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
-            resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
+                resultVO.putResult("memberDetail",tblUser);
+                resultVO.putResult("consultant",tblCnslttMbr);
+                resultVO.putResult("tblQlfcLcnsList",tblQlfcLcnsList);
+                resultVO.putResult("tblAcbgList",tblAcbgList);
+                resultVO.putResult("tblCrrList",tblCrrList);
+                resultVO.putResult("cnsltProfileFile",cnsltProfileFile);
+                resultVO.putResult("cnsltCertificateFile",cnsltCertificateFile);
 
-            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+                resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+
+            }else{
+                resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+            }
+
+
         } catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }catch (InvalidCipherTextException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
