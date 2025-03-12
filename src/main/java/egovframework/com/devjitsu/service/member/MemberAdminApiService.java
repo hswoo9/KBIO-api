@@ -275,6 +275,7 @@ public class MemberAdminApiService {
         } catch (NoSuchAlgorithmException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         } catch (InvalidCipherTextException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
         return resultVO;
@@ -400,21 +401,29 @@ public class MemberAdminApiService {
             TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
 
 
-            TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+            if (member != null) {
+                member.setDecodeMblTelno(EgovFileScrty.decryptAria(member.getMblTelno()));
 
-            if (latestLogin != null) {
-                member.setLastLoginDate(latestLogin.getLgnDt());
+                TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+
+                TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+                if (snsCertInfo != null) {
+                    member.setSnsClsf(snsCertInfo.getSnsClsf());
+                }
             }
 
-            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
 
-            if (snsCertInfo != null) {
-                member.setSnsClsf(snsCertInfo.getSnsClsf());
-            }
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -594,21 +603,28 @@ public class MemberAdminApiService {
             TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
 
 
-            TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+            if (member != null) {
+                member.setDecodeMblTelno(EgovFileScrty.decryptAria(member.getMblTelno()));
 
-            if (latestLogin != null) {
-                member.setLastLoginDate(latestLogin.getLgnDt());
+                TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+
+                TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+                if (snsCertInfo != null) {
+                    member.setSnsClsf(snsCertInfo.getSnsClsf());
+                }
             }
 
-            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
-
-            if (snsCertInfo != null) {
-                member.setSnsClsf(snsCertInfo.getSnsClsf());
-            }
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -762,21 +778,28 @@ public class MemberAdminApiService {
             TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
 
 
-            TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+            if (member != null) {
+                member.setDecodeMblTelno(EgovFileScrty.decryptAria(member.getMblTelno()));
 
-            if (latestLogin != null) {
-                member.setLastLoginDate(latestLogin.getLgnDt());
+                TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+
+                TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+                if (snsCertInfo != null) {
+                    member.setSnsClsf(snsCertInfo.getSnsClsf());
+                }
             }
 
-            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
-
-            if (snsCertInfo != null) {
-                member.setSnsClsf(snsCertInfo.getSnsClsf());
-            }
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
@@ -930,22 +953,29 @@ public class MemberAdminApiService {
             TblUser member = tblUserRepository.findByUserSn(tblUser.getUserSn());
 
 
-            TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+            if (member != null) {
+                member.setDecodeMblTelno(EgovFileScrty.decryptAria(member.getMblTelno()));
 
-            if (latestLogin != null) {
-                member.setLastLoginDate(latestLogin.getLgnDt());
+                TblUserLgnHstry latestLogin = tblUserLgnHstryRepository.findLatestLoginByUserSn(tblUser.getUserSn());
+
+                if (latestLogin != null) {
+                    member.setLastLoginDate(latestLogin.getLgnDt());
+                }
+
+                TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
+
+                if (snsCertInfo != null) {
+                    member.setSnsClsf(snsCertInfo.getSnsClsf());
+                }
             }
 
-            TblUserSnsCertInfo snsCertInfo = tblUserSnsCertInfoRepository.findByUserSn(tblUser.getUserSn());
-
-            if (snsCertInfo != null) {
-                member.setSnsClsf(snsCertInfo.getSnsClsf());
-            }
 
             resultVO.putResult("member", member);
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
         } catch (NullPointerException e) {
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        } catch (InvalidCipherTextException e) {
+            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
         return resultVO;
