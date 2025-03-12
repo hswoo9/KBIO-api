@@ -23,7 +23,9 @@ import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
 
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
+import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
@@ -335,6 +337,16 @@ public class MvnEntApiService {
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
+            for (MvnEntMbrDto mvnEntMbrDto : userList) {
+                TblUser user = mvnEntMbrDto.getTblUser();
+                if (user != null && user.getMblTelno() != null) {
+                        user.setDecodeMblTelno(EgovFileScrty.decryptAria(user.getMblTelno()));
+
+                }
+            }
+
+
+
             Long totCnt = q
                     .select(qTblMvnEntMbr.count())
                             .from(qTblMvnEntMbr)
@@ -358,6 +370,8 @@ public class MvnEntApiService {
 
         }catch (NullPointerException e){
         resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }catch (InvalidCipherTextException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
         }
 
 

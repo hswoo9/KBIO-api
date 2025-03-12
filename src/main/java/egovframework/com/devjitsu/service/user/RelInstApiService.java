@@ -22,7 +22,9 @@ import egovframework.com.devjitsu.repository.user.TblRelInstMbrRepository;
 import egovframework.com.devjitsu.repository.user.TblRelInstRepository;
 
 import egovframework.com.devjitsu.repository.user.TblUserRepository;
+import egovframework.let.utl.sim.service.EgovFileScrty;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Service;
@@ -301,6 +303,14 @@ public class RelInstApiService {
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
 
+            for(TblRelInstMbrDto tblRelInstMbrDto : userList){
+                TblUser user = tblRelInstMbrDto.getTblUser();
+                if(user != null && user.getMblTelno() != null) {
+                        user.setDecodeMblTelno(EgovFileScrty.decryptAria(user.getMblTelno()));
+
+                }
+            }
+
             Long totCnt = q
                     .select(qTblRelInstMbr.count())
                     .from(qTblRelInstMbr)
@@ -324,7 +334,9 @@ public class RelInstApiService {
 
         }catch (NullPointerException e){
             resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
-        }
+        }catch (InvalidCipherTextException e) {
+        resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+    }
 
 
         return resultVO;
