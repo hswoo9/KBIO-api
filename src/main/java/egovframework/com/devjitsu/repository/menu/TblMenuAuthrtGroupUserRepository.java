@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface TblMenuAuthrtGroupUserRepository extends JpaRepository<TblMenuAuthrtGroupUser, String> {
 
     TblMenuAuthrtGroupUser findByAuthrtGroupSnAndUserSn(long authrtGroupSn, long userSn);
+
+    TblMenuAuthrtGroupUser findByUserSn(long UserSn);
 }

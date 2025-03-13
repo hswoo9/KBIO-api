@@ -1097,22 +1097,24 @@ public class MemberAdminApiService {
         ResultVO resultVO = new ResultVO();
 
         try {
-            // 비밀번호 암호화
             String hashedPswd = EgovFileScrty.encryptPassword(tblUser.getUserPw(), tblUser.getUserId());
             tblUser.setUserPw(hashedPswd);
 
-            // 휴대폰 번호 암호화
             String encryptedMblTelno = EgovFileScrty.encryptAria(tblUser.getMblTelno().toString().getBytes(StandardCharsets.UTF_8));
             tblUser.setMblTelno(encryptedMblTelno);
 
-            // 사용자 저장
             TblUser savedUser = tblUserRepository.save(tblUser);
             Long userSn = savedUser.getUserSn();
-
             Integer mbrType = (int) tblUser.getMbrType();
-            TblMenuAuthrtGroupUser menuAuthrtGroupUser = new TblMenuAuthrtGroupUser();
-            menuAuthrtGroupUser.setUserSn(userSn);
 
+            TblMenuAuthrtGroupUser menuAuthrtGroupUser = tblMenuAuthrtGroupUserRepository.findByUserSn(userSn);
+
+            if (menuAuthrtGroupUser == null) {
+                menuAuthrtGroupUser = new TblMenuAuthrtGroupUser();
+                menuAuthrtGroupUser.setUserSn(userSn);
+            }
+
+            // 권한 설정
             if (Integer.valueOf(2).equals(mbrType)) {
                 menuAuthrtGroupUser.setAuthrtGroupSn(6);
             } else if (Integer.valueOf(9).equals(mbrType)) {
@@ -1126,16 +1128,13 @@ public class MemberAdminApiService {
             tblMenuAuthrtGroupUserRepository.save(menuAuthrtGroupUser);
 
             resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
-        } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException | InvalidCipherTextException e) {
             resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
             resultVO.setResultMessage("관리자 회원 등록 중 오류 발생");
-        } catch (InvalidCipherTextException e) {
-            resultVO.setResultCode(ResponseCode.SAVE_ERROR.getCode());
         }
 
         return resultVO;
     }
-
 
 
 
