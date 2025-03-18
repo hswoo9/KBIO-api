@@ -269,14 +269,34 @@ public class StatisticsAdminApiService {
             QTblUser qTblUser = QTblUser.tblUser;
 
             BooleanBuilder builder = new BooleanBuilder();
-            builder.and(qTblUser.mbrType.in(1, 2, 3, 4)).and(qTblUser.joinYmd.isNotNull())
+
+            if(!StringUtils.isEmpty(dto.get("searchDate"))) {
+                builder.and(qTblUser.mbrType.in(1, 2, 3, 4)).and(qTblUser.frstCrtDt.isNotNull())
+                        .and(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUser.frstCrtDt).between(
+                                        Expressions.stringTemplate("{0}", dto.get("searchDate")),
+                                        Expressions.stringTemplate("{0}", dto.get("lastDate"))
+                                )
+                        );
+            }else {
+                builder.and(qTblUser.mbrType.in(1, 2, 3, 4)).and(qTblUser.frstCrtDt.isNotNull())
+                        .and(
+                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUser.frstCrtDt).loe(
+                                        Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
+                                )
+                        );
+            }
+
+            /*builder.and(qTblUser.mbrType.in(1, 2, 3, 4)).and(qTblUser.joinYmd.isNotNull())
                 .and(
                     Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblUser.joinYmd).loe(
                         Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
                     )
                 );
+             */
 
-            StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblUser.joinYmd);
+           StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblUser.frstCrtDt);
+            //StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT(STR_TO_DATE({0}, '%Y%m%d'), '%Y-%m-%d')", qTblUser.joinYmd);
 
             List<Tuple> subQueryResults = q
                     .select(
@@ -295,6 +315,7 @@ public class StatisticsAdminApiService {
                     .groupBy(dayFormat)
                     .orderBy(dayFormat.asc())
                     .fetch();
+
 
             AtomicLong cumulativeMbrType1 = new AtomicLong(0);
             AtomicLong cumulativeMbrType3 = new AtomicLong(0);
@@ -413,11 +434,27 @@ public class StatisticsAdminApiService {
                 builder.and(qTblPstCntnHstry.trgtSn.eq(Long.valueOf(dto.get("trgtSn").toString())));
             }
 
-            builder.and(
+            if(!StringUtils.isEmpty(dto.get("searchDate"))){
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPstCntnHstry.frstCrtDt).between(
+                                Expressions.stringTemplate("{0}", dto.get("searchDate")),
+                                Expressions.stringTemplate("{0}", dto.get("lastDate"))
+                        )
+                );
+            }else {
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblPstCntnHstry.frstCrtDt).eq(
+                                Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
+                        )
+                );
+            }
+
+
+            /*builder.and(
                 Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblPstCntnHstry.frstCrtDt).eq(
                     Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
                 )
-            );
+            );*/
 
             StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblPstCntnHstry.frstCrtDt);
             List<StatisticsDto> statisticsPstAccess = q
@@ -460,11 +497,27 @@ public class StatisticsAdminApiService {
                 builder.and(qTblAtchFileDwnldCnt.trgtSn.eq(Long.valueOf(dto.get("trgtSn").toString())));
             }
 
-            builder.and(
+            if(!StringUtils.isEmpty(dto.get("searchDate"))) {
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblAtchFileDwnldCnt.frstCrtDt).between(
+                                Expressions.stringTemplate("{0}", dto.get("searchDate")),
+                                Expressions.stringTemplate("{0}", dto.get("lastDate"))
+                        )
+                );
+
+            } else {
+                builder.and(
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblAtchFileDwnldCnt.frstCrtDt).eq(
+                                Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
+                        )
+                );
+            }
+
+            /*builder.and(
                 Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", qTblAtchFileDwnldCnt.frstCrtDt).eq(
                     Expressions.stringTemplate("{0}", dto.get("searchYear") + "-" + dto.get("searchMonth"))
                 )
-            );
+            );*/
 
             StringTemplate dayFormat = Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblAtchFileDwnldCnt.frstCrtDt);
             List<StatisticsDto> statisticsPstFile = q
