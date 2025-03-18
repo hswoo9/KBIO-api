@@ -24,10 +24,12 @@ import egovframework.com.devjitsu.model.search.TblIntgSrchDTO;
 import egovframework.com.devjitsu.repository.bbs.TblBbsRepository;
 import egovframework.com.devjitsu.repository.bbs.TblPstRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
+import egovframework.com.devjitsu.service.menu.MenuAuthGroupApiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,9 @@ public class BbsAdminApiService {
 
     @Resource(name = "EgovFileMngUtil")
     private EgovFileMngUtil fileUtil;
+
+    @Autowired
+    private MenuAuthGroupApiService menuAuthGroupApiService;
 
     private final EntityManager em;
 
@@ -276,6 +281,9 @@ public class BbsAdminApiService {
         try {
             QTblBbs qTblBbs = QTblBbs.tblBbs;
             QTblPst qTblPst = QTblPst.tblPst;
+            QTblMenu qTblMenu = QTblMenu.tblMenu;
+            QTblAuthrtGroupMenu qTblAuthrtGroupMenu = QTblAuthrtGroupMenu.tblAuthrtGroupMenu;
+
             JPAQueryFactory q = new JPAQueryFactory(em);
             BooleanBuilder builder = new BooleanBuilder();
             BooleanBuilder subBuilder = new BooleanBuilder();
@@ -298,6 +306,13 @@ public class BbsAdminApiService {
                 );
             }
 
+            String menuAuthrtGroups = "1";
+            if(!StringUtils.isEmpty(dto.get("userSn"))){
+                menuAuthrtGroups = menuAuthGroupApiService.getMenuAuthrtGroups(Long.parseLong(String.valueOf(dto.get("userSn"))));
+            }
+            builder.and(Expressions.booleanTemplate("FIND_IN_SET({0}, {1}) > 0", qTblAuthrtGroupMenu.authrtGroupSn, menuAuthrtGroups));
+
+
             List<TblBbsInPstDTO> bbsList = q.select(
                     Projections.constructor(
                             TblBbsInPstDTO.class,
@@ -316,7 +331,10 @@ public class BbsAdminApiService {
                             qTblBbs.frstCrtDt,
                             Expressions.constant(Collections.emptyList())
                     )
-                ).from(qTblBbs).where(builder).fetch();
+                ).from(qTblBbs)
+                .join(qTblMenu).on(qTblBbs.bbsSn.eq(qTblMenu.bbsSn))
+                .join(qTblAuthrtGroupMenu).on(qTblMenu.menuSn.eq(qTblAuthrtGroupMenu.menuSn))
+                .where(builder).fetch();
 
             subBuilder.and(
                     qTblPst.bbsSn.in(
