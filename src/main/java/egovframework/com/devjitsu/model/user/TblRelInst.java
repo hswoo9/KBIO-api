@@ -56,13 +56,13 @@ public class TblRelInst {
     @Comment("우편번호")
     private String zip;
 
-    @Column(name = "ENT_ADDR", length = 200)
+    @Column(name = "INST_ADDR", length = 200)
     @Comment("기업주소")
-    private String entAddr;
+    private String instAddr;
 
-    @Column(name = "ENT_DADDR", length = 200)
+    @Column(name = "INST_DADDR", length = 200)
     @Comment("기업상세주소")
-    private String entDaddr;
+    private String instDaddr;
 
     @Column(name = "CLSF", length = 20)
     @Comment("분류")
