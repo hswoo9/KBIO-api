@@ -128,12 +128,13 @@ public class PstApiService {
                 if(dto.get("searchType").equals("pstTtl")){
                     builder.and(qTblPst.pstTtl.contains((String) dto.get("searchVal")));
                 }else if(dto.get("searchType").equals("pstCn")){
-                    builder.and(qTblPst.pstCn.contains((String) dto.get("searchVal")));
+                    builder.and(qTblPst.pstCn.contains((String) dto.get("searchVal")).or(qTblPst.pstEngCn.contains((String) dto.get("searchVal"))));
                 }
             }else{
                 builder.and(
                         qTblPst.pstTtl.contains((String) dto.get("searchVal"))
                             .or(qTblPst.pstCn.contains((String) dto.get("searchVal")))
+                            .or(qTblPst.pstEngCn.contains((String) dto.get("searchVal")))
                 );
             }
 
@@ -198,6 +199,7 @@ public class PstApiService {
                             pstClsfNm,
                             qTblPst.pstTtl,
                             qTblPst.pstCn,
+                            qTblPst.pstEngCn,
                             qTblPst.pstInqCnt,
                             qTblPst.rlsYn,
                             qTblPst.actvtnYn,

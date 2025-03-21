@@ -17,6 +17,7 @@ public class PstDto {
     private String pstClsfNm;
     private String pstTtl;
     private String pstCn;
+    private String pstEngCn;
     private Long pstInqCnt;
     private String rlsYn;
     private String actvtnYn;

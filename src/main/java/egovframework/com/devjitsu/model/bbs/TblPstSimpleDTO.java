@@ -17,6 +17,7 @@ public class TblPstSimpleDTO {
     private long bbsSn;
     private String pstTtl;
     private String pstCn;
+    private String pstEngCn;
     private String rlsYn;
     private String actvtnYn;
     private LocalDateTime frstCrtDt;

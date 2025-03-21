@@ -353,6 +353,7 @@ public class BbsAdminApiService {
                             qTblPst.bbsSn,
                             qTblPst.pstTtl,
                             qTblPst.pstCn,
+                            qTblPst.pstEngCn,
                             qTblPst.rlsYn,
                             qTblPst.actvtnYn,
                             qTblPst.frstCrtDt

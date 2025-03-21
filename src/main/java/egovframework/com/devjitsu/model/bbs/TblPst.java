@@ -58,6 +58,10 @@ public class TblPst {
     @Comment("게시글내용")
     private String pstCn;
 
+    @Column(name = "PST_ENG_CN", columnDefinition = "LONGTEXT")
+    @Comment("게시글영문내용")
+    private String pstEngCn;
+
     @Column(name = "PST_INQ_CNT", length = 10, columnDefinition = "INT(10) DEFAULT 0")
     @Comment("조회수")
     private long pstInqCnt = 0;

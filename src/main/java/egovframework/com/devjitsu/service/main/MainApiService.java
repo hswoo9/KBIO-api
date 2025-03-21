@@ -184,6 +184,7 @@ public class MainApiService {
                             Expressions.constant(""),
                             qTblPst.pstTtl,
                             qTblPst.pstCn,
+                            qTblPst.pstEngCn,
                             qTblPst.pstInqCnt,
                             qTblPst.rlsYn,
                             qTblPst.actvtnYn,
