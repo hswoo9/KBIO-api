@@ -107,7 +107,10 @@ public class MemberApiService {
         QTblUser qTblUser = QTblUser.tblUser;
         TblUser tblUser = new JPAQueryFactory(em)
                 .selectFrom(qTblUser)
-                .where(qTblUser.userId.eq(dto.get("userId").toString()))
+                .where(
+                        qTblUser.userId.eq(dto.get("userId").toString())
+                                .and(qTblUser.mbrStts.ne("C"))
+                )
                 .fetchOne();
 
         if (tblUser != null) {
@@ -120,6 +123,7 @@ public class MemberApiService {
 
         return resultVO;
     }
+
 
 
     public ResultVO checkBusiness(SearchDto dto) {
