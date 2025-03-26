@@ -587,9 +587,12 @@ public class ConsultingAdminApiService {
                 TblCnsltDtl detail = cnsltDtl.get();
                 if (detail.getCnslttUserSn() != null) {
                     detail.setCnsltSttsCd("13");
+                    resultVO.putResult("resultType","matchComplete");
+                    resultVO.putResult("resultUserSn",detail.getCnslttUserSn());
                     resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
                 } else {
                     detail.setCnsltSttsCd("12");
+                    resultVO.putResult("resultType","matchNotComplete");
                     resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
                 }
             }else{
