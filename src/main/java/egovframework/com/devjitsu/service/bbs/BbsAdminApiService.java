@@ -245,11 +245,12 @@ public class BbsAdminApiService {
                     .join(qTblMenu).on(qTblAuthrtGroupMenu.menuSn.eq(qTblMenu.menuSn))
                     .where(
                         qTblMenuAuthrtGroupUser.userSn.eq(userSn)
-                            .and(
-                                Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMenuAuthrtGroupUser.authrtGrntDt).loe(
-                                    Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
-                                )
-                            ).and(
+            //                .and(
+            //                    Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", qTblMenuAuthrtGroupUser.authrtGrntDt).loe(
+           //                         Expressions.stringTemplate("DATE_FORMAT(NOW(), '%Y-%m-%d')")
+          //                      )
+         //                   )
+                                .and(
                                     qTblMenu.bbsSn.eq(tblBbs.getBbsSn())
                             )
                     ).groupBy(qTblMenu.bbsSn).fetchFirst();
