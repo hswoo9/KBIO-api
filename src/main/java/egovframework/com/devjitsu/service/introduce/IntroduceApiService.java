@@ -18,11 +18,8 @@ import egovframework.com.devjitsu.model.user.*;
 import egovframework.com.devjitsu.model.user.QTblMvnEnt;
 import egovframework.com.devjitsu.repository.code.TblComCdRepository;
 import egovframework.com.devjitsu.repository.common.TblComFileRepository;
-import egovframework.com.devjitsu.repository.user.TblMvnEntMbrRepository;
-import egovframework.com.devjitsu.repository.user.TblMvnEntRepository;
+import egovframework.com.devjitsu.repository.user.*;
 
-import egovframework.com.devjitsu.repository.user.TblRelInstRepository;
-import egovframework.com.devjitsu.repository.user.TblUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
@@ -48,6 +45,7 @@ public class IntroduceApiService {
     private final TblRelInstRepository tblRelInstRepository;
     private final TblComFileRepository tblComFileRepository;
     private final TblComCdRepository tblComCdRepository;
+    private final TblMouRepository tblMouRepository;
 
     @Resource(name = "propertiesService")
     protected EgovPropertyService propertyService;
@@ -247,4 +245,61 @@ public class IntroduceApiService {
 
         return resultVO;
     }
+
+    public ResultVO getMouList(SearchDto dto) {
+        ResultVO resultVO = new ResultVO();
+        PaginationInfo paginationInfo = new PaginationInfo();
+
+        try {
+            if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
+                paginationInfo.setCurrentPageNo(Integer.parseInt(dto.get("pageIndex").toString()));
+            } else {
+                paginationInfo.setCurrentPageNo(1);
+            }
+
+            paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+            paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+            QTblMou qTblMou = QTblMou.tblMou;
+            JPAQueryFactory q = new JPAQueryFactory(em);
+
+            BooleanBuilder builder = new BooleanBuilder();
+
+            if (!StringUtils.isEmpty(dto.get("searchType"))) {
+                if (dto.get("searchType").equals("mouNm")) {
+                    builder.and(qTblMou.mouNm.contains((String) dto.get("searchVal")));
+                } else {
+                    builder.and(
+                            qTblMou.mouNm.contains((String) dto.get("searchVal"))
+                                    .or(qTblMou.mouNm.contains((String) dto.get("searchVal")))
+                    );
+                }
+            }
+
+            if (!StringUtils.isEmpty(dto.get("category"))) {
+                builder.and(qTblMou.mouClbrClsf.eq(dto.get("category").toString()));
+            }
+
+            List<TblMou> mouList = q
+                    .selectFrom(qTblMou)
+                    .where(builder)
+                    .orderBy(qTblMou.mouSn.asc())
+                    .offset(paginationInfo.getFirstRecordIndex())
+                    .limit(paginationInfo.getRecordCountPerPage())
+                    .fetch();
+
+            Long totCnt = q.select(qTblMou.count()).from(qTblMou).where(builder).fetchOne();
+            if (totCnt == null) totCnt = 0L;
+            paginationInfo.setTotalRecordCount(totCnt.intValue());
+
+            resultVO.putResult("getMouList", mouList);
+            resultVO.putPaginationInfo(paginationInfo);
+            resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+        } catch (NullPointerException e) {
+            resultVO.setResultCode(ResponseCode.SELECT_ERROR.getCode());
+        }
+
+        return resultVO;
+    }
+
 }

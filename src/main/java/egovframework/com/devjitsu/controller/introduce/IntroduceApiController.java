@@ -47,4 +47,11 @@ public class IntroduceApiController {
     public ResultVO getRelInstDetail(@RequestBody TblRelInst tblRelInst) {
         return introduceApiService.getRelInstDetail(tblRelInst);
     }
+
+    @PostMapping("/introduceApi/getMouList.do")
+    public ResultVO getMouList(HttpServletRequest request){
+        SearchDto dto = (SearchDto) request.getAttribute("searchDto");
+
+        return introduceApiService.getMouList(dto);
+    }
 }
