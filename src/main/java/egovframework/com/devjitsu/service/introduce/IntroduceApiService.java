@@ -268,16 +268,11 @@ public class IntroduceApiService {
             if (!StringUtils.isEmpty(dto.get("searchType"))) {
                 if (dto.get("searchType").equals("mouNm")) {
                     builder.and(qTblMou.mouNm.contains((String) dto.get("searchVal")));
-                } else {
-                    builder.and(
-                            qTblMou.mouNm.contains((String) dto.get("searchVal"))
-                                    .or(qTblMou.mouNm.contains((String) dto.get("searchVal")))
-                    );
                 }
-            }
-
-            if (!StringUtils.isEmpty(dto.get("category"))) {
-                builder.and(qTblMou.mouClbrClsf.eq(dto.get("category").toString()));
+            } else {
+                builder.and(
+                        qTblMou.mouNm.contains((String) dto.get("searchVal"))
+                );
             }
 
             List<TblMou> mouList = q
