@@ -249,6 +249,8 @@ public class IntroduceApiService {
     public ResultVO getMouList(SearchDto dto) {
         ResultVO resultVO = new ResultVO();
         PaginationInfo paginationInfo = new PaginationInfo();
+        QTblComCd qTblComCd = QTblComCd.tblComCd;
+        QTblMou qTblMou = QTblMou.tblMou;
 
         try {
             if (!StringUtils.isEmpty(dto.get("pageIndex"))) {
@@ -260,7 +262,6 @@ public class IntroduceApiService {
             paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
             paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
 
-            QTblMou qTblMou = QTblMou.tblMou;
             JPAQueryFactory q = new JPAQueryFactory(em);
 
             BooleanBuilder builder = new BooleanBuilder();
@@ -282,6 +283,19 @@ public class IntroduceApiService {
                     .offset(paginationInfo.getFirstRecordIndex())
                     .limit(paginationInfo.getRecordCountPerPage())
                     .fetch();
+
+            for (TblMou mou : mouList) {
+                String mouClsfNm = q
+                        .select(qTblComCd.comCdNm)
+                        .from(qTblComCd)
+                        .where(
+                                qTblComCd.cdGroupSn.eq(17L)
+                                        .and(qTblComCd.comCd.eq(mou.getMouClsf()))
+                        )
+                        .fetchOne();
+
+                mou.setMouClsfNm(mouClsfNm);
+            }
 
             Long totCnt = q.select(qTblMou.count()).from(qTblMou).where(builder).fetchOne();
             if (totCnt == null) totCnt = 0L;

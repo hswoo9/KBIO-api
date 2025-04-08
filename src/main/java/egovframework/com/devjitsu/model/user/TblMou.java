@@ -82,4 +82,7 @@ public class TblMou {
     @Column(name = "MDFCN_DT", columnDefinition = "DATETIME ON UPDATE CURRENT_TIMESTAMP")
     @Comment("수정일")
     private LocalDateTime mdfcnDt;
+
+    @Transient
+    private String mouClsfNm;
 }
